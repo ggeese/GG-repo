@@ -1,9 +1,8 @@
-import { TransactionContext } from '../context/TransactionContext';
+import { TransactionContext } from '../../../context/TransactionContext';
 import React, { useContext } from "react";
 import { HiMenuAlt4 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
-
-import logo from "../../images/logo.png";
+import logo from "../../../../images/logo.png";
 
 const NavBarItem = ({ title, classprops }) => (
   <li className={`mx-4 cursor-pointer ${classprops}`}>{title}</li>
@@ -11,7 +10,7 @@ const NavBarItem = ({ title, classprops }) => (
 
 const Navbar = () => {
   const [toggleMenu, setToggleMenu] = React.useState(false);
-  const { connectWallet, currentAccount, FormData, FormData_2, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4 , handleChange, handleChange_2, handleChange_3, handleChange_4 } = useContext(TransactionContext); 
+  const { connectWallet, currentAccount } = useContext(TransactionContext); 
 
 
   return (
@@ -20,7 +19,7 @@ const Navbar = () => {
         <img src={logo} alt="logo" className="w-32 cursor-pointer" />
       </div>
       <ul className="text-white md:flex hidden list-none flex-row justify-between items-center flex-initial">
-        {["Home", "Farm", "Info"].map((item, index) => (
+        {["Home ", "Farm", "Info"].map((item, index) => (
           <NavBarItem key={item + index} title={item} />
         ))}
         <div>

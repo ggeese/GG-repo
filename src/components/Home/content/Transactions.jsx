@@ -11,6 +11,10 @@ const GridContainer = () => {
     { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305' },
     { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305' },
     { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305' },
+    { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305' },
+    { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305' },
+    { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305' },
+
 
   ];
 

@@ -1,8 +1,8 @@
-import { TransactionContext } from '../context/TransactionContext';
+import { TransactionContext } from '../../../context/TransactionContext';
 import React, { useState, useContext } from "react";
 import { Loader } from './'
 import PopUp from "./PopUp"
-import image_farm from "../../images/farm.jpeg";
+import image_farm from "../../../../images/farm.jpeg";
 
 
 const Input = ({ placeholder, name, type, value, handleChange }) => (
@@ -125,20 +125,20 @@ const Welcome = () => {
   return (
     
     <div>
-        <div class="flex justify-start items-stretch">
+        <div className="flex justify-start items-stretch">
           {/* Contenedor principal para el texto */}
-          <div class="bg-gradient-to-r p-6 rounded-lg shadow-xl w-1/2">
+          <div className="bg-gradient-to-r p-6 rounded-lg shadow-xl w-1/2">
 
-            <h1 class="text-3xl font-bold text-white mb-4 text-center">
+            <h1 className="text-3xl font-bold text-white mb-4 text-center">
               Create your own meme
             </h1>
-            <p class="text-white text-lg text-center">
+            <p className="text-white text-lg text-center">
               Here you can design memes easily and quickly. Who knows? Maybe your creation will be the next viral phenomenon. Start now and let your creativity fly!
             </p>
 
             {/* Botón "Create your meme" que activa el popup */}
-            <div class="flex justify-center">
-              <button class="bg-orange-500 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded my-10 text-lg"
+            <div className="flex justify-center">
+              <button className="bg-orange-500 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded my-10 text-lg"
                       onClick={() => setShowMyModal(true)}>
                   Create your meme
               </button>
@@ -146,7 +146,7 @@ const Welcome = () => {
           </div>
 
           {/* Contenedor para la imagen, asegurándose de que se expanda para llenar el espacio */}
-          <div class="flex justify-center flex-grow">
+          <div className="flex justify-center flex-grow">
             <img src={image_farm} alt="logo" className="w-2/3 h-full justify-center object-cover rounded-2xl cursor-pointer" /> {/* Ajusta según necesites */}
           </div>
 
