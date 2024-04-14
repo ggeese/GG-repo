@@ -1,18 +1,17 @@
 import React from "react";
 import { Info, Pools, Footer } from './content';
 
-const Home = () => {
+const Farm = () => {
     return (<div>
     <div className="min-h-screen">
       <div className="gradient-bg-welcome">
-        <Welcome />
+        <Info />
       </div>
-      <Services />
-      <Transactions/>
+      <Pools />
       <Footer />
     </div>
     </div>
     )
 };
 
-export default Home;
+export default Farm;

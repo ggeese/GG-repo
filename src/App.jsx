@@ -2,11 +2,11 @@ import React, { useState, useContext } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { TransactionContext } from './context/TransactionContext';
 import { Home } from './components/Home';
+import { Farm } from './components/Farm';
 import logo from "../images/logo.png";
 import { HiMenuAlt4 } from 'react-icons/hi';
 import { AiOutlineClose } from 'react-icons/ai';
 
-const Farm = () => <h1>Farm XDDDD</h1>;
 const Info = () => <h1>Info XD</h1>;
 
 const App = () => {

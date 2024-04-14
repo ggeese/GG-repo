@@ -40,7 +40,7 @@ function FileUpload() {
   
 
 
-function PopUp({visible, onClose}) {
+function Stake({visible, onClose}) {
     
     const { FormData_2, sendTransaction_2, handleChange_2 } = useContext(TransactionContext); 
 
@@ -128,4 +128,4 @@ function PopUp({visible, onClose}) {
         </div>
     )
 }
-export default PopUp;
+export default Stake;
