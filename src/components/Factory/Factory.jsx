@@ -1,19 +1,18 @@
 import React from "react";
-import { Info, Pools, Footer } from './content';
-import { Link } from 'react-router-dom';
+import { Welcome, Services, Transactions, Footer } from './content';
 
-const Farm = () => {
-  
+const Factory = () => {
     return (<div>
     <div className="min-h-screen">
       <div className="gradient-bg-welcome">
-        <Info />
+        <Welcome />
       </div>
-      <Pools />
+      <Services />
+      <Transactions/>
       <Footer />
     </div>
     </div>
     )
 };
 
-export default Farm;
+export default Factory;

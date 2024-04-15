@@ -73,9 +73,9 @@ function Stake({visible, onClose}) {
             className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
 
             <div className="bg-white p-2 rounded">
-                <div class="flex justify-around items-center">
+                <div className="flex justify-around items-center">
                      <p>Create your Meme</p>
-                      <button class="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 float-right"
+                      <button className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 float-right"
                           onClick={onClose}>X</button>
                
 
@@ -96,13 +96,13 @@ function Stake({visible, onClose}) {
 
            
             {formularioVisible && (
-                <div class="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p class="font-bold">Web Page</p>
+                    <p className="font-bold">Web Page</p>
                     <Input2 placeholder="Web Page" name_2="Website" type="text" handleChange_2={handleChange_2} />
-                    <p class="font-bold">Discord</p>
+                    <p className="font-bold">Discord</p>
                     <Input2 placeholder="Discord" name_2="Discord" type="text" handleChange_2={handleChange_2} />
-                    <p class="font-bold">Twitter</p>
+                    <p className="font-bold">Twitter</p>
                     <Input2 placeholder="Twitter" name_2="Twitter" type="text" handleChange_2={handleChange_2} />
                   </div>
                     <div>

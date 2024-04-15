@@ -1,5 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { BrowserRouter, Routes, Route, Link  } from 'react-router-dom';
+import { Factory  } from './components/Factory';
+import { Farm  } from './components/Farm';
+import { Home  } from './components/Home';
+
 
 import "./index.css";
 import App from "./App";
@@ -11,7 +16,16 @@ const root = createRoot(document.getElementById("root"));
 root.render(
   <TransactionProvider>
     <React.StrictMode>
-      <App />
+      <BrowserRouter>
+        <App/>
+        <Routes>
+
+          <Route path="/" element={<Home/>} />
+          <Route path="/Factory" element={<Factory/>} />
+          <Route path="/Farm" element={<Farm/>} />
+        
+        </Routes>
+      </BrowserRouter>
     </React.StrictMode>
   </TransactionProvider>
 );

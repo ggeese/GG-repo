@@ -7,6 +7,7 @@ const Info = () => {
     <div className=" flex flex-col items-center bg-gray-200 text-white p-4">
       <div className="text-black text-3xl font-bold mb-6">
         Staking Pool
+        
       </div>
       <div className="text-xl mb-6">
         Stake MEME tokens to Earn $GULL

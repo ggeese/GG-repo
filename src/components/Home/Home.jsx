@@ -1,18 +1,11 @@
-import React from "react";
-import { Navbar, Welcome, Services, Transactions, Footer } from './content';
+import React from 'react';
+import Welcome from './content/Welcome'
 
 const Home = () => {
-    return (<div>
-    <div className="min-h-screen">
-      <div className="gradient-bg-welcome">
-        <Welcome />
-      </div>
-      <Services />
-      <Transactions/>
-      <Footer />
-    </div>
-    </div>
-    )
-};
+
+
+  return (
+<Welcome/>  );
+}
 
 export default Home;
