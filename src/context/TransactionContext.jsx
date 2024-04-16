@@ -162,15 +162,16 @@ export const TransactionProvider = ({ children }) => {
         }
     }
 
-    const sendTransaction_3 = async () => {
+    const sendTransaction_3 = async (stake_contract) => {
         const { stake } = FormData_3;
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
+        console.log ("stake contract ", stake_contract)
         //ponemos los datos del contrato de staking
         const transactionsContract_3 = new ethers.Contract(contractAddress_staking_rewards, contractABI_STAKING_REWARDS, signer);
         console.log ("previo a la interaccion con el contrato stake");
         //ponemos los datos del token que queremos que controle el contrato de staking
-        const erc20Contract = new ethers.Contract("0x6E33C6ad555CBBee4b539cB63Ef362dDEF7fe2f4", contractABI_MEME, signer); //contrato del token GTA
+        const erc20Contract = new ethers.Contract(stake_contract, contractABI_MEME, signer); //contrato del token GTA
         const stake_amount = ethers.parseEther(stake)
         console.log ("llamada al contrato del token");
         //permiso para que el contrato X pida a la wallet el uso de cierto token

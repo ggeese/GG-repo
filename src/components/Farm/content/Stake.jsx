@@ -1,131 +1,185 @@
 import React, { useState, useContext } from "react";
-import ReactDOM from 'react-dom';
-import { Loader } from './'
 import { TransactionContext } from '../../../context/TransactionContext';
 
-
-const Input2 = ({ placeholder, name_2, type, value, handleChange_2 }) => (
+const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
     <input
       placeholder={placeholder}
       type={type}
       step="1"
       value={value}
-      onChange={(e2) => handleChange_2(e2, name_2)}
+      onChange={(e3) => handleChange_3(e3, name_3)}
       />
   );
 
-function FileUpload() {
-    const [file, setFile] = useState(null);
-  
-    const handleFileChange = (event) => {
-      setFile(event.target.files[0]);
-    };
-  
-    const handleSubmitFile = () => {
-      if (!file) {
-        alert("Please select a file first!");
-        return;
-      }
-      // Aquí agregarías la lógica para subir el archivo
-      console.log("Uploading", file.name);
-    };
-  
-    return (
-      <div>
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={handleSubmitFile}>Upload File</button>
-      </div>
-    );
-  }
-  
 
+function Stake({visible, onClose, stake_contract }) {
 
-function Stake({visible, onClose}) {
+    console.log("stake contract!!!!!", stake_contract)
     
-    const { FormData_2, sendTransaction_2, handleChange_2 } = useContext(TransactionContext); 
+    const { FormData_3, sendTransaction_3, handleChange_3 } = useContext(TransactionContext); 
 
     const [formularioVisible, setFormularioVisible] = useState(false);
+
+    const toggleFormulario = () => {
+      setFormularioVisible(!formularioVisible);
+    };
 
     const handleOnClose = (event) => {
         if (event.target.id === 'container_meme') onClose()
     };
 
-    const toggleFormulario = () => {
-        setFormularioVisible(!formularioVisible);
-      };
 
-    const handleSubmit_2 = (e2) => {
-        const { MemeName, Symbol, Supply } = FormData_2;
-    
-        e2.preventDefault();
-    
-        if(!MemeName || !Symbol || !Supply) return;
-    
-        sendTransaction_2();    
-      }
+
+    const handleSubmit_3 = (e3) => {
+      const { stake } = FormData_3;
+  
+      e3.preventDefault();
+  
+      if(!stake ) return;
+  
+      sendTransaction_3(stake_contract);    
+    }
 
     if (!visible) return null;
 
     return (
-        <div 
+      <div>
+          <div 
             id= 'container_meme'
             onClick={handleOnClose} 
-            className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
-
-            <div className="bg-white p-2 rounded">
+            className="fixed rounded inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
+              <div className="fixed bg-white left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-black bg-background p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-[95vw] md:max-w-lg">
                 <div className="flex justify-around items-center">
-                     <p>Create your Meme</p>
-                      <button className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 float-right"
-                          onClick={onClose}>X</button>
-               
-
+                  <p>Create your Meme</p>
                 </div>
-               
-            <div>
-          <Input2 placeholder="Name your meme" name_2= "MemeName" type= "text" handleChange_2={handleChange_2} />
-          <Input2 placeholder="Symbol" name_2= "Symbol" type= "text" handleChange_2={handleChange_2} />
-          <Input2 placeholder="Max Supply" name_2= "Supply" type= "number" handleChange_2={handleChange_2} />
-
-          <div>
-
-            <button className= "float-right"
-             onClick={toggleFormulario}>
-                Advanced Options</button>
-
-          </div>
-
-           
-            {formularioVisible && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="font-bold">Web Page</p>
-                    <Input2 placeholder="Web Page" name_2="Website" type="text" handleChange_2={handleChange_2} />
-                    <p className="font-bold">Discord</p>
-                    <Input2 placeholder="Discord" name_2="Discord" type="text" handleChange_2={handleChange_2} />
-                    <p className="font-bold">Twitter</p>
-                    <Input2 placeholder="Twitter" name_2="Twitter" type="text" handleChange_2={handleChange_2} />
-                  </div>
+            
+                <div className="flex flex-col space-y-1.5 text-center sm:text-left text-lg font-semibold">Stake StakeStone Ether</div>
+                <div className="px-2 max-h-[calc(90vh_-_100px)] overflow-auto">
+                  <div className="flex items-center font-medium justify-between gap-2">
+                    <div className="">
+                      Manta To Stake {stake_contract}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      Manta
+                    </div>
+                    
+                    </div>
+                  <div className= "mt-2 rounded-md w-full bg-[#F3F3F3] py-4 px-2 text-right">
+                    <div className="text-lg font-semibold w-full truncate outline-none bg-transparent text-right">
+                      <Input3 placeholder="0" name_3= "stake" type= "number" handleChange_3={handleChange_3} />
+                    </div>
                     <div>
-                      <h1>Subir Archivo</h1>
-                      <FileUpload />
+                       0 USD
+                    </div>
+                  </div>
+                  <div className="mt-1.5 flex justify-end">
+                    Balance
                   </div>
                 </div>
+                <button className="absolute -right-4 -top-4 p-2 rounded-full h-10 w-10 flex justify-center items-center bg-white border border-zinc-500 ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                  onClick={onClose}>X</button>
 
-            )}
-        
-                  {false ? (
-              <Loader/>
-            ) : (
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-              type="button"
-              onClick={handleSubmit_2}
-              >
-              Create Meme
-              </button>
-            )}
-         </div>
-         </div>
+         
+
+                  <div className ="mt-4">
+                    <div className="flex gap-1 items-center">
+                      Image
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                      <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black uppercase h-9 px-4 py-2">
+                        25%
+                      </button>
+                      <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black uppercase h-9 px-4 py-2">
+                        50%
+                      </button>
+                      <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black uppercase h-9 px-4 py-2">
+                        75%
+                      </button>
+                      <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black uppercase h-9 px-4 py-2">
+                        100%
+                      </button>
+
+                    </div>
+                  </div>
+
+                  <div>
+                    <button 
+                      onClick={toggleFormulario}>
+                      detalles
+                    </button>
+                  </div>
+
+
+
+                {formularioVisible && (
+
+                  <div className="mt-4">
+                    <div className="font-semibold">
+                      Staking Summary
+                    </div>
+                    <div className="rounded-md bg-[#F3F3F3] py-2 px-4 space-y-3 mt-1.5">
+                      <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center font-medium">
+                          Manta To be Staked
+                        </div>
+                        <div className="ml-auto font-semibold">
+                          $0
+                        </div>
+                      </div>
+                        
+                      <div className="pt-0.5"></div>
+                      <div className="flex flex-wrap items-center font-medium">
+                        Expected Return
+                      </div>
+                      <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center">
+                          esgULL
+                        </div>
+                        <div className="ml-auto font-semibold">
+                          0
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center">
+                          Gull Points
+                        </div>
+                        <div className="ml-auto font-semibold">
+                          0
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center">
+                          APY
+                        </div>
+                        <div className="ml-auto font-semibold">
+                          33%
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center">
+                          YIELD BOOST
+                        </div>
+                        <div className="ml-auto font-semibold">
+                          3x
+                        </div>
+                      </div>
+                    </div>
+                    {/*boton de stake*/}
+
+                  </div>
+                )}
+                  <div className="w-60 m-auto pt-4">
+                    <button
+                     className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black h-9 px-4 py-2 self-center place-self-center rounded-lg w-full normal-case"
+                     type="button"
+                        onClick={handleSubmit_3}>
+                        +Stake
+                    </button>
+                  </div>
+              </div>
         </div>
+      </div>
+   
     )
 }
 export default Stake;

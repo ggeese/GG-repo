@@ -89,3 +89,12 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.panel {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+  max-height: 0; /* Inicialmente no expandido */
+}
+
+.panel.expanded {
+  max-height: 500px; /* Ajusta según el contenido */
+}
