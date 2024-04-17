@@ -1,24 +1,28 @@
-// StakingPool.js
-
 import React from 'react';
+import sky from "../../../../images/sky.jpeg";
+import { Link } from 'react-router-dom';
 
 const Welcome = () => {
+  const backgroundStyle = {
+    backgroundImage: `url(${sky})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center'
+  };
+
   return (
-    <div className=" flex flex-col items-center bg-gray-200 text-white p-4">
-      <div className="text-black text-3xl font-bold mb-6">
-        Staking Pool
-        
+    <div style={backgroundStyle} className="flex flex-col items-center justify-around min-h-screen p-10"> {/* Uso de justify-between y padding en el contenedor principal */}
+      <div className="w-full text-center">
+        <h1 className="text-5xl font-bold text-black">
+          Golden Goose
+        </h1>
       </div>
-      <div className="text-xl mb-6">
-        Stake MEME tokens to Earn $GULL
-      </div>
-      <div className="w-full max-w-2xl p-4 border border-gray-700 rounded-lg shadow-lg">
-        <div className="text-center text-2xl mb-4">
-          Total Value Locked
-        </div>
-        <div className="text-center text-5xl font-bold">
-          $4,736,563
-        </div>
+      <div className="flex items-center ">
+        <Link to="/Factory" className="m-4 p-8 bg-white bg-opacity-50 rounded-lg shadow-md text-4xl" >
+          Meme Factory
+        </Link>
+        <Link to="/Farm" className="m-4 p-8 bg-white bg-opacity-50 rounded-lg shadow-md text-4xl" >
+          Staking Meme
+        </Link>
       </div>
     </div>
   );

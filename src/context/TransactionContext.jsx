@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 
-import { contractAddress, contractAddress_meme, contractAddress_staking, contractAddress_staking_rewards } from "../utils/constants";
-import { contractABI, contractABI_MEME_CREATOR, contractABI_MEME, contractABI_STAKING, contractABI_STAKING_REWARDS  } from "../utils/constants";
+import { contractAddress, contractAddress_meme, contractAddress_staking_rewards } from "../utils/constants";
+import { contractABI, contractABI_MEME_CREATOR, contractABI_MEME, contractABI_STAKING_REWARDS  } from "../utils/constants";
 
 
 export const TransactionContext = React.createContext();
@@ -19,13 +19,6 @@ const getEthereumContract = async () => {
     return transactionsContract;
 }
 
-const getEthereumContract_2 = async () => {
-    const provider = new ethers.BrowserProvider(window.ethereum);;
-    const signer = await provider.getSigner();
-    const transactionsContract_2 = new ethers.Contract(contractAddress_meme, contractABI_MEME_CREATOR, signer);
-
-    return transactionsContract_2;
-}
 
 export const TransactionProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState ('');
@@ -52,7 +45,13 @@ export const TransactionProvider = ({ children }) => {
                 console.log ('No acconts found');
             }
             console.log("acc", accounts[0]);
-            console.log("acc", accounts);
+            console.log("balance de cuenta")
+            //esto da el balance
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const balance = await provider.getBalance(accounts[0]);
+        
+            console.log("balance de cuenta", balance);
+
         } catch (error) {
             console.log(error);
 
@@ -67,6 +66,7 @@ export const TransactionProvider = ({ children }) => {
             if (!ethereum) return alert("Please install metamask")
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
 
+
             setCurrentAccount(accounts[0]);
         }   catch(error) {
             console.log(error);
@@ -78,33 +78,7 @@ export const TransactionProvider = ({ children }) => {
     const sendTransaction = async () => {
         try{
             if (!ethereum) return alert("Please install metamask");
-            
-
-
-            /*const { addressTo, amount, message } = FormData;
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-            const transactionsContract = new ethers.Contract(contractAddress, contractABI, signer);
-            const parsedAmount = ethers.parseEther(amount); //covertimos amount a wei
-            const keyword = message
-
-            await ethereum.request({
-                method: `eth_sendTransaction`,
-                params:[{
-                    from: currentAccount,
-                    to: addressTo,
-                    gas: '0x5208', //21000 gwei
-                    value: ethers.toQuantity(parsedAmount), //convertimos parsed amount a hexadecimal
-                }]
-            });
-            const transactionHash = await transactionsContract.addToBlockchain(addressTo, parsedAmount, message, keyword);
-            setIsLoading(true);
-            console.log(`Loading - ${transactionHash.hash}`);
-            await transactionHash.wait();
-            setIsLoading(false);
-            console.log(`Success - ${transactionHash.hash}`);*/
-
-
+       
         }   catch (error) {
             console.log(error);
 
@@ -134,7 +108,7 @@ export const TransactionProvider = ({ children }) => {
             if (!ethereum) return alert("Please install metamask");
 
             const { MemeName, Symbol, Supply } = FormData_2;
-            const provider = new ethers.BrowserProvider(window.ethereum);;
+            const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0]
@@ -178,7 +152,7 @@ export const TransactionProvider = ({ children }) => {
 
         const transaction = await erc20Contract.approve(contractAddress_staking_rewards, stake_amount);
         await transaction.wait(); // Esperar a que se complete la transacción
-        console.log(`Se aprobaron ${stake} tokens para el contrato ${contractAddress_staking_rewards}`);
+        console.log (`Se aprobaron ${stake} tokens para el contrato ${contractAddress_staking_rewards}`);
 
         //interaccion con el contrato de staking
         const transactionHash = await transactionsContract_3.stake(stake_amount)
@@ -211,7 +185,6 @@ export const TransactionProvider = ({ children }) => {
 
         const transactionHash = await transactionsContract_3.updateRewardDuration(parameter)
     }
-
 
     useEffect(() => {
         checkIfWalletIsConnected();

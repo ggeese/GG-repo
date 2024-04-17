@@ -1,29 +1,9 @@
 import { TransactionContext } from '../../../context/TransactionContext';
 import React, { useState, useContext } from "react";
-import { Loader } from './'
+import { Loader } from '.'
 import PopUp from "./PopUp"
 import image_farm from "../../../../images/farm.jpeg";
 
-
-const Input = ({ placeholder, name, type, value, handleChange }) => (
-  <input
-    placeholder={placeholder}
-    type={type}
-    step="0.0001"
-    value={value}
-    onChange={(e) => handleChange(e, name)}
-    />
-);
-
-const Input2 = ({ placeholder, name_2, type, value, handleChange_2 }) => (
-  <input
-    placeholder={placeholder}
-    type={type}
-    step="1"
-    value={value}
-    onChange={(e2) => handleChange_2(e2, name_2)}
-    />
-);
 
 const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
   <input
@@ -45,8 +25,8 @@ const Input4 = ({ placeholder, name_4, type, value, handleChange_4 }) => (
     />
 );
 
-const Welcome = () => {
-  const { FormData, FormData_2, FormData_3, FormData_4, sendTransaction, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4 , handleChange, handleChange_2, handleChange_3, handleChange_4 } = useContext(TransactionContext); 
+const Welcome_Factory = () => {
+  const { FormData_3, FormData_4, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4, handleChange_3, handleChange_4 } = useContext(TransactionContext); 
 
   //boton de aparicion y desaparicion de formulario
 
@@ -54,27 +34,6 @@ const Welcome = () => {
 
   const handleOnClose = () => setShowMyModal(false);
 
-
-  const handleSubmit = (e) => {
-    const { addressTo, amount, message } = FormData;
-
-    e.preventDefault();
-
-    if(!addressTo || !amount || !message) return;
-
-    sendTransaction();
-  }
-
-  const handleSubmit_2 = (e2) => {
-    const { MemeName, Symbol, Supply } = FormData_2;
-
-    e2.preventDefault();
-
-    if(!MemeName || !Symbol || !Supply) return;
-
-    sendTransaction_2();    
-  }
-  
 
   const handleSubmit_3 = (e3) => {
     const { stake } = FormData_3;
@@ -216,4 +175,4 @@ const Welcome = () => {
   );
 };
 
-export default Welcome;
+export default Welcome_Factory;

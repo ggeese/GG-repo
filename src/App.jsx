@@ -1,17 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { TransactionContext } from './context/TransactionContext';
-import { Factory  } from './components/Factory';
-import { Farm  } from './components/Farm';
-import { Home  } from './components/Home';
 
 import logo from "../images/logo.png";
 import { HiMenuAlt4 } from 'react-icons/hi';
 import { AiOutlineClose } from 'react-icons/ai';
-
-const Info = () => <Link to="/Farm" >Farm</Link>
-
-
 
 const App = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
@@ -34,7 +27,7 @@ const App = () => {
 
             {currentAccount ? (
               <p className="text-white text-2xl text-base font-semibold">
-                Wallet Connected
+                {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
               </p>
             ) : (
               <button

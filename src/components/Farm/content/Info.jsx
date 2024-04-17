@@ -4,7 +4,7 @@ import React from 'react';
 
 const Info = () => {
   return (
-    <div className=" flex flex-col items-center bg-gray-200 text-white p-4">
+    <div className=" flex flex-col items-center bg-purple-200 text-black p-4">
       <div className="text-black text-3xl font-bold mb-6">
         Staking Pool
         
