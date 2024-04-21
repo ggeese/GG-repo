@@ -119,15 +119,11 @@ export const TransactionProvider = ({ children }) => {
             console.log ("previo a la interaccion con el contrato")
             const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",tax_rate);
             
-            //setIsLoading(true);
-            //console.log(`Loading - ${transactionHash.hash}`);
-            //await transactionHash.wait();
-            //setIsLoading(false);
-            //console.log(`Success - ${transactionHash.hash}`);
-
-            //const transactionCount = await transactionsContract.getTransactionCount();
-
-            //setTransactionCount(transactionCount.toNumber())
+            setIsLoading(true);
+            console.log(`Loading - ${transactionHash.hash}`);
+            await transactionHash.wait();
+            setIsLoading(false);
+            console.log(`Success - ${transactionHash.hash}`);
 
         }   catch (error) {
             console.log(error);
@@ -186,13 +182,44 @@ export const TransactionProvider = ({ children }) => {
         const transactionHash = await transactionsContract_3.updateRewardDuration(parameter)
     }
 
+    const add_metamask = async(tokenAddress, tokenImage) => {
+        
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        console.log("metamask token add")
+        try {
+        const wasAdded = await window.ethereum // Or window.ethereum if you don't support EIP-6963.
+            .request({
+            method: "wallet_watchAsset",
+            params: {
+                type: "ERC20",
+                options: {
+                // The address of the token.
+                address: tokenAddress,
+                // A string URL of the token logo.
+                image: tokenImage,
+                },
+            },
+            });
+
+        if (wasAdded) {
+            console.log("Thanks for your interest!");
+        } else {
+            console.log("Your loss!");
+        }
+        } catch (error) {
+        console.log(error);
+        }
+    }
+
+    
     useEffect(() => {
         checkIfWalletIsConnected();
         connectWallet();
     }, [])
 
     return (
-        <TransactionContext.Provider value={{ connectWallet, currentAccount, FormData, FormData_2, FormData_3, FormData_4, setFormData, handleChange, handleChange_2, handleChange_3, handleChange_4, sendTransaction, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4}}>
+        <TransactionContext.Provider value={{ connectWallet, currentAccount, FormData, isLoading, FormData_2, FormData_3, FormData_4, setFormData, handleChange, handleChange_2, handleChange_3, handleChange_4, sendTransaction, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4, add_metamask}}>
             {children}
         </TransactionContext.Provider>
     );

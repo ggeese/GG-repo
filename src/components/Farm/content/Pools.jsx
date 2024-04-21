@@ -29,7 +29,7 @@ const Pools = () => {
     
     return (
         
-        <div className="flex flex-col items-center bg-purple-200 text-black p-10 ">
+        <div className="flex flex-col items-center text-black p-10 ">
             <div className="text-xl mb-7">
                 Stake MEME tokens to Earn $GULL
             </div>

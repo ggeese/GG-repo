@@ -22,7 +22,7 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
         <div className="flex flex-wrap gap-5 justify-center items-start">
             {items.map((item) => (
                 
-                <div key={item.stake_contract} className="p-3 border border-gray-300 rounded-3xl shadow bg-yellow-500">
+                <div key={item.stake_contract} className="p-3 border border-gray-300 rounded-3xl shadow bg-white">
                     <div className="mt-4 flex gap-3 justify-between">
                         <div className= "flex gap-1.5">
                             <div className="flex flex-shrink-0">

@@ -2,6 +2,24 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+@keyframes scale-down {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+  
+}
+
+
+
+.animate-scale-down {
+  animation: scale-down 0.5s ease-in-out;
+}
 
 * html {
   padding: 0;
@@ -98,3 +116,4 @@ body {
 .panel.expanded {
   max-height: 500px; /* Ajusta según el contenido */
 }
+
