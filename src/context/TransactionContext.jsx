@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-
 import { contractAddress, contractAddress_meme, contractAddress_staking_rewards } from "../utils/constants";
 import { contractABI, contractABI_MEME_CREATOR, contractABI_MEME, contractABI_STAKING_REWARDS  } from "../utils/constants";
+import Axios from "axios";
 
 
 export const TransactionContext = React.createContext();
@@ -19,6 +19,37 @@ const getEthereumContract = async () => {
     return transactionsContract;
 }
 
+const Add_Meme =(MemeName, Symbol, Supply, Creator, Website, Twitter, Discord, Telegram, Fee, description) =>{
+    console.log("dentro de add meme")
+    console.log("fee", Fee)
+    Axios.post("http://localhost:3001/create", {
+        name:MemeName,
+        ticker:Symbol,
+        fee:Fee,
+        contract:"nowhere",
+        image:"https://i.blogs.es/d86db0/meme-fry-1/1366_2000.jpg",
+        creator: Creator,
+        creation:"22/2/21",
+        supply: Supply,
+        webpage: Website,
+        twitter: "https://twitter.com/"+Twitter,
+        description: description,
+        discord: "https://www.discord.com/invite/"+Discord,
+        telegram: "https://t.me/"+Telegram
+
+    }).then(()=>{
+        alert("Meme registrado");
+    });
+}
+
+
+const get_db_memes =() =>{
+    Axios.get("http://localhost:3001/db_memes").then((response)=>{
+        alert("Meme registrado");
+    });
+}
+
+
 
 export const TransactionProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState ('');
@@ -30,6 +61,8 @@ export const TransactionProvider = ({ children }) => {
     const handleChange = (e, name) => {
         setFormData((prevState) => ({...prevState, [name]: e.target.value}));
     }
+
+
 
     const checkIfWalletIsConnected = async () => {
         try{
@@ -107,7 +140,7 @@ export const TransactionProvider = ({ children }) => {
         try{
             if (!ethereum) return alert("Please install metamask");
 
-            const { MemeName, Symbol, Supply } = FormData_2;
+            const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const account = await ethereum.request({ method: 'eth_accounts' });
@@ -115,15 +148,18 @@ export const TransactionProvider = ({ children }) => {
             const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
             console.log ("recipient XD", recipient)
             const transactionsContract_2 = new ethers.Contract(contractAddress_meme, contractABI_MEME_CREATOR, signer);
-            const tax_rate = "50"
             console.log ("previo a la interaccion con el contrato")
-            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",tax_rate);
+            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",Fee);
             
             setIsLoading(true);
             console.log(`Loading - ${transactionHash.hash}`);
             await transactionHash.wait();
+            console.log("previo add meme")
+            Add_Meme(MemeName, Symbol, Supply, recipient, Website, Twitter, Discord, Telegram, Fee, description)
+            console.log("luego de  add meme")
+
             setIsLoading(false);
-            console.log(`Success - ${transactionHash.hash}`);
+            //console.log(`Success - ${transactionHash.hash}`);
 
         }   catch (error) {
             console.log(error);
@@ -131,6 +167,39 @@ export const TransactionProvider = ({ children }) => {
             throw new Error("No ethereum object.")
         }
     }
+
+    const URI_creation = async () => {
+        const { MemeName, Symbol, Supply, Discord, Twitter, Telegram, Fee  } = FormData_2;
+        
+        const memeData = {
+            "name": MemeName,
+            "symbol": Symbol,
+            "decimals": 18,
+            "totalSupply": Supply,
+            "description": "xd",
+            "Fee": Fee,
+            "image": "https://example.com/token_image.png", // Reemplaza con la URL de la imagen
+            "external_url": "https://example.com/token_details", // Reemplaza con la URL de detalles del token
+            "attributes": [
+                {
+                    "trait_type": "Discord",
+                    "value": "discord.com/",Discord
+                },
+                {
+                    "trait_type": "Twitter",
+                    "value": "https://twitter.com/",Twitter
+                },
+                {
+                    "trait_type": "Telegram",
+                    "value": "https://t.me/",Telegram
+                },
+            ]
+        };
+        Add_Meme();
+
+        console.log(memeData);
+    };
+    
 
     const sendTransaction_3 = async (stake_contract) => {
         const { stake } = FormData_3;
@@ -219,7 +288,7 @@ export const TransactionProvider = ({ children }) => {
     }, [])
 
     return (
-        <TransactionContext.Provider value={{ connectWallet, currentAccount, FormData, isLoading, FormData_2, FormData_3, FormData_4, setFormData, handleChange, handleChange_2, handleChange_3, handleChange_4, sendTransaction, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4, add_metamask}}>
+        <TransactionContext.Provider value={{ connectWallet, currentAccount, FormData, isLoading, FormData_2, FormData_3, FormData_4, setFormData, handleChange, handleChange_2, handleChange_3, handleChange_4, sendTransaction, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4, URI_creation,  add_metamask }}>
             {children}
         </TransactionContext.Provider>
     );

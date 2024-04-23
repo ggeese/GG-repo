@@ -8,6 +8,8 @@ import twitter from "../../../../images/twitter.png";
 import metamask from "../../../../images/metamask.svg";
 import etherscan from "../../../../images/etherscan_logo.svg";
 import copy_logo from "../../../../images/copy.svg";
+import Axios from "axios";
+
 
 const Meme_Search = () => {
     const { add_metamask } = useContext(TransactionContext); 
@@ -45,7 +47,11 @@ const Meme_Search = () => {
     };
     
     useEffect(() => {
-        setMemes(db_memes);
+        Axios.get("http://localhost:3001/db_memes").then((response) => {
+            setMemes(response.data);
+        }).catch(error => {
+            console.error('Error fetching memes:', error);
+        });
     }, []);
 
     const searcher = (e) => {
@@ -77,7 +83,7 @@ const Meme_Search = () => {
                         <div className="flex w-full justify-between">
                             <h1 className="flex flex-colm text-md font-semibold mb-2 px-4">Ticker: {meme.ticker}</h1>
                             <button 
-                                onClick={() => add_metamask(meme.contract, meme.url)}
+                                onClick={() => add_metamask(meme.contract, meme.image)}
                                 className="flex flex-colm font-semibold mb-2 px-4">
                                 <img src={metamask} alt="metamask" className="w-5" />
                             </button>
@@ -92,7 +98,7 @@ const Meme_Search = () => {
                         </div>
 
                         <h1 className="text-md font-semibold mb-2 text-center p-2">{meme.description}</h1>
-                        <img className="rounded-3xl p-3" src={meme.url} alt={meme.name} style={{ width: '100%', height: 'auto' }} />
+                        <img className="rounded-3xl p-3" src={meme.image} alt={meme.name} style={{ width: '100%', height: 'auto' }} />
                         <div className="flex">
                             <a href={"https://etherscan.io/address/" + meme.contract} target="_blank" rel="noopener noreferrer"
                                 className="text-sm font-semibold mb-2 px-4 text-left"> created by: {meme.creator.slice(0, 6)}...{meme.creator.slice(-4)}

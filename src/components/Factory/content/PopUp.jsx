@@ -36,11 +36,12 @@ const Input2 = ({ placeholder, name_2, type, value, handleChange_2 }) => (
     />
 );
 
-const Textarea = ({ placeholder, name, value, handleChange }) => (
+const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
   <textarea
     placeholder={placeholder}
+    type={type}
     value={value}
-    onChange={(e) => handleChange(e, name)}
+    onChange={(e2) => handleChange_2(e2, name_2)}
     className="placeholder-italic resize-none p-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
     style={{ height: 'auto', minHeight: '200px' }}    // Estilos de Tailwind CSS para el textarea
   />
@@ -136,7 +137,7 @@ const Textarea = ({ placeholder, name, value, handleChange }) => (
 
 function PopUp({visible, onClose}) {
     
-    const { FormData_2, sendTransaction_2, handleChange_2, isLoading } = useContext(TransactionContext); 
+    const { FormData_2, sendTransaction_2, handleChange_2, isLoading, URI_creation } = useContext(TransactionContext); 
 
     const [formularioVisible, setFormularioVisible] = useState(false);
 
@@ -149,18 +150,18 @@ function PopUp({visible, onClose}) {
       };
 
       const handleSubmit_2 = () => {
-        const { MemeName, Symbol, Supply } = FormData_2;
+        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
         
         if (!MemeName || !Symbol || !Supply) return;
         
         sendTransaction_2();
         
-        if (file) {
+       /* if (file) {
           console.log("Uploading", file.name);
           saveImageToServer(file); // Guardar la imagen en el servidor
           setFile(null); // Limpiar el archivo después de enviar la transacción
           setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
-        }
+        }*/
       };
       
       
@@ -208,9 +209,6 @@ function PopUp({visible, onClose}) {
                     </div>
                    )}
               </button>
-
-            
-
            
             {formularioVisible && (
               <div>
@@ -221,9 +219,9 @@ function PopUp({visible, onClose}) {
                     <div className="flex flex-col justify-center p-2 italic input-container">
                       <Textarea
                         placeholder="we are people who make memes that goes to da moon!!!!"
-                        name="description"
-                        value={FormData_2.description}
-                        handleChange={handleChange_2}
+                        name_2="description"
+                        type="text"
+                        handleChange_2={handleChange_2}
                         className="resize-none border rounded p-2"
                         // Ajustamos el estilo para que el textarea tenga el mismo aspecto que el input
                         style={{ minHeight: '200px' }}
@@ -278,7 +276,7 @@ function PopUp({visible, onClose}) {
 
                   <p className="flex justify-center justify-center font-bold p-2">Fee (0-100) %</p>
                     <div className="flex justify-center">
-                      <Input2 placeholder="example: 0.5" name_2="Website" type="text" handleChange_2={handleChange_2} />
+                      <Input2 placeholder="example: 0.5" name_2="Fee" type="number" handleChange_2={handleChange_2} />
                       <p className="flex justify-center font-bold p-2">% </p>
                     </div>
                 </div>
