@@ -10,7 +10,7 @@ const Info = () => {
         
       </div>
       <div className="border border-gray-700 text-xl mb-6">
-        Stake MEME tokens to Earn $GULL
+        Stake MEME tokens to Earn $GOOSE
       </div>
       <div className="w-full max-w-2xl p-4 border border-gray-700 rounded-lg shadow-lg bg-white">
         <div className="text-center text-2xl mb-4">

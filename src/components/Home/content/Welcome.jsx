@@ -12,7 +12,7 @@ const Welcome = () => {
   return (
     <div style={backgroundStyle} className="flex flex-col items-center justify-around min-h-screen p-10"> {/* Uso de justify-between y padding en el contenedor principal */}
       <div className="w-full text-center">
-        <h1 className="text-5xl font-bold text-black">
+        <h1 className="text-9xl font-goldeng text-black">
           Golden Goose
         </h1>
       </div>

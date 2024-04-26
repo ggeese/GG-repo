@@ -31,7 +31,7 @@ const Pools = () => {
         
         <div className="flex flex-col items-center text-black p-10 ">
             <div className="text-xl mb-7">
-                Stake MEME tokens to Earn $GULL
+                Stake MEME tokens to Earn $GOOSE
             </div>
             <Data_Pools 
 

@@ -1,39 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Collapse } from 'react-collapse';
+import golden_coin from "../../../../images/gg_coin.png";
+import Axios from "axios";
 
 const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) => {
-    const items = [
-        { title: 'Stake Manta', description: 'Descripción breve 1', imageUrl: 'https://placekitten.com/200/300', token:"xd",stake_contract:"0x6E33C6ad555CBBee4b539cB63Ef362dDEF7fe2f4" },
-        { title: 'Título 2', description: 'Descripción breve 2', imageUrl: 'https://placekitten.com/200/301', token:"xd",stake_contract:"0x6E33C6ad555CBBee4b539ercB63Ef36s2dDEF7fe2f4" },
-        { title: 'Título 3', description: 'Descripción breve 3', imageUrl: 'https://placekitten.com/200/302', token:"xd",stake_contract:"0x6E33C6ad555CBBeefx4b539scB63Ef362dDEF7fe2f4" },
-        { title: 'Título 4', description: 'Descripción breve 4', imageUrl: 'https://placekitten.com/200/303', token:"xd",stake_contract:"0x6E33C6ader555CBBeae4b53s9cB63Ef362dDEF7fe2f4" },
-        { title: 'Título 5', description: 'Descripción breve 5', imageUrl: 'https://placekitten.com/200/304', token:"xd",stake_contract:"0x6E33C6ad55ded5CBBee4b5a39cB63Ef362dDEF7fe2f4" },
-        { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305', token:"xd",stake_contract:"0x6E33C6adkj555CBBee4b539scB63Ef362dDEF7fe2f4" },
-        { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305', token:"xd",stake_contract:"0x6E33C6adfg555CB4Bee4b539cB63Ef362dDEF7fe2f4" },
-        { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305', token:"xd",stake_contract:"0x6E33C6ad5gh55CB23Bee4b539cB63Ef362dDEF7fe2f4" },
-        { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305', token:"xd",stake_contract:"0x6E33C6ad5nm552CBBee4b539cB63Ef362dDEF7fe2f4" },
-        { title: 'Título 6', description: 'Descripción breve 6', imageUrl: 'https://placekitten.com/200/305', token:"xd",stake_contract:"0x6E33C6ad555tgrtCBBee44b539cB63Ef362dDEF7fe2f4" },
 
-        // La repetición de títulos parece un error, asumiendo que debe ser único.
-        // Asegúrate de ajustar los títulos y descripciones según sea necesario.
-    ];
+    const [PoolsMemes, setPoolsMemes] = useState([]);
+
+    useEffect(() => {
+        Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
+            setPoolsMemes(response.data);
+        }).catch(error => {
+            console.error('Error fetching pools_memes:', error);
+        });
+    }, []);
+
+    const items = PoolsMemes 
+
     return (
         
         <div className="flex flex-wrap gap-5 justify-center items-start">
             {items.map((item) => (
                 
                 <div key={item.stake_contract} className="p-3 border border-gray-300 rounded-3xl shadow bg-white">
-                    <div className="mt-4 flex gap-3 justify-between">
+                    <div className=" flex gap-3 justify-between">
                         <div className= "flex gap-1.5">
-                            <div className="flex flex-shrink-0">
-                                <img src={item.imageUrl}/>
-                                <img src={item.imageUrl}/>
+                            <div className="flex flex-shrink-0 p-2">
+                                <img className="w-auto h-7" src={golden_coin}/>
+                                <img className="w-auto h-7" src={item.imageUrl}/>
                             </div>
-                        </div>
                             <div className="font-semibold">
                                 <h3 className="text-sm font-bold mt-1">Earn Goose</h3>
-                                <h3 className="text-sm font-bold mt-1">{item.title}</h3>
+                                <h3 className="text-sm font-bold mt-1">{item.token_name}</h3>
                             </div>
+                        </div>
+
                         <div className="flex flex-shrink-0 w-max gap-1">
                             <div>
 
@@ -48,11 +49,11 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                         <div className="mt-4 flex justify-between">
                             <div>
                                 <h3 className="font-medium text-md">Staked TVL:</h3>
-                                <h3 className="font-medium text-md">1500000</h3>
+                                <h3 className="font-medium text-md">{item.tvl_stk}</h3>
                             </div>
                             <div className="text-right">
                                 <h3 className="text-right"> APY</h3>
-                                    <h3 className="font-semibold text-lg text-[#00BFB3]">~3%</h3>
+                                    <h3 className="font-semibold text-lg text-[#00BFB3]">{item.apy}%</h3>
                             </div>
                         </div>
 
@@ -63,12 +64,13 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                             <div className="text-right">
                                 Rewards
                             </div>
-
                         </div>    
 
                     </div>
-                        <p>{item.description}</p>
-                        <p>{item.token}</p>
+                    <div className="flex flex-items justify-between p-1">
+                        <p className="flex justify-end">{item.stakers}</p>
+                        <img src={golden_coin} className="w-auto h-6" alt="Golden coin" />
+                    </div>
                     
                     <div className="flex justify-center items-center">
                         <button className="bg-blue-500 text-white font-semibold px-10 w-80 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
@@ -93,7 +95,7 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                                 staked liquidity
                             </div>
                             <div className="text-right">
-                                3x
+                                $ {item.stk_liq}
                             </div>
                             <div>
                                 Multiplier
@@ -102,8 +104,9 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                                 3X
                             </div>
                             <div className="flex gap-1 items-center">
-                                <div>
-                                    imagen es Gull Earned
+                                <div className="flex flex-items">
+                                    <img src={golden_coin} className="w-auto h-6" alt="Golden coin" />
+                                    <p className="px-2">Goose Earned</p>
                                 </div>
                             </div>
                             <div className="text-right">
@@ -112,7 +115,7 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                             
                             <div className="flex gap-1 items-center">
                                 <div>
-                                    imagen
+                                <img src={golden_coin} className="w-auto h-6" alt="Golden coin" />
                                 </div>
                             </div>
                             <div className="text-right">
@@ -123,14 +126,14 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                         </div>
                     </div>
                     <div className="mt-4 flex flex-col items-end font-medium text-[#3DB3A9] leading-none gap-0.5">
-                        <e className="flex items-center gap-0.5" href="https://pacific-explorer.manta.network/address/0xEc901DA9c68E90798BbBb74c11406A32A70652C3" target="_blank">
-                        View Token Contract
-                        </e>
+                        <a className="flex items-center gap-0.5" href={"https://pacific-explorer.manta.network/address/"+item.token} target="_blank">
+                            View Token Contract                            
+                        </a>
                     </div>
                     <div className="mt-4 flex flex-col items-end font-medium text-[#3DB3A9] leading-none gap-0.5">
-                        <e className="flex items-center gap-0.5" href="https://pacific-explorer.manta.network/address/0xEc901DA9c68E90798BbBb74c11406A32A70652C3" target="_blank">
-                        View Token Contract
-                        </e>
+                        <a className="flex items-center gap-0.5" href={"https://pacific-explorer.manta.network/address/"+item.stake_contract} target="_blank">
+                            View Staking Contract                            
+                        </a>
                     </div>
                     </>
                     </Collapse>

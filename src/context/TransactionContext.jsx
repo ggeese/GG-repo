@@ -7,6 +7,8 @@ import Axios from "axios";
 
 export const TransactionContext = React.createContext();
 
+
+
 const { ethereum } = window;
 
 const getEthereumContract = async () => {
@@ -19,28 +21,59 @@ const getEthereumContract = async () => {
     return transactionsContract;
 }
 
-const Add_Meme =(MemeName, Symbol, Supply, Creator, Website, Twitter, Discord, Telegram, Fee, description) =>{
-    console.log("dentro de add meme")
-    console.log("fee", Fee)
+const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url, Creator, Website, Twitter, Discord, Telegram, Fee, description) => {
+    // Extrayendo la hora y fecha
+    const Creation_Date = new Date().toLocaleString();
+
     Axios.post("http://localhost:3001/create", {
-        name:MemeName,
-        ticker:Symbol,
-        fee:Fee,
-        contract:"nowhere",
-        image:"https://i.blogs.es/d86db0/meme-fry-1/1366_2000.jpg",
+        
+        name: MemeName,
+        ticker: Symbol,
+        fee: Fee,
+        contract: contract_meme,
+        image:"http://localhost:3001/memes_images/" + image_meme_url,
         creator: Creator,
-        creation:"22/2/21",
+        creation: Creation_Date,
         supply: Supply,
         webpage: Website,
-        twitter: "https://twitter.com/"+Twitter,
+        twitter: Twitter !== undefined && Twitter.trim() !== "" ? "https://twitter.com/" + Twitter : "",
         description: description,
-        discord: "https://www.discord.com/invite/"+Discord,
-        telegram: "https://t.me/"+Telegram
-
-    }).then(()=>{
-        alert("Meme registrado");
+        discord: Discord !== undefined && Discord.trim() !== "" ? "https://www.discord.com/invite/" + Discord : "",
+        telegram: Telegram !== undefined && Telegram.trim() !== "" ? "https://t.me/" + Telegram : "",
+    }).then(() => {
+        console.log("Meme registrado");
     });
 }
+
+
+const saveImageToServer = async (imageFile) => {
+    try {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+
+        // Enviar la solicitud POST al servidor
+        const response = await Axios.post('http://localhost:3001/api/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        // Verificar si la respuesta contiene el nombre de la imagen
+        if (response && response.data && response.data.imageName) {
+            const imageName = response.data.imageName;
+            console.log('Image uploaded successfully. Image name:', imageName);
+            // Aquí puedes hacer lo que necesites con el nombre de la imagen, como mostrarlo en el frontend o usarlo para otras operaciones
+            return imageName; // Devolver el nombre de la imagen
+        } else {
+            console.error('Error: Image name not received from the server.');
+            return null; // Devolver null si no se recibió el nombre de la imagen
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        return null; // Devolver null en caso de error
+
+    }
+};
 
 
 const get_db_memes =() =>{
@@ -53,6 +86,8 @@ const get_db_memes =() =>{
 
 export const TransactionProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState ('');
+    const [currentMeme, setCurrentMeme] = useState ('');
+    const [ currentMemeContract, setcurrentMemeContract] = useState ('');
     const [isLoading, setIsLoading] = useState(false);
     const [FormData, setFormData] = useState({addressTo: '', amount: '', message: ''});
     
@@ -61,8 +96,6 @@ export const TransactionProvider = ({ children }) => {
     const handleChange = (e, name) => {
         setFormData((prevState) => ({...prevState, [name]: e.target.value}));
     }
-
-
 
     const checkIfWalletIsConnected = async () => {
         try{
@@ -136,11 +169,12 @@ export const TransactionProvider = ({ children }) => {
         setFormData_4((prevState) => ({ ...prevState, [name_4]: e4.target.value }));
     }
 
-    const sendTransaction_2 = async () => {
+    const sendTransaction_2 = async (file) => {
         try{
             if (!ethereum) return alert("Please install metamask");
 
             const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
+            let Fee_tx = Fee !== undefined ? Fee : 0;
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const account = await ethereum.request({ method: 'eth_accounts' });
@@ -149,16 +183,35 @@ export const TransactionProvider = ({ children }) => {
             console.log ("recipient XD", recipient)
             const transactionsContract_2 = new ethers.Contract(contractAddress_meme, contractABI_MEME_CREATOR, signer);
             console.log ("previo a la interaccion con el contrato")
-            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",Fee);
+            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",Fee_tx);
             
             setIsLoading(true);
             console.log(`Loading - ${transactionHash.hash}`);
-            await transactionHash.wait();
+            //await transactionHash.wait();
             console.log("previo add meme")
-            Add_Meme(MemeName, Symbol, Supply, recipient, Website, Twitter, Discord, Telegram, Fee, description)
-            console.log("luego de  add meme")
-
-            setIsLoading(false);
+            if (file) {
+                console.log("Uploading", file.name);
+                const image_meme_url = await saveImageToServer(file); 
+                const txReceipt = await transactionHash.wait();
+                const contract_meme = txReceipt.logs[0].address;
+                await Add_Meme(MemeName, Symbol, Supply, contract_meme, image_meme_url, recipient, Website, Twitter, Discord, Telegram, Fee, description)
+                console.log("contract meme ",contract_meme)
+                setIsLoading(false);
+                setCurrentMeme(image_meme_url)// Devuelve contract_meme
+                setcurrentMemeContract(contract_meme)
+                // Guardar la imagen en el servidor
+                //setFile(null); // Limpiar el archivo después de enviar la transacción
+                //setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
+            } else {
+                const image_meme_url = "no_image.png"; 
+                const txReceipt = await transactionHash.wait();
+                const contract_meme = txReceipt.logs[0].address;
+                await Add_Meme(MemeName, Symbol, Supply, contract_meme, image_meme_url, recipient, Website, Twitter, Discord, Telegram, Fee, description)
+                console.log("contract meme ",contract_meme)
+                setIsLoading(false);
+                setCurrentMeme(image_meme_url) // Devuelve contract_meme
+                setcurrentMemeContract(contract_meme)
+            }            
             //console.log(`Success - ${transactionHash.hash}`);
 
         }   catch (error) {
@@ -168,38 +221,7 @@ export const TransactionProvider = ({ children }) => {
         }
     }
 
-    const URI_creation = async () => {
-        const { MemeName, Symbol, Supply, Discord, Twitter, Telegram, Fee  } = FormData_2;
-        
-        const memeData = {
-            "name": MemeName,
-            "symbol": Symbol,
-            "decimals": 18,
-            "totalSupply": Supply,
-            "description": "xd",
-            "Fee": Fee,
-            "image": "https://example.com/token_image.png", // Reemplaza con la URL de la imagen
-            "external_url": "https://example.com/token_details", // Reemplaza con la URL de detalles del token
-            "attributes": [
-                {
-                    "trait_type": "Discord",
-                    "value": "discord.com/",Discord
-                },
-                {
-                    "trait_type": "Twitter",
-                    "value": "https://twitter.com/",Twitter
-                },
-                {
-                    "trait_type": "Telegram",
-                    "value": "https://t.me/",Telegram
-                },
-            ]
-        };
-        Add_Meme();
-
-        console.log(memeData);
-    };
-    
+ 
 
     const sendTransaction_3 = async (stake_contract) => {
         const { stake } = FormData_3;
@@ -288,7 +310,30 @@ export const TransactionProvider = ({ children }) => {
     }, [])
 
     return (
-        <TransactionContext.Provider value={{ connectWallet, currentAccount, FormData, isLoading, FormData_2, FormData_3, FormData_4, setFormData, handleChange, handleChange_2, handleChange_3, handleChange_4, sendTransaction, sendTransaction_2, sendTransaction_3, sendTransaction_3_unstake, sendTransaction_4, URI_creation,  add_metamask }}>
+        <TransactionContext.Provider value={{ 
+            connectWallet, 
+            currentAccount, 
+            FormData, 
+            isLoading, 
+            FormData_2, 
+            FormData_3, 
+            FormData_4, 
+            setFormData, 
+            handleChange, 
+            handleChange_2, 
+            handleChange_3, 
+            handleChange_4, 
+            sendTransaction, 
+            sendTransaction_2, 
+            sendTransaction_3, 
+            sendTransaction_3_unstake, 
+            sendTransaction_4,  
+            add_metamask, 
+            currentMeme, 
+            currentMemeContract 
+
+            }}>
+
             {children}
         </TransactionContext.Provider>
     );

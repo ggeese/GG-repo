@@ -1,7 +1,7 @@
 import { TransactionContext } from '../../../context/TransactionContext';
 import React, { useState, useContext } from "react";
-import { Loader } from '.'
-import PopUp from "./PopUp"
+import { Loader } from './'
+import { PopUp } from "./"
 import image_farm from "../../../../images/farm.jpeg";
 
 

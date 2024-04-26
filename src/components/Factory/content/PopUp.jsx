@@ -1,27 +1,7 @@
-import React, { useState, useContext, useRef } from "react";
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Loader } from './'
+import { PopUp_2 } from "./"
 import { TransactionContext } from '../../../context/TransactionContext';
-import axios from 'axios';
-
-const saveImageToServer = async (imageFile) => {
-  try {
-    const formData = new FormData();
-    formData.append('image', imageFile);
-
-    // Cambia la URL por la dirección de tu servidor cuando tengas uno
-    await axios.post('http://localhost:3000/api/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    
-    console.log('Image uploaded successfully!');
-  } catch (error) {
-    console.error('Error uploading image:', error);
-  }
-};
-
 
 
 const Input2 = ({ placeholder, name_2, type, value, handleChange_2 }) => (
@@ -49,7 +29,7 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
 
 
 
-  function FileUpload() {
+  function FileUpload({ onFileSelect }) {
     const [file, setFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
     const fileInputRef = useRef(null); // Ref para acceder al input de archivo
@@ -73,12 +53,12 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
         const file = event.target.files[0];
         setFile(file);
         updatePreview(file);
+        onFileSelect(file);
     };
 
     const handleClick = () => {
       fileInputRef.current.click(); // Activa el input de archivo cuando se hace clic en el área
     };
-
 
     const updatePreview = (file) => {
         const reader = new FileReader();
@@ -92,6 +72,8 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
       setFile(null);
       setPreviewUrl(null);
     };
+
+
 
     return (
         <div>
@@ -109,7 +91,7 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
                     </div>
                     <div className="absolute top-0 right-0">
                       <button onClick={handleRemoveFile} className="text-black rounded-full p-1 cursor-pointer hover:bg-blue-100 text-3xl">
-                        x
+                        X
                       </button>
                     </div>
                   </div>
@@ -139,30 +121,55 @@ function PopUp({visible, onClose}) {
     
     const { FormData_2, sendTransaction_2, handleChange_2, isLoading, URI_creation } = useContext(TransactionContext); 
 
+    const [file, setFile] = useState(null); // Agregar estado para el archivo
+
     const [formularioVisible, setFormularioVisible] = useState(false);
 
     const handleOnClose = (event) => {
         if (event.target.id === 'container_meme') onClose()
     };
 
+    //comandos para controlar el pop up 2
+
+    const [showMyModal_2, setShowMyModal_2] = useState(false);
+    const [prevLoadingState, setPrevLoadingState] = useState(false); // Nuevo estado para prevLoadingState
+    
+    const handleOnClose_2 = () => setShowMyModal_2(false);
+
+      // Verificar si isLoading cambió de true a false
+    useEffect(() => {
+    if (isLoading === false && prevLoadingState === true) {
+        // Ejecutar la función cuando isLoading vuelve a ser false
+        setShowMyModal_2(true);
+      }
+    setPrevLoadingState(isLoading);
+    }, [isLoading]); // Este efecto se ejecutará cada vez que isLoading cambie
+
     const toggleFormulario = () => {
         setFormularioVisible(!formularioVisible);
       };
 
-      const handleSubmit_2 = () => {
-        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
-        
-        if (!MemeName || !Symbol || !Supply) return;
-        
-        sendTransaction_2();
-        
-       /* if (file) {
-          console.log("Uploading", file.name);
-          saveImageToServer(file); // Guardar la imagen en el servidor
-          setFile(null); // Limpiar el archivo después de enviar la transacción
-          setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
-        }*/
-      };
+    // Aquí actualizas el estado del archivo en PopUp cuando se selecciona un archivo en FileUpload
+    const handleFileSelect = (file) => {
+      setFile(file); 
+    };
+
+    
+
+    const handleSubmit_2 = (file) => {
+      const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
+      
+      if (!MemeName || !Symbol || !Supply) return;
+      
+      sendTransaction_2(file);
+      
+      if (file) {
+        console.log("Uploading", file.name);
+        // saveImageToServer(file); // Guardar la imagen en el servidor
+        //setFile(null); // Limpiar el archivo después de enviar la transacción
+        //setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
+      }
+    };
       
       
       
@@ -174,7 +181,13 @@ function PopUp({visible, onClose}) {
             id= 'container_meme'
             onClick={handleOnClose} 
             className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
-            <div className="flex flex-col justify-center bg-white p-8 rounded-2xl">
+            <div className="flex flex-col justify-center bg-white p-2 rounded-2xl">
+              <div className="flex justify-end">
+              <button className="flex p-2 rounded-full h-10 w-10 flex justify-center bg-white border border-zinc-500 ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                onClick = {onClose}>
+                X
+              </button>
+              </div>
               <div className="flex flex-col justify-center items-center">
                 <div className = " justify-center p-4">
                   <div className="flex justify-around">
@@ -236,7 +249,7 @@ function PopUp({visible, onClose}) {
                       <h1 className="text-center">Imagen:</h1>
                     </div>
                     <div className="flex justify-center p-2">
-                      <FileUpload />
+                      <FileUpload onFileSelect={handleFileSelect}  />
                     </div>
                   </div>
                 </div>
@@ -285,11 +298,13 @@ function PopUp({visible, onClose}) {
 
             {isLoading
             ? <Loader/>
+            
             : (
               <div className="flex p-4">
                 <button className="px-10 py-4 bg-blue-500 text-white rounded-2xl shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                 type="button"
-                onClick={handleSubmit_2}
+                
+                onClick={() => handleSubmit_2(file)} // Pasar 'file' como parámetro
                 
                 >
                 Create Meme
@@ -297,14 +312,11 @@ function PopUp({visible, onClose}) {
               </div>
             )}
          </div>
-         
-         </div>
 
-         <button className=" bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            onClick={onClose}>X
-          </button>
+          </div>
+          <PopUp_2 onClose_2 = {handleOnClose_2} visible_2 = {showMyModal_2}/>
+          </div>
 
-        </div>
     )
 }
 export default PopUp;
