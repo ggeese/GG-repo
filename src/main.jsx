@@ -1,9 +1,10 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route  } from 'react-router-dom';
-import { Factory  } from './components/Factory';
-import { Farm  } from './components/Farm';
-import { Home  } from './components/Home';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Factory } from './components/Factory';
+import { Farm } from './components/Farm';
+import { Home } from './components/Home';
+import { Points } from './components/Points';
 
 
 import "./index.css";
@@ -23,6 +24,7 @@ root.render(
           <Route path="/" element={<Home/>} />
           <Route path="/Factory" element={<Factory/>} />
           <Route path="/Farm" element={<Farm/>} />
+          <Route path="/Points" element={<Points/>} />
         
         </Routes>
       </BrowserRouter>

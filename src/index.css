@@ -4,6 +4,68 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+
+/* index.css */
+/* index.css */
+
+.animatedSprite {
+  width: 98px; /* Ancho de cada imagen individual en el sprite */
+  height: 61.5px; /* Altura de cada imagen individual en el sprite */
+  background-image: url('goose_animation.svg'); /* Ruta relativa al archivo CSS */
+  background-size: 196px 123px; /* Tamaño total del sprite de imagen */
+  animation: playSprite 1s steps(1) infinite;
+}
+
+@keyframes playSprite {
+  0% {
+    background-position: 0px 0px; /* Primera imagen: esquina superior izquierda */
+  }
+  25% {
+    background-position: 98px 0px; /* Segunda imagen: esquina superior derecha */
+  }
+  50% {
+    background-position: 0px -61.5px;; /* Tercera imagen: esquina inferior izquierda */
+  }
+  75% {
+    background-position: 98px -61.5px;; /* Cuarta imagen: esquina inferior derecha */
+  }
+  100% {
+    background-position: 0px 0px; /* Volver a la primera imagen */
+  }
+}
+
+/* animacion para la derecha */
+
+@keyframes moveRight {
+  0% {
+    transform: translateX(0vw); /* Comienza fuera del contenedor a la izquierda */
+  }
+  100% {
+    transform: translateX(90vw); /* Termina fuera del contenedor a la derecha */
+  }
+}
+
+.move-right-animation {
+  animation: moveRight 37s linear infinite; /* Ajusta la duración y el tipo de animación según tus necesidades */
+  overflow-x: hidden; /* Evita el desbordamiento horizontal */
+
+}
+/*animacion hacia la derecha*/
+
+@keyframes moveLeft {
+  0% {
+    transform: translateX(-10vw); /* Comienza fuera del contenedor a la derecha */
+  }
+  100% {
+    transform: translateX(-80vw); /* Termina fuera del contenedor a la izquierda */
+  }
+}
+
+.move-left-animation {
+  animation: moveLeft 27s linear infinite; /* Ajusta la duración y el tipo de animación según tus necesidades */
+  overflow-x: hidden; /* Evita el desbordamiento horizontal */
+}
+
 @keyframes scale-down {
   0% {
     transform: scale(1);
@@ -15,6 +77,60 @@
     transform: scale(1);
   }
   
+}
+
+.banner-container {
+  position: fixed;
+  top: 50%;
+  left: 50%; /* Centra horizontalmente el contenedor del banner */
+  transform: translate(-50%, -50%); /* Centra vertical y horizontalmente el contenedor del banner */
+  max-width: 80%; /* Establece un ancho máximo para el contenedor del banner */
+  overflow: hidden;
+}
+
+.banner {
+  animation: scrollBanner 30s linear infinite; /* Ajusta la duración y la velocidad según tus preferencias */
+}
+
+
+@keyframes scrollBanner {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-7.3% * 50)); /* Ajusta el número de imágenes multiplicando por la cantidad de imágenes */
+  }
+}
+
+.inverted-image {
+  filter: invert(100%);
+}
+
+.iframe-content {
+  width: 100%;
+  height: 100%; /* El iframe ocupará toda la altura del contenedor */
+  border: none;
+}
+
+/* Estilos para el botón */
+.custom-button {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: #4CAF50; /* Color de fondo */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+/* Estilo hover */
+.custom-button:hover {
+  background-color: #45a049; /* Color de fondo al pasar el cursor */
 }
 
 
@@ -110,8 +226,7 @@ body {
 
 .panel {
   transition: max-height 0.3s ease;
-  overflow: hidden;
-  max-height: 0; /* Inicialmente no expandido */
+  max-height: 600; /* Inicialmente no expandido */
 }
 
 .panel.expanded {

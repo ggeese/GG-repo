@@ -1,16 +1,11 @@
 import React from "react";
-import sky from "../../../../images/sky.jpeg";
 import meme from "../../../../images/meme.png";
 
 const Info = () => {
-  const backgroundStyle = {
-    backgroundImage: `url(${sky})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center'
-  };
+
 
   return (
-    <div style={backgroundStyle} className="flex flex-row items-center justify-around min-h-screen p-10"> 
+    <div className="flex flex-row items-center justify-around min-h-screen p-10"> 
       {/* About Us Section on the left */}
       <div className="bg-white bg-opacity-50 border border-gray-200 p-4 flex flex-col items-center text-center space-y-2 w-1/2">
         <h1 className="text-2xl font-bold">What is Hatching?</h1>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import sky from "../../../../images/sky.jpeg";
 import copy_logo from "../../../../images/copy.svg";
 
 
@@ -10,15 +9,8 @@ const copyContractAddress = () => {
   navigator.clipboard.writeText(contractAddress); // Copia la dirección del contrato al portapapeles
 };
 
-const backgroundStyle = {
-  backgroundImage: `url(${sky})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat',
-};
-
   return (
-    <div style={backgroundStyle} className="flex flex-col items-center justify-center min-h-screen p-10">
+    <div className="flex flex-col items-center justify-center min-h-screen p-10">
       {/* About Us Section */}
       <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg text-center space-y-4 w-full max-w-lg">
         <h1 className="text-3xl font-bold">What is Golden Goose?</h1>

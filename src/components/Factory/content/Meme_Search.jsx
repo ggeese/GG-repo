@@ -9,6 +9,28 @@ import etherscan from "../../../../images/etherscan_logo.svg";
 import copy_logo from "../../../../images/copy.svg";
 import Axios from "axios";
 
+const LoadingBox = () => (
+    <div className="border border-gray-300 rounded-3xl shadow-sm overflow-hidden bg-white" style={{ width: '300px', height:'550px' }}>
+        <div className="flex flex-col items-center animate-pulse p-5 ">
+            {/* Inserta aquí el contenido de tu caja de carga */}
+            <div className="flex border justify-center border-gray-300 rounded-3xl shadow-sm overflow-hidden bg-white" style={{ width: '200px', height:'200px' }}>
+            </div>
+            <p className="text-lg font-semibold text-center mt-auto mb-auto p-4">loading...</p>
+            <p className="text-lg font-semibold text-center mt-auto mb-auto p-4">Cuak Cuak Cuak!!!...</p>
+                <p className="text-md font-semibold text-center mt-auto mb-auto ">Cuak Cuak Cuak...</p>
+                <p className="text-md font-semibold text-center mt-auto mb-auto ">Cuak!!! Cuak Cuak...</p>
+                <p className="text-md font-semibold text-center mt-auto mb-auto ">Cuak Cuak! Cuak...</p>
+                <p className="text-md font-semibold text-center mt-auto mb-auto ">Cuak!!! Cuak Cuak Cuak...</p>
+                <p className="text-md font-semibold text-center mt-auto mb-auto ">Cuak!!! Cuak Cuak...</p>
+                <p className="text-md font-semibold text-center mt-auto mb-auto ">Cuak!!! Cuak Cuak Cuak Cuak...</p>
+
+
+
+        </div>
+
+    </div>
+);
+
 
 const Meme_Search = () => {
     const { add_metamask } = useContext(TransactionContext); 
@@ -17,41 +39,64 @@ const Meme_Search = () => {
     const [search, setSearch] = useState("");
     const [scalingButtons, setScalingButtons] = useState({});
 
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+          handleSearch();
+        }
+      };
+    
+
     const handleButtonClick = (contract, id) => {
-        // Activa la animación de escala para el botón específico
         setScalingButtons(prevState => ({
             ...prevState,
             [id]: true
         }));
 
-        // Copia el contrato al portapapeles
         navigator.clipboard.writeText(contract)
             .then(() => {
                 console.log('Contract copied to clipboard:', contract);
-                // Aquí puedes agregar lógica adicional si lo deseas, como mostrar un mensaje de éxito.
             })
             .catch((error) => {
                 console.error('Error copying contract to clipboard:', error);
-                // Aquí puedes manejar el error, por ejemplo, mostrando un mensaje de error al usuario.
             })
             .finally(() => {
-                // Desactiva la animación de escala después de un breve retraso
                 setTimeout(() => {
                     setScalingButtons(prevState => ({
                         ...prevState,
                         [id]: false
                     }));
-                }, 500); // Duración de la animación en milisegundos
+                }, 400); // Duración de la animación en milisegundos
             });
     };
     
     useEffect(() => {
-        Axios.get("http://localhost:3001/db_memes").then((response) => {
+        Axios.get("http://localhost:3001/db_memes", {
+            params: {
+            }
+        }).then((response) => {
             setMemes(response.data);
         }).catch(error => {
             console.error('Error fetching memes:', error);
         });
     }, []);
+    
+    const handleSearch = async () => {
+    
+        try {
+            console.log("Enviando solicitud de búsqueda...");
+            const response = await Axios.get("http://localhost:3001/db_memes", {
+                params: {
+                    name: search, // Usar el estado 'search' en lugar de 'memes'
+                }
+            });
+    
+            // Actualizar el estado 'memes' con los resultados de la búsqueda
+            setMemes(response.data);
+        } catch (error) {
+            console.error('Error fetching memes:', error);
+        }
+    };
+    
 
     const searcher = (e) => {
         setSearch(e.target.value);
@@ -62,22 +107,54 @@ const Meme_Search = () => {
         results = memes;
     } else {
         results = memes.filter((meme) =>
-            meme.name.toLowerCase().includes(search.toLowerCase())
-        );
+        meme.name.toLowerCase().includes(search.toLowerCase())
+    );
     }
 
     return (
-        <div className="p-5">
-            <input 
-                value={search} 
-                onChange={searcher} 
-                type="text" 
-                placeholder="Search memes" 
-                className="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-            />
+        <div className="flex flex-col p-5">
+            <div className="flex flex-col">
+                <p className="flex text-7xl p-10 justify-center text-center">Golden Hatchlings</p>
+                <div className = "flex justify-around">
+                    <div className = "flex flex-fil w-1/2 p-10">
+                        <input 
+                            value={search} 
+                            onChange={searcher}
+                            type="text" 
+                            onKeyDown={handleKeyPress}
+                            placeholder="Type here to Search memes all memes!!" 
+                            className="form-control block px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none w-full"
+                        />
+                        <div className="px-5">
+                            <button 
+                            onClick={handleSearch}
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-md">
+                            Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="mt-1 min-h-[42px] flex items-center">
+                        <button className = "flex items-center justify-between whitespace-nowrap rounded-md px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 w-[120px] border-2 border-black bg-white h-[42px]">
+                            sort
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+
             <div className="flex flex-wrap gap-5 justify-center items-start p-4">
-                {results.map((meme) => (
-                    <div key={meme.id} className="border border-gray-300 rounded-3xl shadow-sm overflow-hidden bg-white" style={{ width: '300px' }}>
+                
+                { results.length === 0 ? (
+                    <>
+                        <LoadingBox />
+                        <LoadingBox />
+                        <LoadingBox />
+                    </>
+                ) :
+                results.map((meme) => (
+                    <div key={meme.id} className="border border-gray-300 rounded-3xl shadow-sm overflow-hidden bg-gray-200" style={{ width: '300px' }}>
                         <h1 className="text-lg font-semibold mb-2 py-3 text-center">{meme.name}</h1>
                         <div className="flex w-full justify-between">
                             <h1 className="flex flex-colm text-md font-semibold mb-2 px-4">Ticker: {meme.ticker}</h1>

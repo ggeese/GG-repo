@@ -1,25 +1,21 @@
 import React from "react";
-import sky from "../../../../images/sky.jpeg";
 import meme_video from "../../../../videos/meme_video.mp4";
+import frame from "../../../../images/frame_4.png";
 
 const Hatching = () => {
-  const backgroundStyle = {
-    backgroundImage: `url(${sky})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center'
-  };
-
   return (
-    <div style={backgroundStyle} className="flex flex-row items-center justify-around min-h-screen p-10"> 
+    <div className="flex flex-row items-center justify-around min-h-screen"> 
       {/* Video Section on the left */}
-      <div className="w-1/2">
-        <video controls width="100%">
-          <source src={meme_video} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+      <div className="flex w-3/5 justify-center items-center">
+        <div className="flex relative">
+          <img src={frame} alt="Frame" className="absolute inset-0 w-full h-auto z-2 scale-150" />
+          <video controls width="100%" className=" z-1 py-3"> 
+            <source src={meme_video} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
       </div>
       {/* About Us Section on the right */}
-
     </div>
   );
 };

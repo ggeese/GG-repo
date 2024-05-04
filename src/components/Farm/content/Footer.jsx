@@ -1,5 +1,6 @@
 import React from "react";
 
+
 const Footer =  ({ title, description, imageUrl }) => {
   return (
     <div className="border border-gray-200 p-4 flex flex-col items-center text-center space-y-2">

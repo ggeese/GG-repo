@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "MemeCreator",
-  "sourceName": "contracts/MemeCreator.sol",
+  "contractName": "MemeFactory",
+  "sourceName": "contracts/MemeFactory.sol",
   "abi": [
     {
       "inputs": [

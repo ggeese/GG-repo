@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { contractAddress, contractAddress_meme, contractAddress_staking_rewards } from "../utils/constants";
-import { contractABI, contractABI_MEME_CREATOR, contractABI_MEME, contractABI_STAKING_REWARDS  } from "../utils/constants";
+import { contractAddress, contractAddress_meme_factory, contractAddress_staking_rewards } from "../utils/constants";
+import { contractABI, contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS  } from "../utils/constants";
 import Axios from "axios";
 
 
@@ -169,6 +169,14 @@ export const TransactionProvider = ({ children }) => {
         setFormData_4((prevState) => ({ ...prevState, [name_4]: e4.target.value }));
     }
 
+    //funcion para cambiar el input de pools usando los botones de %
+    const change_input_staking = (percent) => {
+        setFormData_3((prevFormData) => ({
+          ...prevFormData,
+          stake: percent.toString()
+        }));
+      };
+      
     const sendTransaction_2 = async (file) => {
         try{
             if (!ethereum) return alert("Please install metamask");
@@ -181,7 +189,7 @@ export const TransactionProvider = ({ children }) => {
             const recipient = account[0]
             const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
             console.log ("recipient XD", recipient)
-            const transactionsContract_2 = new ethers.Contract(contractAddress_meme, contractABI_MEME_CREATOR, signer);
+            const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory, contractABI_MEME_FACTORY, signer);
             console.log ("previo a la interaccion con el contrato")
             const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",Fee_tx);
             
@@ -273,6 +281,14 @@ export const TransactionProvider = ({ children }) => {
         const transactionHash = await transactionsContract_3.updateRewardDuration(parameter)
     }
 
+    const Get_Token_Balance = async(contract_meme) => {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const tokenContract = new ethers.Contract(contract_meme, contractABI_MEME, signer);
+        const balance = await tokenContract.balanceOf(currentAccount);
+        return ethers.formatEther(balance.toString());
+    }
+
     const add_metamask = async(tokenAddress, tokenImage) => {
         
         const provider = new ethers.BrowserProvider(window.ethereum);
@@ -330,8 +346,9 @@ export const TransactionProvider = ({ children }) => {
             sendTransaction_4,  
             add_metamask, 
             currentMeme, 
-            currentMemeContract 
-
+            currentMemeContract,
+            Get_Token_Balance,
+            change_input_staking
             }}>
 
             {children}
