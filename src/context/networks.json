@@ -1,0 +1,89 @@
+{
+    "networks": [
+      {
+        "name": "Ethereum",
+        "chainId": 1,
+        "rpcUrl": "https://eth.llamarpc.com",
+        "symbol": "ETH",
+        "explorerUrl": "https://etherscan.io"
+      },
+      {
+        "name": "BNB Chain",
+        "chainId": 56,
+        "rpcUrl": "https://bsc-dataseed1.binance.org",
+        "symbol": "BNB",
+        "explorerUrl": "https://bscscan.com/"
+      },
+      {
+        "name": "Polygon",
+        "chainId": 137,
+        "rpcUrl": "https://polygon.llamarpc.com",
+        "symbol": "MATIC",
+        "explorerUrl": "https://polygonscan.com"
+      },
+      {
+        "name": "Avalanche",
+        "chainId": 43114,
+        "rpcUrl": "https://api.avax.network/ext/bc/C/rpc",
+        "symbol": "AVAX",
+        "explorerUrl": "https://snowtrace.io"
+      },
+      {
+        "name": "Arbitrum",
+        "chainId": 42161,
+        "rpcUrl": "https://arb1.arbitrum.io/rpc",
+        "symbol": "ETH",
+        "explorerUrl": "https://arbiscan.io/"
+      },
+      {
+        "name": "Fantom Opera",
+        "chainId": 250,
+        "rpcUrl": "https://rpcapi.fantom.network",
+        "symbol": "FTM",
+        "explorerUrl": "https://ftmscan.com"
+      },
+      {
+        "name": "Optimism",
+        "chainId": 10,
+        "rpcUrl": "https://mainnet.optimism.io",
+        "symbol": "ETH",
+        "explorerUrl": "https://optimistic.etherscan.io/"
+      },
+      {
+        "name": "Base",
+        "chainId": 8453,
+        "rpcUrl": "https://base.llamarpc.com",
+        "symbol": "ETH",
+        "explorerUrl": "https://basescan.org"
+      },
+      {
+        "name": "Manta Pacific",
+        "chainId": 169,
+        "rpcUrl": "https://pacific-rpc.manta.network/http",
+        "symbol": "ETH",
+        "explorerUrl": "https://pacific-explorer.manta.network"
+      },
+      {
+        "name": "Blast",
+        "chainId": 81457,
+        "rpcUrl": "https://rpc.blast.io",
+        "symbol": "ETH",
+        "explorerUrl": "https://blastscan.io"
+      },
+      {
+        "name": "Linea",
+        "chainId": 59144,
+        "rpcUrl": "https://linea.blockpi.network/v1/rpc/public",
+        "symbol": "ETH",
+        "explorerUrl": "https://lineascan.build"
+      },
+      {
+        "name": "Klaytn",
+        "chainId": 8217,
+        "rpcUrl": "https://api.cypress.klaytn.net:8651",
+        "symbol": "KLAY",
+        "explorerUrl": "https://scope.klaytn.com/"
+      }
+    ]
+  }
+  

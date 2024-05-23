@@ -4,7 +4,7 @@ module.exports = {
     fontFamily: {
       display: ["Open Sans", "sans-serif"],
       body: ["Open Sans", "sans-serif"],
-      goldeng: [ "Madimi One", "sans-serif"]
+      goldeng: [  "DynaPuff", "system-ui"]
     },
     extend: {
       screens: {

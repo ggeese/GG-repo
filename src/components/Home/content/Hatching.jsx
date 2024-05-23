@@ -4,7 +4,7 @@ import frame from "../../../../images/frame_4.png";
 
 const Hatching = () => {
   return (
-    <div className="flex flex-row items-center justify-around min-h-screen"> 
+    <div className="flex flex-row items-center justify-around min-h-screen bg-gradient-to-r from-transparent to-transparent backdrop-blur-md"> 
       {/* Video Section on the left */}
       <div className="flex w-3/5 justify-center items-center">
         <div className="flex relative">

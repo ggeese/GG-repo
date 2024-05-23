@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Collapse } from 'react-collapse';
 import golden_coin from "../../../../images/gg_coin.png";
+import { TransactionContext } from '../../../context/TransactionContext';
 import Axios from "axios";
 
 const LoadingBox = () => (
@@ -18,20 +19,142 @@ const LoadingBox = () => (
     </div>
 );
 
-const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) => {
+const PopUp_Unstake = ({item_1, handleStakeClick_1, handleUnStakeClick_1, handleClaimClick_1}) => (
+    <div>
+        <div className="rounded-lg px-4 py-2 border-2 border-black mt-2 bg-[#C2EAFF]" style={{ width: '320px'}}>
+                <div className="text-center text-lg font-semibold">
+                    Staked Position
+                </div>
+                <div className="mt-4">
+                    <div className="flex gap-1.5">
+                        <div className="flex flex-shrink-0 w-[42px] h-[42px]">
+                            imagen
+                        </div>
+                    <div className="font-semibold leading-none">
+                        <div className="leading-none uppercase font-normal text-sm">
+                            {item_1.token_name} Staked:
+                        </div>
+                        <div className="mt-1.5 text-base">
+                            100
+                        </div>
+                        <div className="mt-0.5 text-xs text-[#2A6B9B]">
+                            $ 0.0002
+                        </div>
+
+                    </div>
+                    </div>
+
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                    <button className="inline-flex items-center justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-black shadow hover:bg-blue-600 border-2 border-black h-9 px-4 py-2 rounded-xl font-semibold normal-case bg-gradient-to-r from-yellow-200 to-yellow-400"
+                        onClick={() => handleStakeClick_1(item_1.stake_contract, item_1.token, item_1.token_name)}>
+                        Stake
+                    </button>
+                    <button className="inline-flex items-center justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-white shadow hover:bg-blue-600 border-2 border-black h-9 px-4 py-2 rounded-xl font-semibold normal-case bg-gradient-to-r from-gray-500 to-gray-700"
+                        onClick={() => handleUnStakeClick_1(item_1.stake_contract, item_1.token, item_1.token_name)}>
+                        Unstake
+                    </button>
+
+                </div>
+                <div className="mt-6 mb-5 space-y-5">
+                    <div className="border-t-2 border-dashed border-[#9c9c9c] w-full">
+                    </div>
+                    <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center">
+                            imagen
+                            esToken earned
+                        </div>
+                        <div className="ml-auto font-semibold">
+                            0.0001
+                        </div>
+
+                    </div>
+                    <div className="border-t-2 border-dashed border-[#9c9c9c] w-full"></div>
+                    <div className="flex flex-wrap items-center">
+                        <div className="w-max flex-shrink-0 flex gap-1 items-center">
+                            imagen Points earned
+                        </div>
+                        <div className="ml-auto font-semibold">
+                            {item_1.Points}
+                        </div>
+                    </div>
+                    <div>
+                    <button className="inline-flex items-center justify-center whitespace-nowrap text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 text-black shadow hover:bg-blue-600 border-2 border-black h-9 px-4 py-1 rounded-xl font-semibold normal-case bg-gradient-to-r from-orange-300 to-orange-500"
+                        onClick={() => handleClaimClick_1(item_1.stake_contract)}>
+                        Claim
+                    </button>
+                    </div>
+                </div>
+
+        </div>
+                    <div className="mt-4 flex flex-col items-end font-medium text-[#3DB3A9] leading-none gap-0.5">
+                    <a className="flex items-center gap-0.5" href={"https://pacific-explorer.manta.network/address/"+item_1.token} target="_blank">
+                        View Token Contract                            
+                    </a>
+                </div>
+                <div className="mt-4 flex flex-col items-end font-medium text-[#3DB3A9] leading-none gap-0.5">
+                    <a className="flex items-center gap-0.5" href={"https://pacific-explorer.manta.network/address/"+item_1.stake_contract} target="_blank">
+                        View Staking Contract                            
+                    </a>
+                </div>
+    </div>
+);
+
+
+const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, toggleFormulario, formularioVisible }) => {
 
     const [PoolsMemes, setPoolsMemes] = useState([]);
+    const [UserPools, setUserPools] = useState([]);
     const [search, setSearch] = useState("");
-
-
+    const [pointsEarnedList, setPointsEarnedList] = useState([]);
+    const { currentAccount, Points_Earned } = useContext(TransactionContext); 
 
     useEffect(() => {
         Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
             setPoolsMemes(response.data);
+            console.log("pools memesXD",response.data)
         }).catch(error => {
             console.error('Error fetching pools_memes:', error);
         });
     }, []);
+    
+
+    useEffect(() => {
+        Axios.get('http://localhost:3002/db_stakers', {
+          params: {
+            address: currentAccount
+          }
+        })
+        .then(response => {
+            console.log("server data user pools!!!!")
+            console.log(response.data); // Maneja la respuesta del servidor aquí
+            setUserPools(response.data); // Actualiza el estado con los datos del servidor
+        })
+        .catch(error => {
+          console.error('Error al enviar la dirección:', error);
+          // Aquí puedes manejar el error según sea necesario
+        });
+      }, []);
+
+      useEffect(() => {
+        const fetchPoints = async () => {
+            // Mapear los items y obtener los puntos ganados para cada uno
+            const pointsPromises = PoolsMemes.map(async (item) => {
+                const points = await Points_Earned(item.stake_contract);
+                return { ...item, Points: points }; // Agregar la propiedad "Points" al objeto
+            });
+    
+            // Esperar a que se resuelvan todas las promesas
+            const resolvedPoints = await Promise.all(pointsPromises);
+    
+            // Actualizar el estado con los puntos ganados
+            setPoolsMemes(resolvedPoints);
+            console.log(resolvedPoints, "resolvend points!!!")
+        };
+    
+        fetchPoints();
+    }, [Points_Earned]); // Asegúrate de incluir Points_Earned como dependencia
+    
 
 
     const searcher = (e) => {
@@ -46,6 +169,7 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
         item.token_name.toLowerCase().includes(search.toLowerCase())
     );
     }
+    console.log(" ITEMS ",items)
 
     return (
         <div className= "flex flex-col p-15 bg-gray-200 bg-opacity-70 rounded-3xl">
@@ -131,20 +255,24 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                                         Rewards
                                     </div>
                                 </div>    
-
                             </div>
+
                             <div className="flex flex-items justify-between p-1">
                                 <p className="flex justify-end">{item.stakers}</p>
                                 <img src={golden_coin} className="w-auto h-6" alt="Golden coin" />
                             </div>
-                            
+
+                        {UserPools.includes(item.stake_contract.toLowerCase()) ? 
+                            <PopUp_Unstake key={item.stake_contract} item_1={item} handleStakeClick_1={handleStakeClick} handleUnStakeClick_1={handleUnStakeClick} handleClaimClick_1={handleClaimClick}/>
+                        : 
+                        <div>
                             <div className="flex justify-center items-center">
                                 <button className="bg-red-800 text-white font-semibold px-10 w-80 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
-                                    onClick={() => handleStakeClick(item.stake_contract)}>
+                                    onClick={() => handleStakeClick(item.stake_contract, item.token, item.token_name)}>
                                     + Stake
                                 </button>  
                             </div>
-                            
+
                             <button className="flex justify-center items-center w-full mt-2 text-center py-2 font-semibold"
                                 onClick={() => toggleFormulario(item.stake_contract)}>
                                 details
@@ -176,7 +304,7 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                            n/a
+
                                     </div>
                                     
                                     <div className="flex gap-1 items-center">
@@ -191,6 +319,7 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                                     </div>
                                 </div>
                             </div>
+                            
                             <div className="mt-4 flex flex-col items-end font-medium text-[#3DB3A9] leading-none gap-0.5">
                                 <a className="flex items-center gap-0.5" href={"https://pacific-explorer.manta.network/address/"+item.token} target="_blank">
                                     View Token Contract                            
@@ -203,7 +332,9 @@ const Data_Pools = ({ handleStakeClick, toggleFormulario, formularioVisible }) =
                             </div>
                             </>
                             </Collapse>
-                        </div>                    
+                        </div>   
+                        }
+                        </div>   
                     ))}
                 </div>
             </div>

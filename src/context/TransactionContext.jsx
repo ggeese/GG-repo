@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { contractAddress, contractAddress_meme_factory, contractAddress_staking_rewards } from "../utils/constants";
-import { contractABI, contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS  } from "../utils/constants";
+import { contractAddress, contractAddress_meme_factory, contractAdrress_golden_exp } from "../utils/constants";
+import { contractABI, contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
+import networksData from './networks.json'; // Importa el archivo JSON
+
 import Axios from "axios";
 
 
@@ -11,12 +13,12 @@ export const TransactionContext = React.createContext();
 
 const { ethereum } = window;
 
-const getEthereumContract = async () => {
+const getEthereumContract = async (stake_contract) => {
     
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     console.log(' contract pasa por aqui 2 signer:',signer);
-    const transactionsContract = new ethers.Contract(contractAddress, contractABI, signer);
+    const transactionsContract = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
 
     return transactionsContract;
 }
@@ -141,6 +143,31 @@ export const TransactionProvider = ({ children }) => {
         }
     }
 
+    //cambiar red//
+
+    const changeNetwork = async (network) => {
+        try {
+          // Obtener la información de la red del JSON
+          console.log(networksData)
+          const { chainId, rpcUrl } = networksData.networks.find(net => net.name === network);
+      
+          // Comprobar si Metamask está disponible
+          if (window.ethereum) {
+            // Enviar la solicitud para cambiar la red
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: `0x${chainId.toString(16)}` }], // Convertir el ID de cadena a formato hexadecimal
+            });
+      
+            console.log(`Red cambiada a ${network}`);
+          } else {
+            console.error('Metamask no está instalado o no está disponible.');
+          }
+        } catch (error) {
+          console.error('Error al cambiar de red:', error);
+        }
+      }
+
     const sendTransaction = async () => {
         try{
             if (!ethereum) return alert("Please install metamask");
@@ -167,6 +194,11 @@ export const TransactionProvider = ({ children }) => {
     const [FormData_4, setFormData_4] = useState({ paramater: ''});
     const handleChange_4 = (e4, name_4) => {
         setFormData_4((prevState) => ({ ...prevState, [name_4]: e4.target.value }));
+    }
+
+    const [FormData_5, setFormData_5] = useState({ contract: '', ewithdraw: '', notify: '', ureward: '', uboost: '', poolcontract: '', poolstate:''});
+    const handleChange_5 = (e5, name_5) => {
+        setFormData_5((prevState) => ({ ...prevState, [name_5]: e5.target.value }));
     }
 
     //funcion para cambiar el input de pools usando los botones de %
@@ -231,43 +263,83 @@ export const TransactionProvider = ({ children }) => {
 
  
 
-    const sendTransaction_3 = async (stake_contract) => {
+    const sendTransaction_3 = async (stake_contract, token_stake_contract) => {
+        console.log ("previo a stake transaction ")
         const { stake } = FormData_3;
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
-        console.log ("stake contract ", stake_contract)
+        console.log ("stake contract XDDDD ", stake_contract)
         //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contractAddress_staking_rewards, contractABI_STAKING_REWARDS, signer);
+        const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
         console.log ("previo a la interaccion con el contrato stake");
         //ponemos los datos del token que queremos que controle el contrato de staking
-        const erc20Contract = new ethers.Contract(stake_contract, contractABI_MEME, signer); //contrato del token GTA
+        const erc20Contract = new ethers.Contract(token_stake_contract, contractABI_MEME, signer); //contrato del token GTA
         const stake_amount = ethers.parseEther(stake)
         console.log ("llamada al contrato del token");
+        console.log(stake_amount)
         //permiso para que el contrato X pida a la wallet el uso de cierto token
 
-        const transaction = await erc20Contract.approve(contractAddress_staking_rewards, stake_amount);
+        const transaction = await erc20Contract.approve(stake_contract, stake_amount);
         await transaction.wait(); // Esperar a que se complete la transacción
-        console.log (`Se aprobaron ${stake} tokens para el contrato ${contractAddress_staking_rewards}`);
+        console.log (`Se aprobaron ${stake} tokens para el contrato ${stake_contract}`);
 
         //interaccion con el contrato de staking
         const transactionHash = await transactionsContract_3.stake(stake_amount)
     }
 
-    const sendTransaction_3_unstake = async () => {
+
+    const sendTransaction_3_Unstake = async (stake_contract) => {
+        console.log ("previo a stake transaction ")
+        const { stake } = FormData_3;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
+        const stake_amount = ethers.parseEther(stake)
+        //interaccion con el contrato de staking
+        const transactionHash = await transactionsContract_3.unstake(stake_amount)
+    }
+
+    const Claim_Rewards = async (stake_contract) => {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const tokenContract = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
+        console.log("PREVIO A CLAIM REWARDS")
+        const claim_rewards = await tokenContract.claim();
+        const rewards = ethers.formatEther(claim_rewards.toString());
+        console.log("balance token Staked", rewards)
+        return rewards
+
+    }
+
+    const Points_Earned = async (stake_contract) => {
         const { unstake } = FormData_3;
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contractAddress_staking_rewards, contractABI_STAKING_REWARDS, signer);
+        const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const PointsEarned = await transactionsContract_3.earned(currentAccount)
+        console.log(PointsEarned, "earned!!!!!!!!!!!!!!!!")
+        return PointsEarned
+    }
+
+
+    const sendTransaction_3_test = async () => {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contractAdrress_golden_exp, contractABI_GOLDEN_EXP, signer);
         console.log ("previo a la interaccion con el contrato stake");
 
-        const unstake_amount = ethers.parseEther(unstake)
+        //const unstake_amount = ethers.parseEther(unstake)
         console.log ("llamada al contrato del token");
 
         //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.unstake(unstake_amount)
-    }
+        const transactionHash = await transactionsContract_3.setMinter(["0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b", "0x7dA9De9c0009a94F817Ca85B7c248f335a718D59"], [true, true]);
 
+        console.log(transactionHash, "earned")
+    }
 
 
     const sendTransaction_4 = async () => {
@@ -275,7 +347,7 @@ export const TransactionProvider = ({ children }) => {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
         //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contractAddress_staking_rewards, contractABI_STAKING_REWARDS, signer);
+        const transactionsContract_3 = new ethers.Contract("0x435vb34", contractABI_STAKING_REWARDS, signer);
         console.log ("previo a la interaccion con el contrato stake");
 
         const transactionHash = await transactionsContract_3.updateRewardDuration(parameter)
@@ -286,8 +358,20 @@ export const TransactionProvider = ({ children }) => {
         const signer = await provider.getSigner();
         const tokenContract = new ethers.Contract(contract_meme, contractABI_MEME, signer);
         const balance = await tokenContract.balanceOf(currentAccount);
+        console.log("balance token", balance)
         return ethers.formatEther(balance.toString());
     }
+    
+    const Get_Balance_Staked = async(contract_staking) => {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const tokenContract = new ethers.Contract(contract_staking, contractABI_STAKING_REWARDS, signer);
+        const balance = await tokenContract.balanceOf(currentAccount);
+        console.log("balance token Staked", balance)
+        return ethers.formatEther(balance.toString());
+    }
+
+    
 
     const add_metamask = async(tokenAddress, tokenImage) => {
         
@@ -319,7 +403,98 @@ export const TransactionProvider = ({ children }) => {
         }
     }
 
+    ///////////ADMIN FUNCTIONS////////////
     
+    const EmergWithdraw = async () => {
+        const { contract, ewithdraw } = FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        const transactionHash = await transactionsContract_3.emergencyWithdraw([ewithdraw], true);
+        console.log(transactionHash, "passed")
+    }
+
+    const notifyRewards = async () => {
+        const { contract, notify } = FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        const reward_amount = ethers.parseEther(notify)
+        //interaccion con el contrato de staking
+        const transactionHash = await transactionsContract_3.notifyRewardAmount(reward_amount);
+        console.log(transactionHash, "passed")
+    }
+
+    const updateRewDur = async () => {
+        const { contract, ureward } = FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const transactionHash = await transactionsContract_3.updateRewardDuration(ureward);
+        console.log(transactionHash, "passed")
+    }
+
+    const UpdateBoostContract = async () => {
+        const { contract, uboost } = FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const transactionHash = await transactionsContract_3.updateBoost(uboost);
+        console.log(transactionHash, "passed")
+    }
+    
+    const PauseContract = async () => {
+        const { contract } = FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const transactionHash = await transactionsContract_3.pause();
+    }
+
+    const UnpauseContract = async () => {
+        const { contract } = FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const transactionHash = await transactionsContract_3.unpause();
+    }
+
+    const setExpMinter = async () => {
+        const { poolcontract, poolstate }= FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contractAdrress_golden_exp, contractABI_GOLDEN_EXP, signer);
+        //interaccion con el contrato de staking
+        console.log("exp setminter contract ", contractAdrress_golden_exp, "pool contract", poolcontract)
+        const transactionHash = await transactionsContract_3.setMinter([poolcontract], [poolstate]);
+    }
+
+    const StatusContract = async () => {
+        const { contract }= FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const transaction_1 = await transactionsContract_3.lastTimeRewardApplicable();
+        const transaction_2 = await transactionsContract_3.rewardPerToken();
+        console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
+        return (transaction_1,transaction_2)
+    }
+
+    /////////////CHAINS/////////////
+
     useEffect(() => {
         checkIfWalletIsConnected();
         connectWallet();
@@ -334,21 +509,36 @@ export const TransactionProvider = ({ children }) => {
             FormData_2, 
             FormData_3, 
             FormData_4, 
+            FormData_5, 
             setFormData, 
             handleChange, 
             handleChange_2, 
             handleChange_3, 
-            handleChange_4, 
+            handleChange_4,
+            handleChange_5, 
+            changeNetwork,
             sendTransaction, 
             sendTransaction_2, 
             sendTransaction_3, 
-            sendTransaction_3_unstake, 
-            sendTransaction_4,  
+            sendTransaction_3_Unstake,
+            Claim_Rewards, 
+            sendTransaction_4,
+            sendTransaction_3_test,
             add_metamask, 
             currentMeme, 
             currentMemeContract,
             Get_Token_Balance,
-            change_input_staking
+            Get_Balance_Staked,
+            change_input_staking,
+            Points_Earned,
+            EmergWithdraw,
+            notifyRewards,
+            updateRewDur,
+            UpdateBoostContract,
+            PauseContract,
+            UnpauseContract,
+            setExpMinter,
+            StatusContract
             }}>
 
             {children}

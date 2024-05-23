@@ -1,29 +1,215 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-
+import meme_video from "../../../../videos/meme_video.mp4";
+import frame from "../../../../images/frame_4.png";
+import g_coin from "../../../../images/gg_coin_2.png";
+import wire from "../../../../images/wire.png";
+import wire_broken from "../../../../images/wire_broken.png";
+import wire_broken_2 from "../../../../images/wire_broken_2.png";
+import telegram from "../../../../images/telegram.svg";
+import discord from "../../../../images/discord.svg";
+import twitter from "../../../../images/twitter.svg";
 
 const Welcome = () => {
+  const [showVideo, setshowVideo] = useState(false);
+  const [hideSquare, setHideSquare] = useState(true);
+  const [showFall, setshowFall] = useState(false);
+  const [showBird, setshowBird] = useState(false);  
+  const videoRef = useRef(null);
+  const [isClicked, setIsClicked] = useState(false);
+  const [showWire, setshowWire] = useState(false);  
+  const [showWire2, setshowWire2] = useState(false);  
+  const [showWire3, setshowWire3] = useState(false);  
 
+
+  
+  useEffect(() => {
+    const timerwire_hide = setTimeout(() => {
+      setshowWire2(false);
+      setshowWire(false);
+    }, 8000);
+    return () => clearTimeout(timerwire_hide);
+  }, []);
+
+  useEffect(() => {
+    const timerwire_2 = setTimeout(() => {
+      setshowWire2(true);
+    }, 8000);
+    return () => clearTimeout(timerwire_2);
+  }, []);
+
+  useEffect(() => {
+    const timerwire = setTimeout(() => {
+      setshowWire(true);
+    }, 5000);
+    return () => clearTimeout(timerwire);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('click', handleClick);
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
+  const handleClick = () => {
+    setIsClicked(true);
+  };
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHideSquare(false);
+    }, 5000); // Desaparecer después de 5 segundos
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const timervideo = setTimeout(() => {
+      setshowVideo(true);
+    }, 3000);
+
+    return () => clearTimeout(timervideo);
+  }, []);
+
+  useEffect(() => {
+    if (showVideo && videoRef.current) {
+      videoRef.current.play();
+    }
+  }, [showVideo]);
+
+  useEffect(() => {
+    const timerfall = setTimeout(() => {
+      setshowFall(true);
+      setshowWire2(false);
+      setshowWire3(true);
+    }, 35000);
+    return () => clearTimeout(timerfall);
+  }, []);
+
+  useEffect(() => {
+    const linkTimer = setTimeout(() => {
+      setIsClicked(true);
+    }, 39000);
+    return () => clearTimeout(linkTimer);
+  }, []);
+
+  useEffect(() => {
+    const timerbird = setTimeout(() => {
+      setshowBird(true);
+    }, 5000);
+    return () => clearTimeout(timerbird);
+  }, []);
 
   return (
-    <div className="flex flex-col items-center justify-around min-h-screen p-10">
+    
+    <div className="relative w-full h-screen">
+      {!isClicked && (
+        <>
+          {/* Animaciones y video */}
+          <div>
+          <div className={`absolute inset-0 flex items-center justify-center z-10 h-auto left-4 top-40 ${showWire3 ? 'opacity-100' : 'opacity-0'}`}>
+            <div className=" -translate-y-1/3 mt-16">
+              <img src={wire_broken_2} alt="wire_broken" className=" h-auto z-2 scale-100"/>
+            </div>
+          </div>
+          <div className={`absolute inset-0 flex items-center justify-center z-10 h-auto left-4 top-40 ${showWire2 ? 'opacity-100' : 'opacity-0'}`}>
+            <div className=" -translate-y-1/3 mt-16">
+              <img src={wire_broken} alt="wire_broken" className=" h-auto z-2 scale-100"/>
+            </div>
+          </div>
+          <div className={`absolute inset-0 flex items-center justify-center z-10 h-auto left-4 top-40 ${showWire ? 'opacity-100' : 'opacity-0'}`}>
+            <div className=" -translate-y-1/3 mt-16">
+              <img src={wire} alt="wire" className=" h-auto z-2 scale-100"/>
+            </div>
+          </div>
+          <div className={`absolute inset-0 w-full flex items-center justify-center z-10 h-auto ${hideSquare ? 'opacity-100 transition-opacity duration-500' : 'opacity-0'}`}>
+            <div className="absolute transform -translate-y-1/3 mt-40">
+              <div className="animatedSquare">
+              </div>
+            </div>
+          </div>
+          <div className={`absolute inset-0 flex z-1 top-1/5 scale-50`}>
+            <div className={`${showBird ? 'move-diagonal-animation' : 'opacity-0'}`}>
+              <div className="">
+                <div className="animatedBird">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${showVideo ? 'opacity-100 z-20' : 'opacity-0'}`}>
+            <div className={`${showFall ? 'fall-animation' : ''}`}>
+              <div className="relative" style={{ width: '850px', right: '-60px', top: '-35px' }}>
+                <img src={frame} alt="Frame" className="absolute inset-0 w-full h-auto z-2 scale-150" />
+                <video ref={videoRef} muted controls className="w-full z-1 py-3">
+                  <source src={meme_video} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </div>
+          </div>
+        </>
+      )}
+      {isClicked && (
+        <div>
+          <div className="fixed right-0 flex flex-fil p-4 gap-2 ">
+          <a
+            href="https://discord.com/invite/FfeHwrqdAY"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white hover:bg-yellow-200 text-white font-bold p-4 rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+          >
+            <img src={discord} alt="Discord" className="w-8" />
+          </a>
 
- {/* Uso de justify-between y padding en el contenedor principal */}
-      <div className="w-full text-center">
-        <h1 className="text-9xl font-goldeng text-center text-black">
-          Golden Goose
-        </h1>
-      </div>
-      <div className="flex flex-col justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 px-5 py-20">
-        <Link to="/Factory" className="flex justify-center text-center flex-col m-4 py-10 px-10 bg-white bg-opacity-50 rounded-3xl shadow-md text-7xl" >
-          Meme Factory
-        </Link>
-        <Link to="/Farm" className="flex justify-center text-center flex-col m-4 py-10 px-10 bg-white bg-opacity-50 rounded-3xl shadow-md text-7xl" >
-          Staking Meme
-        </Link>
-      </div>
+          {/* Botón de Telegram */}
+          <a
+            href="https://t.me/goldeng"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white hover:bg-yellow-200 text-white font-bold p-4 rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+          >
+            <img src={telegram} alt="Telegram" className="w-8" />
+          </a>
+
+          {/* Botón de Twitter */}
+          <a
+            href="https://x.com/GoldenGoosememe"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white hover:bg-yellow-200 font-bold p-4 rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+          >
+            <img src={twitter} alt="Twitter" className="w-8" />
+          </a> 
+          </div>
+          <div className="flex flex-col items-center justify-around min-h-screen  p-10">
+            <div className="w-full text-center mt-12 sm:mt-10 md:mt-0 lg:mt-0">
+              <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-7xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
+                <span className="block md:inline">GOL</span>
+                <span className="block md:inline">DEN</span>              
+              </h1>
+              <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-7xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
+                GO
+                <img src={g_coin} alt="Goose" className="inline-block  md:w-20 sm:w-10 lg:w-40 w-10 align-middle" />
+                SE
+              </h1>
+            </div>
+            <div className="flex flex-col justify-center md:flex-row items-center gap-7 text-5xl lg:text-7xl md:text-5xl sm:text-2xl md:gap-4 lg:gap-40 px-5 py-20 z-20">
+              <Link to="/Factory" className="flex  font-goldeng justify-center text-center flex-col m-4 py-10 px-10 bg-white bg-opacity-50 rounded-3xl shadow-md transition-opacity duration-500 z-20 transform transition-all duration-500 hover:scale-105">
+                <p>Memes </p>
+                <p>Factory</p>
+              </Link>
+              <Link to="/Farm" className="flex font-goldeng justify-center text-center flex-col m-4 py-10 px-12 bg-white bg-opacity-50 rounded-3xl shadow-md transition-opacity duration-500 z-20 transform transition-all duration-500 hover:scale-105">
+                <p>Staking</p>
+                <p>Memes</p>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+  
 };
 
 export default Welcome;

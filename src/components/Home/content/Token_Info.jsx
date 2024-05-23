@@ -1,39 +1,69 @@
 import React, { useState } from "react";
 import copy_logo from "../../../../images/copy.svg";
-
+import golden_egg from "../../../../images/golden_egg.png"; // Suponiendo que tienes una imagen de un huevo dorado
+import story_icon from "../../../../images/story_icon.png"; // Suponiendo que tienes un icono para la historia
+import lesson_icon from "../../../../images/lesson_icon.png"; // Suponiendo que tienes un icono para la lección
+import meme_icon from "../../../../images/meme_icon.png"; // Suponiendo que tienes un icono para el meme
 
 const Token_Info = () => {
-  const [contractAddress, setContractAddress] = useState('34v35grvasfgv345gdfvdfv'); // Dirección del contrato
+  const [contractAddress] = useState('CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2');
 
-const copyContractAddress = () => {
-  navigator.clipboard.writeText(contractAddress); // Copia la dirección del contrato al portapapeles
-};
+  const copyContractAddress = () => {
+    navigator.clipboard.writeText(contractAddress);
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-10">
-      {/* About Us Section */}
-      <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-lg text-center space-y-4 w-full max-w-lg">
-        <h1 className="text-3xl font-bold">What is Golden Goose?</h1>
-        <p className="text-xl">Golden Goose hatches golden eggs, it's an egg factory of golden eggs where everyone can hatch their own golden egg.</p>
+<div className="flex flex-col items-center justify-center min-h-screen p-10 space-y-10 bg-gradient-to-r from-transparent to-transparent backdrop-blur-md">
+
+      {/* Title Section */}
+      <div className="flex flex-col items-center">
+        <img src={golden_egg} alt="Golden Egg" className="w-24 h-24 mb-4" />
+        <h1 className="text-5xl font-goldeng text-white font-extrabold">An Immortal Meme</h1>
+        <h2 className="text-3xl font-goldeng text-white">(GOLDENG)</h2>
       </div>
 
-      {/* Contract Address */}
-      <div className="bg-white bg-opacity-90 p-4 mt-8 rounded-lg shadow-lg text-center w-full max-w-xl">
-        <h2 className="text-4xl font-semibold p-4">Contract Address</h2>
-        <div className="flex flex-items justify-center">
-          <a className="flex text-gray text-4md p-2" href="https://solscan.io/token/CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2" target="_blank" rel="noopener noreferrer">CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2</a> {/* Replace with actual contract address */}
-          <button onClick={copyContractAddress} className="flex flex-fil justify-center hover:bg-gray-200 text-white font-bold rounded mt-2 focus:outline-none focus:shadow-outline ">
-            <img src={copy_logo} alt="Copy" className="w-4 h-4 mr-1" />
-          </button>
+      {/* Cards Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+
+        {/* Card 1: The Myth */}
+        <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-2xl text-center space-y-4 transform transition-all duration-500 hover:scale-105">
+          <img src={story_icon} alt="Story Icon" className="w-16 h-16 mx-auto" />
+          <h3 className="text-2xl font-goldeng text-yellow-600">The Myth</h3>
+          <p className="text-gray-700 font-goldeng">
+            The myth of the golden goose that laid golden eggs is often considered the oldest meme in human history, an immortal meme, if you will. This tale, which warns against greed and impatience, has been told and retold across cultures and generations.
+          </p>
+        </div>
+
+        {/* Card 2: The Lesson */}
+        <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-2xl text-center space-y-4 transform transition-all duration-500 hover:scale-105">
+          <img src={lesson_icon} alt="Lesson Icon" className="w-16 h-16 mx-auto" />
+          <h3 className="text-2xl text-yellow-600 font-goldeng">The Lesson</h3>
+          <p className="text-gray-700 font-goldeng">
+            The story's simplicity and universal message make it easily adaptable and relatable, much like a meme. Its core idea, the folly of killing a valuable resource for immediate gratification, is a timeless lesson that resonates with people of all ages and backgrounds.
+          </p>
+        </div>
+
+        {/* Card 3: The Immortal Meme */}
+        <div className="bg-white bg-opacity-90 p-6 rounded-lg shadow-2xl text-center space-y-4 transform transition-all duration-500 hover:scale-105">
+          <img src={meme_icon} alt="Meme Icon" className="w-16 h-16 mx-auto" />
+          <h3 className="text-2xl font-goldeng text-yellow-600">The Immortal Meme</h3>
+          <p className="text-gray-700 font-goldeng">
+            Just as memes spread and evolve in our digital age, this myth has been passed down, adapted, and kept alive throughout human history. It's a testament to the power of storytelling and the enduring nature of human wisdom. Thus, the golden goose truly is the immortal meme of human culture.
+          </p>
         </div>
       </div>
 
-      {/* Button */}
-
-      <a className="flex justify-center mt-8 bg-blue-500 hover:bg-blue-700 text-white font-bold p-4 rounded-3xl focus:outline-none focus:shadow-outline w-full max-w-xs"
-        href="https://birdeye.so/token/CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2/Hjjpt3M2koFkAvS39uyinYRRsqRWqPi1Vt5jjkJeKwNn?chain=solana" target="_blank" rel="noopener noreferrer">
-          Buy MEME
-        </a>
+      {/* Contract Address and Buy Button */}
+      <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
+  <a
+    className="text-lg font-goldeng md:text-xl lg:text-2xl font-bold text-white transition duration-300 ease-in-out transform hover:scale-110 bg-gradient-to-r from-yellow-500 to-red-600 hover:from-red-600 hover:to-orange-500 py-10 px-10 md:py-8 md:px-28 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    href="https://birdeye.so/token/CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2/Hjjpt3M2koFkAvS39uyinYRRsqRWqPi1Vt5jjkJeKwNn?chain=solana"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Buy GOLDENG
+  </a>
+</div>
 
     </div>
   );

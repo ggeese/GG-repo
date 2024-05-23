@@ -5,6 +5,7 @@ import { Factory } from './components/Factory';
 import { Farm } from './components/Farm';
 import { Home } from './components/Home';
 import { Points } from './components/Points';
+import { Admin } from './components/Admin';
 
 
 import "./index.css";
@@ -25,6 +26,8 @@ root.render(
           <Route path="/Factory" element={<Factory/>} />
           <Route path="/Farm" element={<Farm/>} />
           <Route path="/Points" element={<Points/>} />
+          <Route path="/Admin" element={<Admin/>} />
+
         
         </Routes>
       </BrowserRouter>

@@ -1,20 +1,149 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
-@import url('https://fonts.googleapis.com/css2?family=Macondo&family=Madimi+One&family=Permanent+Marker&family=Righteous&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@400..700&family=Protest+Revolution&display=swap');
 
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 /* index.css */
-/* index.css */
+
+@keyframes fall {
+  0% {
+    transform: translateY(0px) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+
+
+  100% {
+    transform: translateY(120vh) scale(1) rotate(30deg);
+  }
+}
+
+.fall-animation {
+  animation: fall 3s forwards;
+}
+
+@keyframes moveDiagonal {
+  0% {
+    transform: translate(-40, 0);
+  }
+  100% {
+    transform: translate(90vw, -93vh);
+  }
+}
+
+.move-diagonal-animation {
+  animation: moveDiagonal 10s linear 1 forwards; /* Ajusta la duración y el tipo de animación según tus necesidades */
+  overflow-x: hidden; /* Evita el desbordamiento horizontal */
+
+}
+
+.animatedBird {
+  width: 660.8px; /* Ancho de cada imagen individual en el sprite */
+  height: 441px; /* Altura de cada imagen individual en el sprite */
+  background-image: url('../images/bird.svg'); /* Ruta relativa al archivo CSS */
+  background-size: 9912px 441px; /* Tamaño total del sprite de imagen */
+  animation: playBird 1.3s steps(1) infinite;
+}
+
+@keyframes playBird {
+  0% {
+    background-position: 0px 0px; /* Primera imagen: esquina superior izquierda */
+  }
+  6.67% {
+    background-position: -660.8px 0px; /* Segunda imagen */
+  }
+  13.34% {
+    background-position: -1321.6px 0px; /* Tercera imagen */
+  }
+  20.01% {
+    background-position: -1982.4px 0px; /* Cuarta imagen */
+  }
+  26.68% {
+    background-position: -2643.2px 0px; /* Quinta imagen */
+  }
+  33.35% {
+    background-position: -3304px 0px; /* Sexta imagen */
+  }
+  40.02% {
+    background-position: -3964.8px 0px; /* Séptima imagen */
+  }
+  46.69% {
+    background-position: -4625.6px 0px; /* Octava imagen */
+  }
+  53.36% {
+    background-position: -5286.4px 0px; /* Novena imagen */
+  }
+  60.03% {
+    background-position: -5947.2px 0px; /* Décima imagen */
+  }
+  66.7% {
+    background-position: -6608px 0px; /* Undécima imagen */
+  }
+  73.37% {
+    background-position: -7268.8px 0px; /* Duodécima imagen */
+  }
+  80.04% {
+    background-position: -7929.6px 0px; /* Decimotercera imagen */
+  }
+  86.71% {
+    background-position: -8590.4px 0px; /* Decimocuarta imagen */
+  }
+  93.38% {
+    background-position: -9251.2px 0px; /* Decimoquinta imagen */
+  }
+  100% {
+    background-position: 0px 0px; /* Volver al primer frame */
+  }
+}
+
+
+.animatedSquare {
+  width: 1452px; /* Ancho de cada imagen individual en el sprite */
+  height: 1306px; /* Altura de cada imagen individual en el sprite */
+  background-image: url('../images/video_animation.png'); /* Ruta relativa al archivo CSS */
+  background-size: 5808px 2612px; /* Tamaño total del sprite de imagen */
+  animation: playSquare 2s steps(1) 1 forwards;
+}
+
+@keyframes playSquare {
+  0% {
+    background-position: 0px 0px; /* Primera imagen: esquina superior izquierda */
+  }
+  12.5% {
+    background-position: -1452px 0px; /* Segunda imagen: */
+  }
+  25% {
+    background-position: -2904px 0px; /* Tercera imagen: */
+  }
+  37.5% {
+    background-position: -4356px 0px; /* Cuarta imagen: */
+  }
+  50% {
+    background-position: 0px -1306px; /* Quinta imagen: */
+  }
+  62.5% {
+    background-position: -1452px -1306px; /* Sexta imagen: */
+  }
+  75% {
+    background-position: -2904px -1306px; /* Séptima imagen: */
+  }
+  87.5% {
+    background-position: -4356px -1306px; /* Octava imagen: */
+  }
+  100% {
+    background-position: -4356px -1306px; /* Octava imagen: */
+  }
+}
 
 .animatedSprite {
   width: 98px; /* Ancho de cada imagen individual en el sprite */
   height: 61.5px; /* Altura de cada imagen individual en el sprite */
-  background-image: url('goose_animation.svg'); /* Ruta relativa al archivo CSS */
+  background-image: url('../images/goose_animation.svg'); /* Ruta relativa al archivo CSS */
   background-size: 196px 123px; /* Tamaño total del sprite de imagen */
   animation: playSprite 1s steps(1) infinite;
 }
+
 
 @keyframes playSprite {
   0% {
