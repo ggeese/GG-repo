@@ -1,88 +1,213 @@
 {
     "networks": [
       {
+        "name": "Sepolia ETH",
+        "chainId": 11155111,
+        "rpcUrl": "https://sepolia.infura.io/v3/",
+        "symbol": "SepoliaETH",
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Sepolia ETH",
+        "fee":0.0001
+      },      {
         "name": "Ethereum",
         "chainId": 1,
         "rpcUrl": "https://eth.llamarpc.com",
         "symbol": "ETH",
-        "explorerUrl": "https://etherscan.io"
+        "explorerUrl": "https://etherscan.io",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Ethereum",
+        "fee":0.00001
       },
       {
-        "name": "BNB Chain",
+        "name": "BNB Smart Chain Mainnet",
         "chainId": 56,
-        "rpcUrl": "https://bsc-dataseed1.binance.org",
+        "rpcUrl": "https://bsc-dataseed1.bnbchain.org",
         "symbol": "BNB",
-        "explorerUrl": "https://bscscan.com/"
+        "explorerUrl": "https://bscscan.com/",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"BNB Chain",
+        "fee":0.00001
       },
       {
-        "name": "Polygon",
+        "name": "BNB Smart Chain Testnet",
+        "chainId": 97,
+        "rpcUrl": "https://bsc-testnet.drpc.org",
+        "symbol": "tBNB",
+        "explorerUrl": "https://testnet.bscscan.com/",
+        "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
+        "nick":"BNB Chain",
+        "fee":0.001
+      },
+      {
+        "name": "Berachain Artio",
+        "chainId": 80085,
+        "rpcUrl": "https://artio.rpc.berachain.com/",
+        "symbol": "BERA",
+        "explorerUrl": "https://artio.beratrail.io/",
+        "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
+        "nick":"Bera Chain",
+        "fee":0.001
+      },
+      {
+        "name": "Polygon Mainnet",
         "chainId": 137,
-        "rpcUrl": "https://polygon.llamarpc.com",
+        "rpcUrl": "https://polygon-rpc.com/",
         "symbol": "MATIC",
-        "explorerUrl": "https://polygonscan.com"
+        "explorerUrl": "https://polygonscan.com",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Polygon",
+        "fee":0.00001
       },
       {
-        "name": "Avalanche",
+        "name": "Avalanche C-Chain",
         "chainId": 43114,
         "rpcUrl": "https://api.avax.network/ext/bc/C/rpc",
         "symbol": "AVAX",
-        "explorerUrl": "https://snowtrace.io"
+        "explorerUrl": "https://snowtrace.io",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Avalanche",
+        "fee":0.00001
       },
       {
-        "name": "Arbitrum",
+        "name": "Avalanche Testnet C-Chain",
+        "chainId": 43113,
+        "rpcUrl": "https://api.avax-test.network/ext/bc/C/rpc",
+        "symbol": "AVAX",
+        "explorerUrl": "https://subnets-test.avax.network/",
+        "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "nick":"Avalanche Testnet",
+        "fee":0.02
+      },
+      {
+        "name": "Arbitrum One",
         "chainId": 42161,
         "rpcUrl": "https://arb1.arbitrum.io/rpc",
         "symbol": "ETH",
-        "explorerUrl": "https://arbiscan.io/"
+        "explorerUrl": "https://arbiscan.io/",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Arbitrum One",
+        "fee":0.00001
       },
       {
         "name": "Fantom Opera",
         "chainId": 250,
-        "rpcUrl": "https://rpcapi.fantom.network",
+        "rpcUrl": "https://rpc.ftm.tools",
         "symbol": "FTM",
-        "explorerUrl": "https://ftmscan.com"
+        "explorerUrl": "https://ftmscan.com",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Fantom",
+        "fee":0.00001
       },
       {
-        "name": "Optimism",
+        "name": "OP Mainnet",
         "chainId": 10,
         "rpcUrl": "https://mainnet.optimism.io",
         "symbol": "ETH",
-        "explorerUrl": "https://optimistic.etherscan.io/"
+        "explorerUrl": "https://optimistic.etherscan.io/",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Optimism",
+        "fee":0.00001
       },
       {
         "name": "Base",
         "chainId": 8453,
-        "rpcUrl": "https://base.llamarpc.com",
+        "rpcUrl": "https://mainnet.base.org/",
         "symbol": "ETH",
-        "explorerUrl": "https://basescan.org"
+        "explorerUrl": "https://basescan.org",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Base",
+        "fee":0.00001
       },
       {
-        "name": "Manta Pacific",
+        "name": "Base Sepolia",
+        "chainId": 84532,
+        "rpcUrl": "https://sepolia.base.org/",
+        "symbol": "ETH",
+        "explorerUrl": "https://sepolia-explorer.base.org/",
+        "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "nick":"Base",
+        "fee":0.0001
+      },
+      {
+        "name": "Manta Pacific Mainnet",
         "chainId": 169,
         "rpcUrl": "https://pacific-rpc.manta.network/http",
         "symbol": "ETH",
-        "explorerUrl": "https://pacific-explorer.manta.network"
+        "explorerUrl": "https://pacific-explorer.manta.network",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Manta",
+        "fee":0.00001
       },
       {
         "name": "Blast",
         "chainId": 81457,
         "rpcUrl": "https://rpc.blast.io",
         "symbol": "ETH",
-        "explorerUrl": "https://blastscan.io"
+        "explorerUrl": "https://blastscan.io",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Blast",
+        "fee":0.00001
+      } ,
+      {
+        "name": "Merlin Mainnet",
+        "chainId": 4200,
+        "rpcUrl": "https://rpc.merlinchain.io",
+        "symbol": "BTC",
+        "explorerUrl": "https://scan.merlinchain.io",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Merlin Mainnet",
+        "fee":0.00001
+      } ,
+      {
+        "name": "Merlin Testnet",
+        "chainId": 686868,
+        "rpcUrl": "https://testnet-rpc.merlinchain.io",
+        "symbol": "BTC",
+        "explorerUrl": "https://testnet-scan.merlinchain.io",
+        "factory":"0x143D8BfcBAeEf7cA580f6A3BD35ce5dD590cF23F",
+        "nick":"Merlin Testnet",
+        "fee":0.00001
+      } ,
+      {
+        "name": "X Layer Mainnet",
+        "chainId": 196,
+        "rpcUrl": "https://rpc.xlayer.tech",
+        "symbol": "OKB",
+        "explorerUrl": "https://www.oklink.com/xlayer",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"OKB Mainnet",
+        "fee":0.00001
+      },
+      {
+        "name": "X Layer Testnet",
+        "chainId": 195,
+        "rpcUrl": "https://endpoints.omniatech.io/v1/xlayer/testnet/public",
+        "symbol": "OKB",
+        "explorerUrl": "https://www.oklink.com/xlayer-test",
+        "factory":"0x0D09168ecF4f0589F6eFa76FdF32e388ee1664dE",
+        "nick":"OKB Mainnet",
+        "fee":0.02
       },
       {
         "name": "Linea",
         "chainId": 59144,
         "rpcUrl": "https://linea.blockpi.network/v1/rpc/public",
         "symbol": "ETH",
-        "explorerUrl": "https://lineascan.build"
+        "explorerUrl": "https://lineascan.build",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Linea",
+        "fee":0.00001
       },
       {
-        "name": "Klaytn",
+        "name": "Klaytn Mainnet Cypress",
         "chainId": 8217,
-        "rpcUrl": "https://api.cypress.klaytn.net:8651",
+        "rpcUrl": "https://public-en-cypress.klaytn.net",
         "symbol": "KLAY",
-        "explorerUrl": "https://scope.klaytn.com/"
+        "explorerUrl": "https://scope.klaytn.com/",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"klay",
+        "fee":0.00001
       }
     ]
   }

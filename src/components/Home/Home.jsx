@@ -109,12 +109,11 @@ const Home = () => {
 
       {/* Sección Info con fondo bg_3 */}
       <div className="min-h-screen" style={{ backgroundImage: `url(${bg_3})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <Hatching />
+        <FAQ/>
       </div>
 
       {/* Sección Hatching con fondo bg_4 */}
       <div  className="min-h-screen" style={{ backgroundImage: `url(${bg_4})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <FAQ />
       </div>
 
       {/* Sección FAQ con fondo bg_5 */}

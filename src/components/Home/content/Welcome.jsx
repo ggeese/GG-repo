@@ -20,8 +20,34 @@ const Welcome = () => {
   const [showWire, setshowWire] = useState(false);  
   const [showWire2, setshowWire2] = useState(false);  
   const [showWire3, setshowWire3] = useState(false);  
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  
+  const handleResize = () => {
+    const width = window.innerWidth;
+    if (width < 768) {
+      setIsSmallScreen(true);
+    } else {
+      setIsSmallScreen(false);
+    }
+  };
 
+  useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
+  useEffect(() => {
+    if (!isSmallScreen) {
+      const timerbird = setTimeout(() => {
+        setShowBird(true);
+      }, 5000);
+      return () => clearTimeout(timerbird);
+    }
+  }, [isSmallScreen]);
+  
   
   useEffect(() => {
     const timerwire_hide = setTimeout(() => {
@@ -137,8 +163,8 @@ const Welcome = () => {
             </div>
           </div>
           <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${showVideo ? 'opacity-100 z-20' : 'opacity-0'}`}>
-            <div className={`${showFall ? 'fall-animation' : ''}`}>
-              <div className="relative" style={{ width: '850px', right: '-60px', top: '-35px' }}>
+          <div className={`${!isSmallScreen && showFall ? 'fall-animation' : ''}`}>
+              <div className="relative w-full max-w-[850px] md:right-[-60px] md:top-[-35px] right-0 top-0 px-2 md:px-0">
                 <img src={frame} alt="Frame" className="absolute inset-0 w-full h-auto z-2 scale-150" />
                 <video ref={videoRef} muted controls className="w-full z-1 py-3">
                   <source src={meme_video} type="video/mp4" />
@@ -182,20 +208,20 @@ const Welcome = () => {
             <img src={twitter} alt="Twitter" className="w-8" />
           </a> 
           </div>
-          <div className="flex flex-col items-center justify-around min-h-screen  p-10">
-            <div className="w-full text-center mt-12 sm:mt-10 md:mt-0 lg:mt-0">
-              <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-7xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
+          <div className="flex flex-col items-center justify-around min-h-screen p-5">
+            <div className="w-full text-center mt-10 sm:mt-10 md:mt-0 lg:mt-0">
+              <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-5xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
                 <span className="block md:inline">GOL</span>
                 <span className="block md:inline">DEN</span>              
               </h1>
-              <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-7xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
+              <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-5xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
                 GO
                 <img src={g_coin} alt="Goose" className="inline-block  md:w-20 sm:w-10 lg:w-40 w-10 align-middle" />
                 SE
               </h1>
             </div>
-            <div className="flex flex-col justify-center md:flex-row items-center gap-7 text-5xl lg:text-7xl md:text-5xl sm:text-2xl md:gap-4 lg:gap-40 px-5 py-20 z-20">
-              <Link to="/Factory" className="flex  font-goldeng justify-center text-center flex-col m-4 py-10 px-10 bg-white bg-opacity-50 rounded-3xl shadow-md transition-opacity duration-500 z-20 transform transition-all duration-500 hover:scale-105">
+            <div className="flex flex-col justify-center md:flex-row items-center  text-4xl lg:text-7xl md:text-5xl sm:text-3xl gap-4 md:gap-4 lg:gap-40 px-5 py-5 z-20">
+              <Link to="/Factory" className="flex font-goldeng justify-center text-center flex-col m-4 py-10 px-10 bg-white bg-opacity-50 rounded-3xl shadow-md transition-opacity duration-500 z-20 transform transition-all duration-500 hover:scale-105">
                 <p>Memes </p>
                 <p>Factory</p>
               </Link>

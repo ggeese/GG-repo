@@ -32,10 +32,10 @@ const Welcome_Factory = () => {
 
   return (
     <div>
-      <div className="flex flex-col justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 px-5 py-20">
+      <div className="flex flex-col justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 px-5 py-20 overflow-hidden">
         {/* Contenedor principal para el texto */}
         <div className="self-stretch flex flex-col w-full max-w-[420px] lg:w-[780px] lg:max-w-[980px] bg-white bg-opacity-90 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
-          <h1 className="flex justify-center text-8xl text-center font-bold text-black p-5">
+          <h1 className="flex justify-center md:text-6xl sm:text-5xl lg:text-9xl text-7xl text-center font-bold text-black p-5">
             Create your meme
           </h1>
           <p className="text-2xl text-center md:text-left text-black p-8">
@@ -86,10 +86,10 @@ const Welcome_Factory = () => {
             </div>
           </div>
 
-          <div className="relative ">
+          <div className="relative">
             {/* Imagen para pantallas grandes */}
-            <div className="hidden md:block ">
-              <img src={goose_pointer} alt="Imagen" className="absolute  bottom-[-80px] right-[-200px] w-auto h-60" />
+            <div className="hidden md:block sm:hidden">
+              <img src={goose_pointer} alt="Imagen" className="absolute bottom-[-50px] right-[-100px] w-auto h-60 lg: sm:right-[-50px] lg:right-[-150px]" />
             </div>
           </div>
         </div>

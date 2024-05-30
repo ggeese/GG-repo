@@ -3,13 +3,12 @@ import { ethers } from "ethers";
 import { contractAddress, contractAddress_meme_factory, contractAdrress_golden_exp } from "../utils/constants";
 import { contractABI, contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
 import networksData from './networks.json'; // Importa el archivo JSON
-
 import Axios from "axios";
-
-
 export const TransactionContext = React.createContext();
 
-
+const isMobile = () => {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  };
 
 const { ethereum } = window;
 
@@ -27,13 +26,13 @@ const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url,
     // Extrayendo la hora y fecha
     const Creation_Date = new Date().toLocaleString();
 
-    Axios.post("http://localhost:3001/create", {
+    Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
         
         name: MemeName,
         ticker: Symbol,
         fee: Fee,
         contract: contract_meme,
-        image:"http://localhost:3001/memes_images/" + image_meme_url,
+        image: image_meme_url,
         creator: Creator,
         creation: Creation_Date,
         supply: Supply,
@@ -54,18 +53,18 @@ const saveImageToServer = async (imageFile) => {
         formData.append('image', imageFile);
 
         // Enviar la solicitud POST al servidor
-        const response = await Axios.post('http://localhost:3001/api/upload', formData, {
+        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
         });
 
         // Verificar si la respuesta contiene el nombre de la imagen
-        if (response && response.data && response.data.imageName) {
-            const imageName = response.data.imageName;
-            console.log('Image uploaded successfully. Image name:', imageName);
+        if (response && response.data && response.data.imageUrl) {
+            const imageUrl = response.data.imageUrl;
+            console.log('Image uploaded successfully. Image name:', imageUrl);
             // Aquí puedes hacer lo que necesites con el nombre de la imagen, como mostrarlo en el frontend o usarlo para otras operaciones
-            return imageName; // Devolver el nombre de la imagen
+            return imageUrl; // Devolver el nombre de la imagen
         } else {
             console.error('Error: Image name not received from the server.');
             return null; // Devolver null si no se recibió el nombre de la imagen
@@ -76,6 +75,20 @@ const saveImageToServer = async (imageFile) => {
 
     }
 };
+
+const findContract = (networkName) => {
+    // Busca el contrato correspondiente en el archivo JSON
+    const contract = networksData.networks.find(contract => contract.name === networkName);
+    // Si se encuentra el contrato, devuelve la fábrica asociada, de lo contrario, devuelve null o un valor predeterminado
+    return contract ? contract.factory : null;
+};
+
+const findInterFee = (networkName) => {
+    // Busca el contrato correspondiente en el archivo JSON
+    const internal_fee = networksData.networks.find(internal_fee => internal_fee.name === networkName);
+    // Si se encuentra el contrato, devuelve la fábrica asociada, de lo contrario, devuelve null o un valor predeterminado
+    return internal_fee ? internal_fee.fee : null;
+}
 
 
 const get_db_memes =() =>{
@@ -88,11 +101,11 @@ const get_db_memes =() =>{
 
 export const TransactionProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState ('');
-    const [currentMeme, setCurrentMeme] = useState ('');
-    const [ currentMemeContract, setcurrentMemeContract] = useState ('');
+    const [currentMemeImage, setCurrentMemeImage] = useState ('');
+    const [currentMemeContract, setcurrentMemeContract] = useState ('');
     const [isLoading, setIsLoading] = useState(false);
     const [FormData, setFormData] = useState({addressTo: '', amount: '', message: ''});
-    
+    const [Network, setNetwork] = useState("Sepolia ETH")
     //lo mas dificil de entender!!!!
 
     const handleChange = (e, name) => {
@@ -101,8 +114,7 @@ export const TransactionProvider = ({ children }) => {
 
     const checkIfWalletIsConnected = async () => {
         try{
-            if (!ethereum) return alert("please install metamask");
-
+            if (!ethereum) return console.log("please install metamask");            
             const accounts = await ethereum.request({ method: 'eth_accounts' });
 
             if (accounts.length) {
@@ -131,45 +143,95 @@ export const TransactionProvider = ({ children }) => {
 
     const connectWallet = async () => {
         try {
-            if (!ethereum) return alert("Please install metamask")
-            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-
-
-            setCurrentAccount(accounts[0]);
-        }   catch(error) {
-            console.log(error);
-
-            throw new Error("No ethereum object.")
+          if (!window.ethereum) {
+            if (isMobile()) {
+              // Redirige a la aplicación MetaMask en móviles
+              window.location.href = 'https://metamask.app.link/dapp/goldengcoin.github.io';
+            } else {
+              alert("Please install MetaMask");
+            }
+            return;
+          }
+    
+          // Solicita acceso a las cuentas del usuario
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    
+          setCurrentAccount(accounts[0]);
+    
+          // Cambia a la red actual
+          await changeNetwork(Network);
+        } catch (error) {
+          console.error("No ethereum object or user denied request:", error);
         }
-    }
+      };
+
 
     //cambiar red//
-
     const changeNetwork = async (network) => {
         try {
-          // Obtener la información de la red del JSON
-          console.log(networksData)
-          const { chainId, rpcUrl } = networksData.networks.find(net => net.name === network);
-      
-          // Comprobar si Metamask está disponible
-          if (window.ethereum) {
-            // Enviar la solicitud para cambiar la red
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: `0x${chainId.toString(16)}` }], // Convertir el ID de cadena a formato hexadecimal
-            });
-      
-            console.log(`Red cambiada a ${network}`);
-          } else {
-            console.error('Metamask no está instalado o no está disponible.');
-          }
+            const networkData = networksData.networks.find(net => net.name === network);
+            if (!networkData) {
+                throw new Error(`No se encontró información para la red ${network}.`);
+            }
+    
+            const { chainId, rpcUrl, symbol, explorerUrl } = networkData;
+    
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: `0x${chainId.toString(16)}` }],
+                    });
+                    console.log(`Red cambiada a ${network}.`);
+                    setNetwork(network); // Solo actualizar la red si el cambio se realizó con éxito
+                    console.log("red actual ",network)
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: `0x${chainId.toString(16)}`,
+                                    rpcUrls: [rpcUrl],
+                                    chainName: network,
+                                    nativeCurrency: {
+                                        name: symbol,
+                                        symbol,
+                                        decimals: 18
+                                    },
+                                    blockExplorerUrls: [explorerUrl]
+                                }]
+                            });
+                            console.log(`Red ${network} añadida y cambiada.`);
+                            setNetwork(network); // Actualizar la red si se agregó correctamente
+                            console.log("red actual ",network)
+                        } catch (addError) {
+                            console.error('Error al añadir la red:', addError);
+                            throw new Error(`Error al agregar la red ${network}: ${addError.message}`);
+                        }
+                    } else {
+                        console.error('Error al cambiar de red:', switchError);
+                        throw new Error(`Error al cambiar de red: ${switchError.message}`);
+                    }
+                }
+            } else {
+                throw new Error('Metamask no está instalado o no está disponible.');
+            }
         } catch (error) {
-          console.error('Error al cambiar de red:', error);
+            console.error('Error al cambiar de red:', error);
+            // Aquí podrías mostrar un mensaje de error al usuario
         }
-      }
+    };
+    
+    const disconnectWallet = () => {
+        setCurrentAccount(null);
+        console.log("Disconnected");
+
+    }
 
     const sendTransaction = async () => {
         try{
+            connectWallet()
             if (!ethereum) return alert("Please install metamask");
        
         }   catch (error) {
@@ -215,17 +277,22 @@ export const TransactionProvider = ({ children }) => {
 
             const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
             let Fee_tx = Fee !== undefined ? Fee : 0;
+            const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
             const provider = new ethers.BrowserProvider(window.ethereum);
             const signer = await provider.getSigner();
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0]
             const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
             console.log ("recipient XD", recipient)
-            const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory, contractABI_MEME_FACTORY, signer);
+            const contractAddress_meme_factory_2 = findContract(Network)
+            const internal_Fee = parseFloat(findInterFee(Network))
+            console.log(contractAddress_meme_factory_2," contraact meme from selected red", Network)
+            const commissionAmount = ethers.parseEther(internal_Fee.toString());
+            // Convertir 0.001 ether a wei
+            const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory_2, contractABI_MEME_FACTORY, signer);
             console.log ("previo a la interaccion con el contrato")
-            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient,"https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json",Fee_tx);
-            
             setIsLoading(true);
+            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json", Fee_tx_fixed, {value: commissionAmount});
             console.log(`Loading - ${transactionHash.hash}`);
             //await transactionHash.wait();
             console.log("previo add meme")
@@ -237,19 +304,19 @@ export const TransactionProvider = ({ children }) => {
                 await Add_Meme(MemeName, Symbol, Supply, contract_meme, image_meme_url, recipient, Website, Twitter, Discord, Telegram, Fee, description)
                 console.log("contract meme ",contract_meme)
                 setIsLoading(false);
-                setCurrentMeme(image_meme_url)// Devuelve contract_meme
+                setCurrentMemeImage(image_meme_url)// guarda el URL del meme contract_meme
                 setcurrentMemeContract(contract_meme)
                 // Guardar la imagen en el servidor
                 //setFile(null); // Limpiar el archivo después de enviar la transacción
                 //setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
             } else {
-                const image_meme_url = "no_image.png"; 
+                const image_meme_url = null; 
                 const txReceipt = await transactionHash.wait();
                 const contract_meme = txReceipt.logs[0].address;
                 await Add_Meme(MemeName, Symbol, Supply, contract_meme, image_meme_url, recipient, Website, Twitter, Discord, Telegram, Fee, description)
                 console.log("contract meme ",contract_meme)
                 setIsLoading(false);
-                setCurrentMeme(image_meme_url) // Devuelve contract_meme
+                setCurrentMemeImage(image_meme_url) // Devuelve contract_meme
                 setcurrentMemeContract(contract_meme)
             }            
             //console.log(`Success - ${transactionHash.hash}`);
@@ -517,6 +584,7 @@ export const TransactionProvider = ({ children }) => {
             handleChange_4,
             handleChange_5, 
             changeNetwork,
+            disconnectWallet,
             sendTransaction, 
             sendTransaction_2, 
             sendTransaction_3, 
@@ -524,8 +592,8 @@ export const TransactionProvider = ({ children }) => {
             Claim_Rewards, 
             sendTransaction_4,
             sendTransaction_3_test,
-            add_metamask, 
-            currentMeme, 
+            add_metamask,
+            currentMemeImage, 
             currentMemeContract,
             Get_Token_Balance,
             Get_Balance_Staked,
@@ -545,8 +613,4 @@ export const TransactionProvider = ({ children }) => {
         </TransactionContext.Provider>
     );
 }
-
-
-//A PARTIR DE AQUI MODIFICACIONES MIAS PARA LA CREACION DEL TOKEN'
-
 

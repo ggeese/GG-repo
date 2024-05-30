@@ -2,13 +2,13 @@ import React, { useState, useContext, useRef } from "react";
 import { TransactionContext } from '../../../context/TransactionContext';
 import metamask from "../../../../images/metamask.svg";
 import farm from "../../../../images/farm3.jpeg";
+import no_image from "../../../../images/no_image.png";
+
 
 
 
 function PopUp_2({visible_2, onClose_2 }) {
-    const { add_metamask } = useContext(TransactionContext); 
-    const { currentMeme } = useContext(TransactionContext);
-    const { currentMemeContract } = useContext(TransactionContext);
+    const { add_metamask, currentMemeImage, currentMemeContract } = useContext(TransactionContext); 
 
     const handleOnClose_2 = (event) => {
         if (event.target.id === 'container_meme_created') onClose_2()
@@ -34,7 +34,7 @@ function PopUp_2({visible_2, onClose_2 }) {
                     <div className="flex flex-col items-center justify-center p-4">
                     <div className="w-auto h-96 bg-center bg-cover rounded-xl justify-center items-center p-4" style={{backgroundImage: `url(${farm})`}}>
                             <img 
-                            src={"http://localhost:3001/memes_images/" + currentMeme} 
+                            src={currentMemeImage || no_image} 
                             alt="Meme" 
                             className="w-full h-full object-contain "
                             />
@@ -45,12 +45,13 @@ function PopUp_2({visible_2, onClose_2 }) {
                         </div>
                     </div>
 
-                    <div className="flex justify-center animate-bounce">
+                    <div className="flex flex-col justify-center items-center animate-bounce">
                         <button 
-                            onClick={() => add_metamask(currentMemeContract,"http://localhost:3001/memes_images/" + currentMeme)}
-                            className="flex items-center justify-center px-4 py-8 animate-pulse text-white font-semibold rounded-md focus:outline-none focus:ring focus:ring-blue-400 focus:ring-opacity-50">
-                            <img src={metamask}  alt="Metamask" className="w-8 h-8 mr-5"/>
+                            onClick={() => add_metamask(currentMemeContract, currentMemeImage)}
+                            className="flex items-center justify-center px-4 py-3 animate-pulse text-white font-semibold rounded-md focus:outline-none focus:ring focus:ring-blue-400 focus:ring-opacity-50">
+                            <img src={metamask}  alt="Metamask" className="justify-center w-8 h-8"/>
                         </button>
+                        <p>Add to metamask!</p>
                     </div>
                 </div>
                 </div>

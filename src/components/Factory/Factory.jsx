@@ -13,10 +13,10 @@ const Factory = () => {
   };
 
   return (
-    <div className="relative overflow-hidden min-h-screen "> {/* Establece la posición relativa para el contenedor principal */}
-      <div className="absolute inset-0" style={backgroundStyle}></div> {/* Capa de fondo con desenfoque */}
-      <div className="absolute inset-0 bg-black bg-opacity-40"></div> {/* Capa de opacidad */}
-      <div className="relative z-10">
+    <div className="relative min-h-screen "> {/* Establece la posición relativa para el contenedor principal */}
+      <div className="absolute overflow-hidden inset-0" style={backgroundStyle}></div> {/* Capa de fondo con desenfoque */}
+      <div className="absolute overflow-hidden inset-0 bg-black bg-opacity-40"></div> {/* Capa de opacidad */}
+      <div className="relative">
         <Welcome_Factory />
         <Meme_Search />
         <Footer />

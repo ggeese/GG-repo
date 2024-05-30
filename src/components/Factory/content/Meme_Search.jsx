@@ -4,6 +4,7 @@ import discordImage from "../../../../images/discordia.png";
 import telegram from "../../../../images/telegrama.png";
 import webpage from "../../../../images/internet.png";
 import twitter from "../../../../images/twitter.png";
+import no_image from "../../../../images/goldeng.png";
 import metamask from "../../../../images/metamask.svg";
 import etherscan from "../../../../images/etherscan_logo.svg";
 import copy_logo from "../../../../images/copy.svg";
@@ -62,7 +63,7 @@ const Meme_Search = () => {
     };
     
     useEffect(() => {
-        Axios.get("http://localhost:3001/db_memes", {
+        Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
             params: {}
         }).then((response) => {
             setMemes(response.data);
@@ -75,7 +76,7 @@ const Meme_Search = () => {
     const handleSearch = async () => {
         try {
             console.log("Enviando solicitud de búsqueda...");
-            const response = await Axios.get("http://localhost:3001/db_memes", {
+            const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
                 params: {
                     name: search, // Usar el estado 'search' en lugar de 'memes'
                 }
@@ -105,34 +106,37 @@ const Meme_Search = () => {
         <div className="flex flex-col p-5 " > {/* Fondo cálido */}
         <div className="rounded-2xl ">
 
-            <div className="flex flex-col">
-                <p className="flex text-7xl p-10 justify-center text-center">Golden Hatchlings</p>
-                <div className="flex justify-around  rounded-2xl ">
-                    <div className="flex flex-fil w-1/2 p-10">
-                        <input 
-                            value={search} 
-                            onChange={searcher}
-                            type="text" 
-                            onKeyDown={handleKeyPress}
-                            placeholder="Type here to Search memes all memes!!" 
-                            className="form-control block px-3 py-1.5 text-base font-normal text-gray-700  bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-orange-600 focus:outline-none w-full"
-                        />
-                        <div className="px-5">
-                            <button 
-                                onClick={handleSearch}
-                                className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow-md">
-                                Search
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="mt-1 min-h-[42px] flex items-center">
-                        <button className="flex items-center justify-between whitespace-nowrap rounded-md px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 w-[120px] border-2 border-orange-600 bg-white bg-opacity-80 h-[42px]">
-                            Sort
-                        </button>
-                    </div>
+        <div className="flex flex-col items-center">
+            <p className="text-3xl md:text-5xl lg:text-7xl p-5 md:p-10 text-center">
+                Golden Hatchlings
+            </p>
+            <div className="flex flex-col md:flex-row justify-around items-center w-full max-w-screen-lg rounded-2xl">
+                <div className="flex flex-col md:flex-row items-center w-full md:w-2/3 p-5 md:p-10">
+                <input
+                    value={search}
+                    onChange={searcher}
+                    type="text"
+                    onKeyDown={handleKeyPress}
+                    placeholder="Type here to search all memes!"
+                    className="form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out focus:text-gray-700 focus:bg-white focus:border-orange-600 focus:outline-none"
+                />
+                <div className="mt-3 md:mt-0 md:ml-5">
+                    <button
+                    onClick={handleSearch}
+                    className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full shadow-md w-full md:w-auto"
+                    >
+                    Search
+                    </button>
+                </div>
+                </div>
+                <div className="mt-5 md:mt-0 min-h-[42px] flex items-center">
+                <button className="flex items-center justify-between whitespace-nowrap rounded-md px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 w-full md:w-auto border-2 border-orange-600 bg-white bg-opacity-80 h-[42px]">
+                    Sort
+                </button>
                 </div>
             </div>
+            </div>
+
 
             <div className="bg-gray-200 rounded-3xl flex flex-wrap gap-5 justify-center items-start p-4 ">
                 { results.length === 0 ? (
@@ -163,7 +167,7 @@ const Meme_Search = () => {
                         </div>
 
                         <h1 className="text-md font-semibold mb-2 text-center text-gray-700 p-2">{meme.description}</h1>
-                        <img className="rounded-3xl p-3" src={meme.image} alt={meme.name} style={{maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', margin: 'auto', objectFit: 'contain'}}/>
+                        <img className="rounded-3xl p-3" src={meme.image || no_image} alt={meme.name} style={{maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', margin: 'auto', objectFit: 'contain'}}/>
                         <div className="flex">
                             <a href={"https://etherscan.io/address/" + meme.contract} target="_blank" rel="noopener noreferrer"
                                 className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">Created by: {meme.creator.slice(0, 6)}...{meme.creator.slice(-4)}

@@ -2,12 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/gg_coin.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <title>Golden Goose</title>
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Handle client-side routing in React
+      (function() {
+        var path = window.location.search.substr(1);
+        if (path) {
+          // Replace the current history state with the corrected path
+          history.replaceState(null, '', '/' + path);
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
