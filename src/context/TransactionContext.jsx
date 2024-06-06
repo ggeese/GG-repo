@@ -3,7 +3,13 @@ import { ethers } from "ethers";
 import { contractAddress, contractAddress_meme_factory, contractAdrress_golden_exp } from "../utils/constants";
 import { contractABI, contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
 import networksData from './networks.json'; // Importa el archivo JSON
+import { Connection, PublicKey, clusterApiUrl, Keypair, Transaction, SystemProgram, sendAndConfirmTransaction } from '@solana/web3.js';
 import Axios from "axios";
+import bs58 from 'bs58';
+
+
+// Configurar el entorno para usar `buffer` y `process`
+
 export const TransactionContext = React.createContext();
 
 const isMobile = () => {
@@ -99,13 +105,14 @@ const get_db_memes =() =>{
 
 
 
+
 export const TransactionProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState ('');
     const [currentMemeImage, setCurrentMemeImage] = useState ('');
     const [currentMemeContract, setcurrentMemeContract] = useState ('');
     const [isLoading, setIsLoading] = useState(false);
     const [FormData, setFormData] = useState({addressTo: '', amount: '', message: ''});
-    const [Network, setNetwork] = useState("Sepolia ETH")
+    const [Network, setNetwork] = useState("X Layer Mainnet")
     //lo mas dificil de entender!!!!
 
     const handleChange = (e, name) => {
@@ -165,6 +172,78 @@ export const TransactionProvider = ({ children }) => {
         }
       };
 
+    const connectPhantom = async () => {
+        // Conectar a la red de Solana
+        const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+    
+        if (window.solana) {
+            try {
+                // Conectar la wallet Phantom
+                await window.solana.connect();
+                const solaccount = window.solana.publicKey.toString();
+                console.log('Conectado a la wallet:', solaccount);
+    
+                // Obtener la clave pública de la cuenta actual
+                const publicKey = window.solana.publicKey;    
+                const balance = await connection.getBalance(publicKey);
+                console.log('Saldo de la cuenta:', balance);
+                setCurrentAccount(solaccount);
+                return { connection, publicKey };
+            } catch (err) {
+                console.error('Error conectando la wallet:', err);
+                return null;
+            }
+        } else {
+            console.log('Phantom Wallet no está instalada');
+            return null;
+        }
+    };
+    
+    const SolTransaction = async () => {
+        const CONTRACT_ADDRESS = 'GePjK51tHX7aCAucmxyh4mXjrogrkimuStK18AnJxAGw'; // Dirección del contrat
+        try {
+
+            // Conexión a la red de Solana
+            const connection = new Connection('https://api.devnet.solana.com');
+
+            const phantom = window.solana;
+            if (!phantom) {
+                console.error('Phantom Wallet no está instalada');
+                return;
+            }
+            const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+            const userTokenAccount = Keypair.generate();
+            console.log("public key phantom",phantom.publicKey)
+        // Solicitar la firma de la transacción desde Phantom
+        const transaction = new Transaction().add(
+            SystemProgram.createAccount({
+                fromPubkey: phantom.publicKey,
+                newAccountPubkey: userTokenAccount.publicKey,
+                space: 165,
+                lamports: await connection.getMinimumBalanceForRentExemption(165),
+                programId: new PublicKey(CONTRACT_ADDRESS),
+            })
+        );
+        transaction.recentBlockhash = recentBlockhash;
+        transaction.setSigners(phantom.publicKey); // Establecer al usuario actual como pagador de la tarifa
+
+        const signedTransaction = await phantom.signTransaction(transaction);
+
+            // Firmar y enviar la transacción
+            const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
+                skipPreflight: false, // Asegúrate de que no se omita el preflight
+                preflightCommitment: 'single', // Opcional: especifica el compromiso para la preflight
+            });
+    
+
+            console.log('Transaction signature:', signature);
+            //setLoading(false);
+        } catch (error) {
+            console.error('Error creating token:', error);
+            //setLoading(false);
+        }
+    };
 
     //cambiar red//
     const changeNetwork = async (network) => {
@@ -292,7 +371,10 @@ export const TransactionProvider = ({ children }) => {
             const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory_2, contractABI_MEME_FACTORY, signer);
             console.log ("previo a la interaccion con el contrato")
             setIsLoading(true);
-            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/SNABUR/Drafts/main/meme.json", Fee_tx_fixed, {value: commissionAmount});
+            const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed);
+            //const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed, {value: commissionAmount});
+                        //con comision en moneda on chain
+
             console.log(`Loading - ${transactionHash.hash}`);
             //await transactionHash.wait();
             console.log("previo add meme")
@@ -569,7 +651,8 @@ export const TransactionProvider = ({ children }) => {
 
     return (
         <TransactionContext.Provider value={{ 
-            connectWallet, 
+            connectWallet,
+            connectPhantom, 
             currentAccount, 
             FormData, 
             isLoading, 
@@ -585,7 +668,8 @@ export const TransactionProvider = ({ children }) => {
             handleChange_5, 
             changeNetwork,
             disconnectWallet,
-            sendTransaction, 
+            sendTransaction,
+            SolTransaction, 
             sendTransaction_2, 
             sendTransaction_3, 
             sendTransaction_3_Unstake,

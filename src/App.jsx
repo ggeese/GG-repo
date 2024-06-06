@@ -16,18 +16,23 @@ import manta from "../images/manta.svg";
 import blast from "../images/blast.svg";
 import linea from "../images/linea_name.svg";
 import klaytn from "../images/klaytn.svg";
-import merlin from "../images/merlin.svg"
+import merlin from "../images/merlin.svg";
+import solana from "../images/solana.svg";
+import zetachain from "../images/zetachain.svg";
 import logo from "../images/gg_coin_2.png";
 import { HiMenuAlt4 } from 'react-icons/hi';
 import { AiOutlineClose } from 'react-icons/ai';
+import { Wallets } from './';
+
 
 const networkIcons = {
+  'X Layer Mainnet':  { icon: okb, nick: 'X Layer' },
+  'Solana': { icon: solana, nick: ' Solana' },
   'Sepolia ETH': { icon: eth, nick: ' Sepolia ETH' },
   'Ethereum':  { icon: eth, nick: ' Ethereum' },
   'Berachain Artio':  { icon: berachain, nick: ' Berachain' },
   'BNB Smart Chain Mainnet': { icon: bnb, nick: ' BNB Chain' },
   'BNB Smart Chain Testnet': { icon: bnb, nick: ' BNB Testnet' },
-  'X Layer Mainnet':  { icon: okb, nick: 'X layer' },
   'X Layer Testnet':  { icon: okb, nick: 'X layer Testnet' },
   'Merlin Mainnet':  { icon: merlin, nick: ' Merlin Chain' },
   'Merlin Testnet':  { icon: merlin, nick: ' Merlin Testnet' },
@@ -43,6 +48,9 @@ const networkIcons = {
   'Polygon Mainnet':  { icon: polygon, nick: ' Polygon' },
   'Arbitrum One':  { icon: arbitrum, nick: ' Arbitrum' },
   'Fantom Opera':  { icon: fantom, nick: ' Fantom' },
+  'ZetaChain Mainnet':  { icon: zetachain, nick: ' Zeta Chain' },
+  'ZetaChain Athens 3 Testnet':  { icon: zetachain, nick: ' Zeta Chain Testnet' },
+
 };
 
 
@@ -74,6 +82,8 @@ const App = () => {
   const [selectedNetwork, setSelectedNetwork] = useState(null);
   const {connectWallet, currentAccount, changeNetwork, disconnectWallet } = useContext(TransactionContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showMyModal, setShowMyModal] = useState(false);
+  const handleOnClose = () => setShowMyModal(false);
   const location = useLocation();
 
 
@@ -127,6 +137,7 @@ const App = () => {
 
   if (location.pathname !== "/") {
     return (
+      <div>
       <header className="relative w-full bg-black flex md:justify-center justify-between items-center">
         <div className="relative z-10 flex items-center justify-between w-full max-w-screen-xl mx-auto px-4">
           <Link to="/" className="flex text-2xl px-4 py-2 hover:text-gray-300">
@@ -210,8 +221,8 @@ const App = () => {
               ) : (
                 <button
                   className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]"
-                  onClick={connectWallet}
-                >
+                  onClick={() => setShowMyModal(true)}
+                  >
                   <p className="text-xl text-black">Connect Wallet</p>
                 </button>
               )}
@@ -302,6 +313,9 @@ const App = () => {
           )}
         </div>
       </header>
+<Wallets onClose={handleOnClose} visible={showMyModal} />
+</div>
+      
     );
   }
   return null;

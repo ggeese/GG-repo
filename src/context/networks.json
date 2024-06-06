@@ -25,7 +25,7 @@
         "rpcUrl": "https://bsc-dataseed1.bnbchain.org",
         "symbol": "BNB",
         "explorerUrl": "https://bscscan.com/",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "factory":"0x6033a173c92170e7Ee1F1fDE11fA8458B5A62283",
         "nick":"BNB Chain",
         "fee":0.00001
       },
@@ -45,7 +45,7 @@
         "rpcUrl": "https://artio.rpc.berachain.com/",
         "symbol": "BERA",
         "explorerUrl": "https://artio.beratrail.io/",
-        "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
+        "factory":"0x43b620CDCD633de6CE4EcB647aEA355910492A63",
         "nick":"Bera Chain",
         "fee":0.001
       },
@@ -55,7 +55,7 @@
         "rpcUrl": "https://polygon-rpc.com/",
         "symbol": "MATIC",
         "explorerUrl": "https://polygonscan.com",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "factory":"0x457c0B0430b16BF9bd57FfF2c9C1980c632910e2",
         "nick":"Polygon",
         "fee":0.00001
       },
@@ -115,9 +115,19 @@
         "rpcUrl": "https://mainnet.base.org/",
         "symbol": "ETH",
         "explorerUrl": "https://basescan.org",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Base",
         "fee":0.00001
+      },
+      {
+        "name": "Solana",
+        "chainId": 84532,
+        "rpcUrl": "https://sepolia.base.org/",
+        "symbol": "ETH",
+        "explorerUrl": "https://sepolia-explorer.base.org/",
+        "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "nick":"Base",
+        "fee":0.0001
       },
       {
         "name": "Base Sepolia",
@@ -145,7 +155,7 @@
         "rpcUrl": "https://rpc.blast.io",
         "symbol": "ETH",
         "explorerUrl": "https://blastscan.io",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Blast",
         "fee":0.00001
       } ,
@@ -165,7 +175,7 @@
         "rpcUrl": "https://testnet-rpc.merlinchain.io",
         "symbol": "BTC",
         "explorerUrl": "https://testnet-scan.merlinchain.io",
-        "factory":"0x143D8BfcBAeEf7cA580f6A3BD35ce5dD590cF23F",
+        "factory":"0x33a88274f6e782Fe2b028F75cDB6543B1E78A74f",
         "nick":"Merlin Testnet",
         "fee":0.00001
       } ,
@@ -175,7 +185,7 @@
         "rpcUrl": "https://rpc.xlayer.tech",
         "symbol": "OKB",
         "explorerUrl": "https://www.oklink.com/xlayer",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "factory":"0x6033a173c92170e7Ee1F1fDE11fA8458B5A62283",
         "nick":"OKB Mainnet",
         "fee":0.00001
       },
@@ -192,10 +202,10 @@
       {
         "name": "Linea",
         "chainId": 59144,
-        "rpcUrl": "https://linea.blockpi.network/v1/rpc/public",
+        "rpcUrl": "https://1rpc.io/linea",
         "symbol": "ETH",
         "explorerUrl": "https://lineascan.build",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Linea",
         "fee":0.00001
       },
@@ -208,6 +218,26 @@
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"klay",
         "fee":0.00001
+      },
+      {
+        "name": "ZetaChain Athens 3 Testnet",
+        "chainId": 7001,
+        "rpcUrl": "https://zetachain-athens-evm.blockpi.network/v1/rpc/public",
+        "symbol": "ZETA",
+        "explorerUrl": "https://athens3.explorer.zetachain.com",
+        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "nick":"Zeta testnet",
+        "fee":1
+      },
+      {
+        "name": "ZetaChain Mainnet",
+        "chainId": 7000,
+        "rpcUrl": "https://zetachain-evm.blockpi.network/v1/rpc/public",
+        "symbol": "ZETA",
+        "explorerUrl": "https://explorer.mainnet.zetachain.com",
+        "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
+        "nick":"Zeta",
+        "fee":1
       }
     ]
   }
