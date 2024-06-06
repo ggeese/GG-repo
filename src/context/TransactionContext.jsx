@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { contractAddress, contractAddress_meme_factory, contractAdrress_golden_exp } from "../utils/constants";
-import { contractABI, contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
+import { contractAddress_meme_factory, contractAdrress_golden_exp } from "../utils/constants";
+import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
 import networksData from './networks.json'; // Importa el archivo JSON
-import { Connection, PublicKey, clusterApiUrl, Keypair, Transaction, SystemProgram, sendAndConfirmTransaction } from '@solana/web3.js';
+import { Connection, PublicKey, clusterApiUrl, Keypair, Transaction, SystemProgram } from '@solana/web3.js';
+//import { Program, AnchorProvider, web3, Idl } from '@project-serum/anchor';
 import Axios from "axios";
-import bs58 from 'bs58';
+import {AnchorProvider, setProvider, Program, BN, web3, utils } from "@project-serum/anchor";
+import * as anchor from '@project-serum/anchor';
+
+console.log(Object.keys(anchor));
+
 
 
 // Configurar el entorno para usar `buffer` y `process`
@@ -96,16 +101,6 @@ const findInterFee = (networkName) => {
     return internal_fee ? internal_fee.fee : null;
 }
 
-
-const get_db_memes =() =>{
-    Axios.get("http://localhost:3001/db_memes").then((response)=>{
-        alert("Meme registrado");
-    });
-}
-
-
-
-
 export const TransactionProvider = ({ children }) => {
     const [currentAccount, setCurrentAccount] = useState ('');
     const [currentMemeImage, setCurrentMemeImage] = useState ('');
@@ -172,14 +167,16 @@ export const TransactionProvider = ({ children }) => {
         }
       };
 
-    const connectPhantom = async () => {
+      const connectPhantom = async () => {
         // Conectar a la red de Solana
         const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
     
-        if (window.solana) {
+        if (window.solana && window.solana.isPhantom) {
             try {
-                // Conectar la wallet Phantom
-                await window.solana.connect();
+                // Verificar si Phantom ya está conectado
+                if (!window.solana.isConnected) {
+                    await window.solana.connect();
+                }
                 const solaccount = window.solana.publicKey.toString();
                 console.log('Conectado a la wallet:', solaccount);
     
@@ -199,51 +196,64 @@ export const TransactionProvider = ({ children }) => {
         }
     };
     
+    
     const SolTransaction = async () => {
-        const CONTRACT_ADDRESS = 'GePjK51tHX7aCAucmxyh4mXjrogrkimuStK18AnJxAGw'; // Dirección del contrat
+        const CONTRACT_ADDRESS = 'GePjK51tHX7aCAucmxyh4mXjrogrkimuStK18AnJxAGw'; // Dirección del contrato
         try {
-
-            // Conexión a la red de Solana
+            console.log('Conectando a la red de Solana...');
             const connection = new Connection('https://api.devnet.solana.com');
-
+            console.log('Conexión establecida.');
+    
             const phantom = window.solana;
-            if (!phantom) {
-                console.error('Phantom Wallet no está instalada');
+            if (!phantom || !phantom.isPhantom) {
                 return;
             }
-            const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-            const userTokenAccount = Keypair.generate();
-            console.log("public key phantom",phantom.publicKey)
-        // Solicitar la firma de la transacción desde Phantom
-        const transaction = new Transaction().add(
-            SystemProgram.createAccount({
-                fromPubkey: phantom.publicKey,
-                newAccountPubkey: userTokenAccount.publicKey,
-                space: 165,
-                lamports: await connection.getMinimumBalanceForRentExemption(165),
-                programId: new PublicKey(CONTRACT_ADDRESS),
-            })
-        );
-        transaction.recentBlockhash = recentBlockhash;
-        transaction.setSigners(phantom.publicKey); // Establecer al usuario actual como pagador de la tarifa
-
-        const signedTransaction = await phantom.signTransaction(transaction);
-
-            // Firmar y enviar la transacción
-            const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
-                skipPreflight: false, // Asegúrate de que no se omita el preflight
-                preflightCommitment: 'single', // Opcional: especifica el compromiso para la preflight
-            });
     
-
-            console.log('Transaction signature:', signature);
-            //setLoading(false);
+            if (!phantom.isConnected) {
+                await phantom.connect();
+            }
+    
+            const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;    
+            const userTokenAccount = Keypair.generate();
+            console.log('Generado userTokenAccount:', userTokenAccount.publicKey.toString());
+            console.log('Public key de Phantom:', phantom.publicKey.toString());
+    
+            const transaction = new Transaction().add(
+                SystemProgram.createAccount({
+                    fromPubkey: phantom.publicKey,
+                    newAccountPubkey: userTokenAccount.publicKey,
+                    space: 165,
+                    lamports: await connection.getMinimumBalanceForRentExemption(165),
+                    programId: new PublicKey(CONTRACT_ADDRESS),
+                })
+            );
+            transaction.recentBlockhash = recentBlockhash;
+            transaction.feePayer = phantom.publicKey;
+            console.log('Transacción construida:', transaction);
+    
+            console.log('Solicitando firma de la transacción...');
+            const signedTransaction = await phantom.signTransaction(transaction);
+            console.log('Transacción firmada:', signedTransaction);
+    
+            console.log('Firmando la transacción manualmente...');
+            signedTransaction.partialSign(userTokenAccount);
+            console.log('Transacción firmada manualmente:', signedTransaction);
+            
+            console.log('Enviando la transacción...');
+            const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
+                skipPreflight: false,
+                preflightCommitment: 'singleGossip',
+            });
+            console.log('Transacción enviada, signature:', signature);
+    
+            // setLoading(false);
         } catch (error) {
-            console.error('Error creating token:', error);
-            //setLoading(false);
+            console.error('Error creando el token:', error);
+            // setLoading(false);
         }
     };
+    
+    
 
     //cambiar red//
     const changeNetwork = async (network) => {

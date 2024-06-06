@@ -1,62 +1,94 @@
-import React, { useState, useContext } from "react";
-import { Connection, PublicKey, Keypair, Transaction, sendAndConfirmTransaction, SystemProgram } from '@solana/web3.js';
-import bs58 from 'bs58';
-
-
+import React, { useEffect, useState, useContext } from "react";
+import { Connection, PublicKey } from '@solana/web3.js';
+import { AnchorProvider, setProvider, Program, BN, web3 } from '@project-serum/anchor';
+import IDL from './utils/MemeFactorySol.json'
 import { TransactionContext } from './context/TransactionContext';
 
-const payerSecretKeyBase58 = "ZaUEwWxfW6jpZ2j5LjQHymRw3p5ygh6MXtHuLwqW7ecSSM1dRVVXhsVjRqVm9hRxRsLvLJfVtfHL2wKjMs5UWdx";
-const CONTRACT_ADDRESS = 'GePjK51tHX7aCAucmxyh4mXjrogrkimuStK18AnJxAGw'; // Dirección del contrato
+const token_22_address = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+const TOKEN_PROGRAM_ID = new PublicKey(token_22_address);
+const rpc_url = "https://api.devnet.solana.com";
+const connection = new Connection(rpc_url, "confirmed");
 
+const getProvider = async () => {
+    if ("solana" in window) {
+      const provider = window.solana;
+      if (provider.isPhantom) {
+        await provider.connect();
+        return provider;
+      }
+    }
+    window.open('https://phantom.app/', '_blank');
+  };
+  
 function Wallets({ visible, onClose }) {
-    const [name, setName] = useState('');
-    const [symbol, setSymbol] = useState('');
-    const [supply, setSupply] = useState('');
     const [loading, setLoading] = useState(false);
+    const [walletAddress, setWalletAddress] = useState(null);
+    const [program, setProgram] = useState(null);
+    const [provider, setProviderState] = useState(null);
 
-    const handleCreateToken = async () => {
-        try {
-            setLoading(true);
+    
+  useEffect(() => {
+    const initialize = async () => {
+      setLoading(true);
+      try {
+        const provider = await getProvider();
+        if (provider) {
+          setWalletAddress(provider.publicKey.toString());
 
-            // Conexión a la red de Solana
-            const connection = new Connection('https://api.devnet.solana.com');
+          const anchorProvider = new AnchorProvider(connection, provider, {
+            preflightCommitment: 'confirmed',
+          });
+          setProvider(anchorProvider);
+          setProviderState(anchorProvider);
 
-            // Clave privada para firmar la transacción
-            const payerSecretKeyBytes = bs58.decode(payerSecretKeyBase58);
-            const payer = Keypair.fromSecretKey(payerSecretKeyBytes);
-
-            // Clave pública del contrato
-            const programId = new PublicKey(CONTRACT_ADDRESS);
-
-            // Generar par de claves para la cuenta del usuario
-            const userTokenAccount = Keypair.generate();
-
-            // Crear la transacción
-            const transaction = new Transaction().add(
-                SystemProgram.createAccount({
-                    fromPubkey: payer.publicKey,
-                    newAccountPubkey: userTokenAccount.publicKey,
-                    space: 165, // Espacio de almacenamiento para la cuenta del usuario
-                    lamports: await connection.getMinimumBalanceForRentExemption(165), // Cantidad de SOL necesaria para crear la cuenta
-                    programId,
-                }),
-            );
-
-            // Firmar y enviar la transacción
-            const signature = await sendAndConfirmTransaction(
-                connection,
-                transaction,
-                [payer, userTokenAccount],
-                { commitment: 'singleGossip', preflightCommitment: 'singleGossip' },
-            );
-
-            console.log('Transaction signature:', signature);
-            setLoading(false);
-        } catch (error) {
-            console.error('Error creating token:', error);
-            setLoading(false);
+          // Crear una instancia del programa
+          const programId = new PublicKey("GePjK51tHX7aCAucmxyh4mXjrogrkimuStK18AnJxAGw");
+          const anchorProgram = new Program(IDL, programId);
+          setProgram(anchorProgram);
         }
+      } catch (error) {
+        console.error('Error initializing program:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+    initialize();
+  }, []);
+
+    const createToken = async (tokenName) => {
+        if (!program) {
+            console.error('Program is not initialized');
+            return;
+          }
+
+        const nonce = new BN(Date.now()); // Usa BN de anchor
+        const [mintPDA, bump] = PublicKey.findProgramAddressSync(
+          [
+            Buffer.from('token-2022-token'),
+            (window.solana.publicKey).toBuffer(),
+            Buffer.from(tokenName),
+            nonce.toArrayLike(Buffer, 'le', 8),
+          ],
+          program.programId
+        );
+    
+        try {
+          await program.methods.createToken(tokenName, nonce)
+            .accounts({
+              signer: window.solana.publicKey,
+              mint: mintPDA,
+              systemProgram: web3.SystemProgram.programId,
+              tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .rpc();
+          const contractToken = mintPDA.toBase58();
+          console.log('Token account:', contractToken);
+          return contractToken;
+        } catch (error) {
+          console.error('Failed to create token:', error);
+          throw error;
+        }
+      };
 
     const { connectWallet, connectPhantom, SolTransaction } = useContext(TransactionContext);
     const handleOnClose = (event) => {
@@ -80,6 +112,17 @@ function Wallets({ visible, onClose }) {
                     {loading ? 'Creando...' : 'Crear Token'}
                 </button>
             </div>
+            <div>
+      <h1>My DApp</h1>
+      {walletAddress ? (
+        <div>
+          <p>Connected: {walletAddress}</p>
+          <button onClick={() => createToken('MyToken')}>Create Token</button>
+        </div>
+      ) : (
+        <button onClick={getProvider}>Connect to Phantom Wallet</button>
+      )}
+    </div>
         </div>
     );
 }
