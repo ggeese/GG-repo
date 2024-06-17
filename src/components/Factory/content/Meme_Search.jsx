@@ -8,7 +8,9 @@ import no_image from "../../../../images/goldeng.png";
 import metamask from "../../../../images/metamask.svg";
 import etherscan from "../../../../images/etherscan_logo.svg";
 import copy_logo from "../../../../images/copy.svg";
+import plank_hatch from '../../../../images/plank_hatch.png';
 import Axios from "axios";
+
 
 const LoadingBox = () => (
     <div className="border border-gray-300 rounded-3xl shadow-sm overflow-hidden bg-white bg-opacity-80" style={{ width: '300px', height:'550px' }}>
@@ -107,9 +109,11 @@ const Meme_Search = () => {
         <div className="rounded-2xl ">
 
         <div className="flex flex-col items-center">
-            <p className="text-3xl md:text-5xl lg:text-7xl p-5 md:p-10 text-center">
-                Golden Hatchlings
-            </p>
+        <img
+            src={plank_hatch}
+            alt="Golden Hatchlings"
+            className="p-1 md:p-10 mx-auto w-1/2"
+        />
             <div className="flex flex-col md:flex-row justify-around items-center w-full max-w-screen-lg rounded-2xl">
                 <div className="flex flex-col md:flex-row items-center w-full md:w-2/3 p-5 md:p-10">
                 <input

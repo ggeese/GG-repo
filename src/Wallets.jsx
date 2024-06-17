@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { TransactionContext } from './context/TransactionContext';
 
 function Wallets({ visible, onClose }) {
-    const { connectWallet, connectPhantom } = useContext(TransactionContext);
+    const { connectWallet, connectPhantom, connectSmartWallet, connectTON } = useContext(TransactionContext);
 
     const handleOnClose = (e) => {
         if (e.target.id === 'container_meme') onClose();
@@ -18,6 +18,12 @@ function Wallets({ visible, onClose }) {
                 </button>
                 <button className="bg-gray-200 p-4" onClick={connectPhantom}>
                     Phantom
+                </button>
+                <button className="bg-gray-200 p-4" onClick={connectSmartWallet}>
+                    Smart Wallet
+                </button>
+                <button className="bg-gray-200 p-4" onClick={connectTON}>
+                    TON (Telegram)
                 </button>
             </div>
         </div>

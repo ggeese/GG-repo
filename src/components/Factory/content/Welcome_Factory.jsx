@@ -34,7 +34,7 @@ const Welcome_Factory = () => {
     <div>
       <div className="flex flex-col justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 px-5 py-20 overflow-hidden">
         {/* Contenedor principal para el texto */}
-        <div className="self-stretch flex flex-col w-full max-w-[420px] lg:w-[780px] lg:max-w-[980px] bg-white bg-opacity-90 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
+        <div className="self-stretch flex flex-col w-full max-w-[420px] lg:w-[780px] lg:max-w-[980px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
           <h1 className="flex justify-center md:text-6xl sm:text-5xl lg:text-9xl text-7xl text-center font-bold text-black p-5">
             Create your meme
           </h1>
@@ -52,7 +52,7 @@ const Welcome_Factory = () => {
             </button>
           </div>
         </div>
-        <div className="self-stretch flex flex-col w-full max-w-[420px] lg:w-[780px] lg:max-w-[980px] bg-white bg-opacity-80 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
+        <div className="self-stretch flex flex-col w-full max-w-[420px] lg:w-[780px] lg:max-w-[980px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
           <img src={eggs} alt="eggs" className="mt-auto mb-auto" />
         </div>
       </div>
@@ -67,7 +67,7 @@ const Welcome_Factory = () => {
           </div>
 
           <div className="relative p-4 w-full md:w-full md:max-w-[840px] lg:w-[960px] lg:max-w-full xl:w-[1080px] border-t-3 border-b-3 md:border-3 border-yellow-600 md:rounded-b-3xl bg-black from-gray-300 to-transparent overflow-hidden">
-            <div className="flex flex-fil banner animate-slide supportedNetworks z-[1] relative flex items-center h-1/4 md:h-20 gap-1">
+            <div className="flex flex-fil banner animate-slide supportedNetworks z-[0] relative flex items-center h-1/4 md:h-20 gap-1">
               <img src={ethereum_name} alt="ethereum" className="w-full h-full px-2" />
               <img src={bnb_name} alt="bnb_name" className="w-full h-64" />
               <img src={polygon_name} alt="polygon" className="w-full h-64" />

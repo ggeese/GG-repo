@@ -27,7 +27,7 @@ import { Wallets } from './';
 
 const networkIcons = {
   'X Layer Mainnet':  { icon: okb, nick: 'X Layer' },
-  'Solana': { icon: solana, nick: ' Solana Testnet' },
+  'Solana': { icon: solana, nick: ' Solana Devnet' },
   'Sepolia ETH': { icon: eth, nick: ' Sepolia ETH' },
   'Ethereum':  { icon: eth, nick: ' Ethereum' },
   'Berachain Artio':  { icon: berachain, nick: ' Berachain Testnet' },

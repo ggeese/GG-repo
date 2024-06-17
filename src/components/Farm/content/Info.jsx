@@ -12,16 +12,16 @@ const Info = () => {
         <div className=" flex flex-fil mt-20">
 
           <div className= "flex px-10"style={{backgroundImage: `url(${plank_1})`, backgroundSize: 'auto 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
-          <div className="hidden md:block flex flex-fil text-sm px-16">
+            <div className="hidden md:block flex flex-fil text-sm px-16">
             </div>
-            <div className="flex flex-col text-black text-5xl font-bold mt-10 mb-10" >
-              <p className="flex flex-col justtify-center items-center">Staking</p>
-              <p className="flex flex-col justtify-center items-center">Pools</p>
-          </div>
-          <div className="hidden md:block flex flex-fil text-sm px-16">
+              <div className="flex flex-col text-black text-5xl font-bold mt-10 mb-10" >
+                <p className="flex flex-col justtify-center items-center">Staking</p>
+                <p className="flex flex-col justtify-center items-center">Pools</p>
             </div>
-            <div className="flex text-sm">
-            </div>
+            <div className="hidden md:block flex flex-fil text-sm px-16">
+              </div>
+              <div className="flex text-sm">
+              </div>
           </div>
         </div>
 

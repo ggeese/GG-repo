@@ -6,8 +6,9 @@ import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS
 import networksData from './networks.json'; // Importa el archivo JSON
 import { Connection, PublicKey, clusterApiUrl, Transaction, LAMPORTS_PER_SOL, SystemProgram as SystemProgramXD } from '@solana/web3.js';
 import { AnchorProvider, setProvider, Program, BN, web3, utils } from '@project-serum/anchor';
-import { createAssociatedTokenAccountInstruction, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeTransferFeeConfigInstruction, setAuthority, AuthorityType } from '@solana/spl-token';
+import { createAssociatedTokenAccountInstruction, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeTransferFeeConfigInstruction, createSetAuthorityInstruction, AuthorityType } from '@solana/spl-token';
 import { createCreateMetadataAccountV3Instruction, PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import IDL from '../utils/MemeFactorySol.json'
 import Axios from "axios";
 
@@ -45,7 +46,7 @@ const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url,
     // Extrayendo la hora y fecha
     const Creation_Date = new Date().toLocaleString();
 
-    Axios.post("http://localhost:3001/create", {
+    Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
         
         name: MemeName,
         ticker: Symbol,
@@ -73,7 +74,7 @@ const handleCreateJson = async (name, symbol, imageurl) => {
         image: imageurl
     }
     try {
-        const response = await Axios.post('http://localhost:3001/create-json', jsonData);
+        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/create-json', jsonData);
         console.log("json URI uploaded")
 
         if (response.data.success) {
@@ -96,7 +97,7 @@ const saveImageToServer = async (imageFile) => {
         formData.append('image', imageFile);
 
         // Enviar la solicitud POST al servidor
-        const response = await Axios.post('http://localhost:3001/api/upload', formData, {
+        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -189,8 +190,32 @@ export const TransactionProvider = ({ children }) => {
             throw new Error("No ethereum object.")
         }
         
-    }
+    };
 
+    const connectSmartWallet = async () => {
+        try {
+          // Initialize Coinbase Wallet SDK
+          const sdk = new CoinbaseWalletSDK({ appName:"An Awesome App", appChainIds:[84532] });
+    
+          // Make web3 provider
+          const provider = sdk.makeWeb3Provider();
+    
+          // Request access to user accounts
+          const accounts = await provider.request({ method: 'eth_requestAccounts' });
+    
+          // Set the current account
+          setCurrentAccount(accounts[0]);
+    
+          // Change to the desired network (implement changeNetwork as needed)
+          await changeNetwork(appChainIds[0]);
+        } catch (error) {
+          console.error("Error connecting to Coinbase Wallet:", error);
+        }
+      };
+
+    const connectTON = () => {
+        
+    };
 
     const connectWallet = async () => {
         try {
@@ -263,7 +288,7 @@ export const TransactionProvider = ({ children }) => {
           };
 
           const connectPhantom = async () => {
-            const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+            const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
             
             const provider = await getProvider();
             if (provider) {
@@ -304,7 +329,7 @@ export const TransactionProvider = ({ children }) => {
         const amountInMinUnit = new BN(amount).mul(new BN(10).pow(new BN(decimals)));
         const amountInMinUnit_Treasure = new BN(amount*0.01).mul(new BN(10).pow(new BN(decimals)));
         //const tokenUri = "https://raw.githubusercontent.com/goldengcoin/metadata/main/data.json";
-        const Feelamports = (0.01 * LAMPORTS_PER_SOL);
+        const Feelamports = (0.001 * LAMPORTS_PER_SOL);
 
         //PDA from token 
         const [mintPDA, mintBump] = PublicKey.findProgramAddressSync(
@@ -469,23 +494,17 @@ export const TransactionProvider = ({ children }) => {
                 );
             //renunciando al contrato
             
-            const renounceAutority = setAuthority(
-                connection,              // Conexión a usar
-                window.solana.publicKey,                  // Payer de las tarifas de transacción
-                mintPDA,          // Dirección de la cuenta
-                window.solana.publicKey,          // Autoridad actual de la cuenta
-                AuthorityType.AccountOwner, // Tipo de autoridad a renunciar
-                null,                    // Nueva autoridad de la cuenta (null para renunciar)
-                [],                      // Cuentas firmantes si currentAuthority es un multisig
-                { commitment: 'confirmed' }, // Opciones para confirmar la transacción
-                TOKEN_PROGRAM_ID         // Cuenta del programa SPL Token
-              );
-                  
+            const renounceAuthorityInstruction  = createSetAuthorityInstruction(
+                mintPDA,
+                window.solana.publicKey,
+                AuthorityType.MintTokens,
+                null,
+            );
                 
             const tx_1 = new Transaction({
                 recentBlockhash: blockhash,
                 feePayer: window.solana.publicKey,
-            }).add( metadataAccountInstruction, renounceAutority );
+            }).add( metadataAccountInstruction, renounceAuthorityInstruction );
                 
           // Envía la transacción
           const signature_1 = await window.solana.signAndSendTransaction(tx_1);
@@ -506,6 +525,217 @@ export const TransactionProvider = ({ children }) => {
         }
 
       };
+
+      
+    const SolTokenFactory = async (tokenName, amount) => {
+        if (!program) {
+            console.error('Program is not initialized');
+            return;
+          }
+
+    //asignamos el nonce para el token decimales la cantidad a mintear para la wallet y el treasury ademas de un fee
+
+        const nonce = new BN(Date.now()); // Usa BN de anchor
+        const decimals = 6;
+        const amountInMinUnit = new BN(amount).mul(new BN(10).pow(new BN(decimals)));
+        const amountInMinUnit_Treasure = new BN(amount*0.01).mul(new BN(10).pow(new BN(decimals)));
+        //const tokenUri = "https://raw.githubusercontent.com/goldengcoin/metadata/main/data.json";
+        const Feelamports = (0.01 * LAMPORTS_PER_SOL);
+
+        //PDA from token 
+        const [mintPDA, mintBump] = PublicKey.findProgramAddressSync(
+          [
+            Buffer.from('token-2022-token'),
+            (window.solana.publicKey).toBuffer(),
+            Buffer.from(tokenName),
+            nonce.toArrayLike(Buffer, 'le', 8),
+          ],
+          program.programId
+        );
+
+    // PDA de la cuenta del token
+
+        const [tokenAccountPDA, tokenAccountBump] = PublicKey.findProgramAddressSync(
+          [
+            Buffer.from('token-2022-token-account'),
+            window.solana.publicKey.toBuffer(),
+            mintPDA.toBuffer(),
+          ],
+          program.programId
+        );
+    
+        try {
+            // Create token instruction 
+            const createTokenInstruction = await program.methods.createToken(tokenName, nonce)
+                .accounts({
+                signer: window.solana.publicKey,
+                mint: mintPDA,
+                systemProgram: web3.SystemProgram.programId,
+                tokenProgram: TOKEN_PROGRAM_ID,
+                })
+                .instruction();
+            // create token account instruction
+            const createTokenAccountInstruction = await program.methods.createTokenAccount()
+            .accounts({
+                signer: window.solana.publicKey,
+                mint: mintPDA,
+                tokenAccount: tokenAccountPDA,
+                systemProgram: web3.SystemProgram.programId,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .instruction();
+
+            // getting associated token account address from treasury wallet
+
+            const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
+            [
+                treasury_address.toBuffer(),
+                TOKEN_PROGRAM_ID.toBuffer(),
+                mintPDA.toBuffer(),
+            ],
+            ASSOCIATED_TOKEN_PROGRAM_ID
+            );
+
+            // instruction to mint tokens to users wallet
+            const createMintTokenInstruction = await program.methods.mintToken(amountInMinUnit)
+              .accounts({
+                  signer: window.solana.publicKey,
+                  mint: mintPDA,
+                  receiver: tokenAccountPDA,
+                  tokenProgram: TOKEN_PROGRAM_ID,
+              })
+              .instruction();
+
+            //mint tokens instruction to treasury wallet
+            const createMintTokenInstruction_2 = await program.methods.mintToken(amountInMinUnit_Treasure)
+            .accounts({
+                signer: window.solana.publicKey,
+                mint: mintPDA,
+                receiver: associatedTokenAddress,
+                tokenProgram: TOKEN_PROGRAM_ID,
+            })
+            .instruction();
+
+
+            //associated token account instruction
+            const AssociatedTokenAccounInstructions = createAssociatedTokenAccountInstruction(
+                window.solana.publicKey, // Payer
+                associatedTokenAddress, // Associated token account address
+                treasury_address, // Owner
+                mintPDA, // Mint
+                TOKEN_PROGRAM_ID,
+                ASSOCIATED_TOKEN_PROGRAM_ID
+            );
+
+            const ComissionFeeSol = SystemProgramXD.transfer({
+                fromPubkey: window.solana.publicKey,
+                toPubkey: treasury_address,
+                lamports: Feelamports,
+              });
+
+            // current blokhash
+            const { blockhash } = await connection.getRecentBlockhash();
+
+
+            //all transaction sequence
+
+            const tx = new Transaction({
+                recentBlockhash: blockhash,
+                feePayer: window.solana.publicKey,
+            }).add(createTokenInstruction, createTokenAccountInstruction, AssociatedTokenAccounInstructions ,
+                createMintTokenInstruction , createMintTokenInstruction_2, ComissionFeeSol);
+
+                const signature = await window.solana.signAndSendTransaction(tx);
+                await connection.confirmTransaction(signature);
+      
+                console.log('Token account:', mintPDA.toBase58());
+                console.log('Token account created:', tokenAccountPDA.toBase58());
+            
+                return mintPDA;
+        } catch (error) {
+            console.error('Failed to create token or token account:', error);
+            throw error;
+        }
+    }
+
+
+      const SetMetadataRenounceOwner = async (mintPDA, tokenName, Symbol, file) => { 
+
+            let image_meme_url;
+
+            if (file) {
+                image_meme_url = await saveImageToServer(file); 
+                setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
+
+            }else{
+                image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903"; 
+                setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
+
+            }
+
+            //getting metadata PDA
+
+            const [metadataPDA] = PublicKey.findProgramAddressSync(
+                [
+                    Buffer.from("metadata"),
+                    PROGRAM_ID.toBuffer(),
+                    mintPDA.toBuffer(),
+                ],
+                PROGRAM_ID
+            );
+
+            const tokenUri = await handleCreateJson(tokenName, Symbol, image_meme_url);
+            
+            const metadataAccountInstruction = createCreateMetadataAccountV3Instruction(
+                {
+                    metadata: metadataPDA,
+                    mint: mintPDA,
+                    mintAuthority: window.solana.publicKey,
+                    payer: window.solana.publicKey,
+                    updateAuthority: window.solana.publicKey,
+                },
+                {
+                    createMetadataAccountArgsV3: {
+                        data: {
+                            name: tokenName,
+                            symbol: Symbol,
+                            uri: tokenUri,
+                            creators: null,
+                            sellerFeeBasisPoints: 0,
+                            collection: null,
+                            uses: null,
+                        },
+                        isMutable: false,
+                        collectionDetails: null,
+
+                    },
+                }
+            );
+        //renunciando al contrato
+        
+        const renounceAuthorityInstruction  = createSetAuthorityInstruction(
+            mintPDA,
+            window.solana.publicKey,
+            AuthorityType.MintTokens,
+            null,
+        );
+
+        const { blockhash } = await connection.getRecentBlockhash();
+
+        const tx_1 = new Transaction({
+            recentBlockhash: blockhash,
+            feePayer: window.solana.publicKey,
+        }).add( metadataAccountInstruction, renounceAuthorityInstruction );
+            
+    // Envía la transacción
+    const signature_1 = await window.solana.signAndSendTransaction(tx_1);
+    const txhash = await connection.confirmTransaction(signature_1);
+    console.log('txhash', txhash);
+    console.log('Metadata created');
+    return txhash
+
+
+}
 
       async function updateTransactionFee() {
 
@@ -656,20 +886,17 @@ export const TransactionProvider = ({ children }) => {
             //asignacion de fees
             //updateTransactionFee();
             try{
-                const contract_meme = await SolCreateToken(MemeName, Symbol, Supply, file);
-                if (file) {
+                //const contract_meme = await SolCreateToken(MemeName, Symbol, Supply, file);
+                const contract_meme = await SolTokenFactory(MemeName, Supply);
+                if (contract_meme) {
                     console.log("contract meme ",contract_meme);
+                    const tx_hash = await SetMetadataRenounceOwner(contract_meme, MemeName, Symbol, file)
+                    setTxHash(tx_hash);
                     await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, currentAccount, Website, Twitter, Discord, Telegram, Fee, description)
                     clearTimeout(timeout);
                     setIsLoading(false);
-                    setcurrentMemeContract(contract_meme);
-                } else {
-                    console.log("contract meme ",contract_meme);
-                    await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, currentAccount, Website, Twitter, Discord, Telegram, Fee, description)
-                    clearTimeout(timeout);
-                    setIsLoading(false);
-                    setcurrentMemeContract(contract_meme)
-                } 
+                    setcurrentMemeContract(contract_meme.toBase58());
+                }
             //console.log("token created");  
         }   catch (error) {
             clearTimeout(timeout);
@@ -973,7 +1200,7 @@ export const TransactionProvider = ({ children }) => {
 
     useEffect(() => {
         
-        checkIfWalletIsConnected();
+        //checkIfWalletIsConnected();
         //connectWallet();
 
     }, [])
@@ -982,6 +1209,8 @@ export const TransactionProvider = ({ children }) => {
         <TransactionContext.Provider value={{ 
             connectWallet,
             connectPhantom,
+            connectSmartWallet,
+            connectTON,
             changeNetSol,
             currentAccount, 
             FormData, 

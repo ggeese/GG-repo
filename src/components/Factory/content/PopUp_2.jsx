@@ -8,7 +8,7 @@ import no_image from "../../../../images/no_image.png";
 
 
 function PopUp_2({visible_2, onClose_2 }) {
-    const { add_metamask, currentMemeImage, currentMemeContract } = useContext(TransactionContext); 
+    const { add_metamask, currentMemeImage, currentMemeContract, Network } = useContext(TransactionContext); 
 
     const handleOnClose_2 = (event) => {
         if (event.target.id === 'container_meme_created') onClose_2()
@@ -42,8 +42,25 @@ function PopUp_2({visible_2, onClose_2 }) {
                         <div className="text-center mt-4">
                             <p className="text-lg font-semibold">Congrats!!</p>
                             <p className="text-lg">Your meme has been born!!</p>
+                            <p className="text-lg">Contract:</p>
+                            {Network === "Solana" ? (
+                            <a href={`https://solscan.io/token/`+currentMemeContract} target="_blank" rel="noopener noreferrer"
+                                className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">{currentMemeContract}
+                            </a>
+                            ): Network === "Ethereum" ? (
+                                <a href={`https://etherscan.io/`+currentMemeContract} target="_blank" rel="noopener noreferrer"
+                                className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">{currentMemeContract}
+                            </a>
+                            ):(
+                                <a href={`https://etherscan.io/`+currentMemeContract} target="_blank" rel="noopener noreferrer"
+                                className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">{currentMemeContract}
+                            </a>
+
+                            )}
+                            
                         </div>
                     </div>
+                    {Network != "Solana" && (
 
                     <div className="flex flex-col justify-center items-center animate-bounce">
                         <button 
@@ -53,6 +70,7 @@ function PopUp_2({visible_2, onClose_2 }) {
                         </button>
                         <p>Add to metamask!</p>
                     </div>
+                    )}
                 </div>
                 </div>
 
