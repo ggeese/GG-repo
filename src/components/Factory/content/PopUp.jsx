@@ -119,31 +119,31 @@ function FileUpload({ onFileSelect }) {
 
 function PopUp({visible, onClose}) {
     
-    const { FormData_2, sendTransaction_2, handleChange_2, isLoading, URI_creation } = useContext(TransactionContext); 
-
+    const { FormData_2, sendTransaction_2, handleChange_2, isLoading, TxHash, Network } = useContext(TransactionContext); 
     const [file, setFile] = useState(null); // Agregar estado para el archivo
-
     const [formularioVisible, setFormularioVisible] = useState(false);
-
+    const [showMyModal_2, setShowMyModal_2] = useState(false);
+    const [lastTxHash, setlastTxHash] = useState(""); // Nuevo estado para prevLoadingState
+    
     const handleOnClose = (event) => {
         if (event.target.id === 'container_meme') onClose()
     };
 
     //comandos para controlar el pop up 2
 
-    const [showMyModal_2, setShowMyModal_2] = useState(false);
-    const [prevLoadingState, setPrevLoadingState] = useState(false); // Nuevo estado para prevLoadingState
     
     const handleOnClose_2 = () => setShowMyModal_2(false);
 
       // Verificar si isLoading cambió de true a false
     useEffect(() => {
-    if (isLoading === false && prevLoadingState === true) {
+      if (TxHash && lastTxHash !== TxHash) {
         // Ejecutar la función cuando isLoading vuelve a ser false
         setShowMyModal_2(true);
-      }
-    setPrevLoadingState(isLoading);
-    }, [isLoading]); // Este efecto se ejecutará cada vez que isLoading cambie
+      } else if (lastTxHash === TxHash) {
+        setShowMyModal_2(false); // Ocultar el modal si el TxHash es el mismo que el último
+      } 
+      setlastTxHash(TxHash);
+    }, [TxHash]); // Este efecto se ejecutará cada vez que isLoading cambie
 
     const toggleFormulario = () => {
         setFormularioVisible(!formularioVisible);
@@ -287,14 +287,17 @@ function PopUp({visible, onClose}) {
                     </div>
                   </div>
                 </div>
+                  {Network != "Solana" && (
+                      <>
+                        <p className="flex justify-center justify-center font-bold p-2">Fee (0 - 5) %</p>
+                        <p className="flex justify-center justify-center text-sm italic">(Transaction Fee)</p>
+                        <div className="flex justify-center">
+                          <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} />
+                          <p className="flex justify-center font-bold p-2">% </p>
+                        </div>
+                      </>
+                    )}
 
-                  <p className="flex justify-center justify-center font-bold p-2">Fee (0 - 5) %</p>
-                  <p className="flex justify-center justify-center text-sm italic">(Transaction Fee)</p>
-                    <div className="flex justify-center">
-                      <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} />
-                      <p className="flex justify-center font-bold p-2">% </p>
-                      
-                    </div>
                 </div>
                   )}
 

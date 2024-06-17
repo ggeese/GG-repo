@@ -27,10 +27,10 @@ import { Wallets } from './';
 
 const networkIcons = {
   'X Layer Mainnet':  { icon: okb, nick: 'X Layer' },
-  'Solana': { icon: solana, nick: ' Solana' },
+  'Solana': { icon: solana, nick: ' Solana Testnet' },
   'Sepolia ETH': { icon: eth, nick: ' Sepolia ETH' },
   'Ethereum':  { icon: eth, nick: ' Ethereum' },
-  'Berachain Artio':  { icon: berachain, nick: ' Berachain' },
+  'Berachain Artio':  { icon: berachain, nick: ' Berachain Testnet' },
   'BNB Smart Chain Mainnet': { icon: bnb, nick: ' BNB Chain' },
   'BNB Smart Chain Testnet': { icon: bnb, nick: ' BNB Testnet' },
   'X Layer Testnet':  { icon: okb, nick: 'X layer Testnet' },
@@ -52,6 +52,7 @@ const networkIcons = {
   'ZetaChain Athens 3 Testnet':  { icon: zetachain, nick: ' Zeta Chain Testnet' },
 
 };
+
 
 
 const networks = Object.keys(networkIcons).map(network => ({
@@ -80,11 +81,13 @@ const customSingleValue = ({ data }) => (
 const App = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState(null);
-  const {connectWallet, currentAccount, changeNetwork, disconnectWallet } = useContext(TransactionContext);
+  const {connectWallet, currentAccount, changeNetwork, disconnectWallet, Network, changeNetSol } = useContext(TransactionContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showMyModal, setShowMyModal] = useState(false);
   const handleOnClose = () => setShowMyModal(false);
   const location = useLocation();
+
+  const defaultNetwork = networks.find(network => network.value === Network);
 
 
   const toggleDropdown = () => {
@@ -93,9 +96,12 @@ const App = () => {
 
   const handleNetworkChange = (selectedOption) => {
     setSelectedNetwork(selectedOption.value);
-    // Aquí llamar a la función cambiarRed con la red seleccionada
-    changeNetwork(selectedOption.value);
-  };
+    if (selectedOption.value === "Solana") {
+      changeNetSol();
+    } else {
+      changeNetwork(selectedOption.value);
+    }
+  };  
 
   useEffect(() => {
     const closeMenu = (event) => {
@@ -155,7 +161,7 @@ const App = () => {
                 options={networks}
                 components={{ Option: customOption, SingleValue: customSingleValue }}
                 placeholder="Select Network"
-                value={selectedNetwork ? networks.find(network => network.value === selectedNetwork) : networks[0]} // Usar la primera opción como predeterminada si no hay ninguna seleccionada
+                value={selectedNetwork ? networks.find(network => network.value === selectedNetwork) : defaultNetwork} // Usar la primera opción como predeterminada si no hay ninguna seleccionada
                 onChange={handleNetworkChange}
                 isSearchable={false}
                 styles={{
@@ -270,7 +276,7 @@ const App = () => {
                   options={networks}
                   components={{ Option: customOption, SingleValue: customSingleValue }}
                   placeholder="Select Network"
-                  value={selectedNetwork ? networks.find(network => network.value === selectedNetwork) : networks[0]} // Usar la primera opción como predeterminada si no hay ninguna seleccionada
+                  value={selectedNetwork ? networks.find(network => network.value === selectedNetwork) : defaultNetwork} // Usar la primera opción como predeterminada si no hay ninguna seleccionada
                   onChange={handleNetworkChange}
                   isSearchable={false}
                   styles={{
