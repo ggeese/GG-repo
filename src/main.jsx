@@ -9,15 +9,18 @@ import { Admin } from './components/Admin';
 import "./index.css";
 import App from "./App";
 import { TransactionProvider } from './context/TransactionContext';
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
 
 
 // Usar createRoot en lugar de ReactDOM.render
 const root = createRoot(document.getElementById("root"));
 
 root.render(
+  <TonConnectUIProvider manifestUrl="https://raw.githubusercontent.com/goldengcoin/goldengcoin.github.io/main/tonconnect-manifest.json">
   <TransactionProvider>
     <React.StrictMode>
       <BrowserRouter>
+
         <App/>
         <Routes>
 
@@ -29,7 +32,10 @@ root.render(
 
         
         </Routes>
+
       </BrowserRouter>
     </React.StrictMode>
   </TransactionProvider>
+  </TonConnectUIProvider>
+
 );

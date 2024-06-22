@@ -7,9 +7,10 @@ import tailwindcss from "tailwindcss";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(),       nodePolyfills(), // this is necessary to avoid "process is not defined issue"
+  plugins: [react(),       
+    nodePolyfills(), // this is necessary to avoid "process is not defined issue"
   ],
   optimizeDeps: {
-    include: ['@project-serum/anchor']
+    include: ['@project-serum/anchor', '@coinbase/wallet-sdk']
   }
 })

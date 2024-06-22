@@ -4,4 +4,5 @@ export { default as PopUp } from './PopUp' ;
 export { default as PopUp_2 } from './PopUp_2' ;
 export { default as Meme_Search } from './Meme_Search' ;
 export { default as Footer } from './Footer';
+export { default as Test } from './Test';
 

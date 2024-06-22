@@ -9,8 +9,13 @@ import { AnchorProvider, setProvider, Program, BN, web3, utils } from '@project-
 import { createAssociatedTokenAccountInstruction, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeTransferFeeConfigInstruction, createSetAuthorityInstruction, AuthorityType } from '@solana/spl-token';
 import { createCreateMetadataAccountV3Instruction, PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import IDL from '../utils/MemeFactorySol.json'
 import Axios from "axios";
+import TonWeb from 'tonweb';
+import { TONDeployer } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
+
+
 
 
 
@@ -21,6 +26,7 @@ const TOKEN_PROGRAM_ID = new PublicKey(token_22_address);
 const treasury_address = new PublicKey("6Esfh8TgNV4gMSWvca1x6kPqJt4iPzc4JQHXuPip1vyn");
 const rpc_url = "https://api.devnet.solana.com";
 const connection = new Connection(rpc_url, "confirmed");
+const tonweb = new TonWeb();
 
 
 // Configurar el entorno para usar `buffer` y `process`
@@ -136,6 +142,8 @@ const findInterFee = (networkName) => {
 
 
 export const TransactionProvider = ({ children }) => {
+    const { deployContract } = TONDeployer();
+    const [tonAddress, setTonAddress] = useState('');
     const [currentAccount, setCurrentAccount] = useState ('');
     const [currentMemeImage, setCurrentMemeImage] = useState ('');
     const [currentMemeContract, setcurrentMemeContract] = useState ('')
@@ -145,14 +153,21 @@ export const TransactionProvider = ({ children }) => {
     const [walletAddress, setWalletAddress] = useState(null);
     const [provider, setProviderState] = useState(null);
     const [TxHash , setTxHash] = useState ('');
+    const [tonweb, setTonweb] = useState(null);
     const [Network, setNetwork] = useState(() => {
         return localStorage.getItem('network') || 'X Layer Mainnet';
       });
     
+      //capturamos la direccion de la wallet
+      const TONuserFriendlyAddress = useTonAddress();
+
+      //discoonect wallet TON
+      const [tonConnectUI] = useTonConnectUI();
+
+      //const tonConnectUIcontract = new TonConnectUI();
+
       // Guardar en localStorage cada vez que Network cambie
-      useEffect(() => {
-        localStorage.setItem('network', Network);
-      }, [Network]);
+
     
     //lo mas dificil de entender!!!!
 
@@ -213,9 +228,11 @@ export const TransactionProvider = ({ children }) => {
         }
       };
 
-    const connectTON = () => {
-        
+    const connectTON = (address) => {
+        setTonAddress(address);
+        // Lógica adicional para conectar TON si es necesario
     };
+
 
     const connectWallet = async () => {
         try {
@@ -765,8 +782,15 @@ export const TransactionProvider = ({ children }) => {
             } catch (error) {
                 console.error(`Error al configurar la tarifa de transacción: ${error}`);
             }
-        }
+        };
 
+
+        const createJetton = async () => {
+
+            await deployContract();
+
+        };
+        
 
 
     //cambiar red//
@@ -830,9 +854,10 @@ export const TransactionProvider = ({ children }) => {
         }
     };
     
-    const disconnectWallet = () => {
+    const disconnectWallet = async () => {
         setCurrentAccount(null);
         console.log("Disconnected");
+        await tonConnectUI.disconnect();
 
     }
 
@@ -882,6 +907,11 @@ export const TransactionProvider = ({ children }) => {
         const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
         setIsLoading(true);
         console.log(Network, "network")
+        if (Network==="TON") {
+            console.log("ton");
+            createJetton();
+        };
+
         if (Network==="Solana") {
             //asignacion de fees
             //updateTransactionFee();
@@ -898,13 +928,13 @@ export const TransactionProvider = ({ children }) => {
                     setcurrentMemeContract(contract_meme.toBase58());
                 }
             //console.log("token created");  
-        }   catch (error) {
-            clearTimeout(timeout);
-            setIsLoading(false);
-            console.log(error);
+            }   catch (error) {
+                clearTimeout(timeout);
+                setIsLoading(false);
+                console.log(error);
 
-            throw new Error("No ethereum object.")
-        }
+                throw new Error("No ethereum object.")
+            };
         } 
         else {
             
@@ -1198,16 +1228,28 @@ export const TransactionProvider = ({ children }) => {
 
     /////////////CHAINS/////////////
 
-    useEffect(() => {
-        
-        //checkIfWalletIsConnected();
-        //connectWallet();
 
-    }, [])
+    useEffect(() => {
+    //Verificacion de si esta conectado TON
+        if (TONuserFriendlyAddress) {
+            connectTON(TONuserFriendlyAddress);
+            //const provider = new TonWeb.HttpProvider('https://testnet.toncenter.com/api/v2/jsonRPC');
+            //const tonwebInstance = new TonWeb(provider);
+            //setTonweb(tonwebInstance);
+            console.log("TON address:", TONuserFriendlyAddress);
+            setCurrentAccount(TONuserFriendlyAddress);
+        }
+    }, [TONuserFriendlyAddress, connectTON]);
+    //connectWallet();
+    useEffect(() => {
+        localStorage.setItem('network', Network);
+      }, [Network]);
+
 
     return (
         <TransactionContext.Provider value={{ 
             connectWallet,
+            setCurrentAccount,
             connectPhantom,
             connectSmartWallet,
             connectTON,
@@ -1230,7 +1272,7 @@ export const TransactionProvider = ({ children }) => {
             changeNetwork,
             disconnectWallet,
             sendTransaction,
-            SolCreateToken, 
+            SolCreateToken,
             sendTransaction_2, 
             sendTransaction_3, 
             sendTransaction_3_Unstake,

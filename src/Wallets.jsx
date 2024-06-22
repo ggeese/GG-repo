@@ -1,8 +1,13 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { TransactionContext } from './context/TransactionContext';
+import { TonConnectButton } from "@tonconnect/ui-react";
+//import { createJetton } from './context/ContextTON';
+
+
 
 function Wallets({ visible, onClose }) {
-    const { connectWallet, connectPhantom, connectSmartWallet, connectTON } = useContext(TransactionContext);
+    const { connectWallet, connectPhantom, connectSmartWallet } = useContext(TransactionContext);
+
 
     const handleOnClose = (e) => {
         if (e.target.id === 'container_meme') onClose();
@@ -21,10 +26,14 @@ function Wallets({ visible, onClose }) {
                 </button>
                 <button className="bg-gray-200 p-4" onClick={connectSmartWallet}>
                     Smart Wallet
+                </button>    
+                <TonConnectButton className="bg-gray-200 p-4" style={{ float: "right" }}/>
+                {/*<button className="bg-gray-200 p-4" onClick={() => connectTON(userFriendlyAddress)}>
+                    Connect Ton
                 </button>
-                <button className="bg-gray-200 p-4" onClick={connectTON}>
-                    TON (Telegram)
-                </button>
+                <button className="bg-gray-200 p-4" onClick={() => createJetton(currentAccount)}>
+                    Ton Send TX
+                </button>*/}  
             </div>
         </div>
     );

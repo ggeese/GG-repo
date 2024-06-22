@@ -1,6 +1,6 @@
 import React from "react";
 import meme from "../../../../images/walletxd.png";
-import { BlackCreateWalletButton, createWallet } from "../../../context/CreateSmartWallet"; // Importa el componente y la función
+import {BlackCreateWalletButton, createWallet } from "../../../context/CreateSmartWallet"; // Importa el componente y la función
 
 const Info = () => {
   return (
