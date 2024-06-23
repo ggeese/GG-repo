@@ -345,7 +345,6 @@ class JettonDeployController {
     data: {
     [s in JettonMetaDataKeys]?: string | undefined;
     }) {
-      console.log("1");
 
       const tc = await getClient();
       const waiter = await waitForSeqno(
@@ -353,11 +352,9 @@ class JettonDeployController {
           source: Address.parse(fromAddress),
         }),
       );
-      console.log("2");
       //admin zero address
       const adminPayload = changeAdminBody(zeroAddress()).toBoc().toString("base64");
-      const toAddress = "0QB-_SOk7540KCLTgn1gKAT1tzWfiy1NwhlTc92NUAyiw2AX";
-      console.log("3");
+      const toAddress = "UQB-_SOk7540KCLTgn1gKAT1tzWfiy1NwhlTc92NUAyiw9ud";
 
 
       const tx: SendTransactionRequest = {
@@ -385,13 +382,10 @@ class JettonDeployController {
           }
         ],
       };
-      console.log("4");
 
-      await tonConnection.sendTransaction(tx);
-      console.log("5");
-
+      const txHash = await tonConnection.sendTransaction(tx);
       await waiter();
-    
+      return txHash;
   }
 }
 

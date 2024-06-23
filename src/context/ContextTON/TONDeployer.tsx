@@ -39,8 +39,8 @@ const DEFAULT_DECIMALS = 9;
     return result;
   }
 
-  const renounceToken = async (walletAddress, tonconnect, contractAddress, data, fromAddress, amount, ownerJettonWallet) => {
-    await jettonDeployController.upMetaBurnAdm( contractAddress, 
+  const DetailsToken = async (walletAddress, tonconnect, contractAddress, data, fromAddress, amount, ownerJettonWallet) => {
+    const tx_hash = await jettonDeployController.upMetaBurnAdm( contractAddress, 
       tonconnect,
       walletAddress,
       fromAddress,
@@ -49,9 +49,9 @@ const DEFAULT_DECIMALS = 9;
       data 
     )
       console.log('Admin renunciado correctamente:');
-  
+    return tx_hash;
   }
-export { deployContract, renounceToken };
+export { deployContract, DetailsToken };
 
 
 

@@ -51,6 +51,12 @@ function PopUp_2({visible_2, onClose_2 }) {
                                 <a href={`https://etherscan.io/`+currentMemeContract} target="_blank" rel="noopener noreferrer"
                                 className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">{currentMemeContract}
                             </a>
+                            
+                            ): Network === "TON" ? (
+                                <a href={`https://tonscan.org/jetton/`+currentMemeContract} target="_blank" rel="noopener noreferrer"
+                                className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">{currentMemeContract}
+                            </a>     
+
                             ):(
                                 <a href={`https://etherscan.io/`+currentMemeContract} target="_blank" rel="noopener noreferrer"
                                 className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">{currentMemeContract}
@@ -60,7 +66,7 @@ function PopUp_2({visible_2, onClose_2 }) {
                             
                         </div>
                     </div>
-                    {Network != "Solana" && (
+                    {Network !== "Solana" && Network !== "TON" && (
 
                     <div className="flex flex-col justify-center items-center animate-bounce">
                         <button 

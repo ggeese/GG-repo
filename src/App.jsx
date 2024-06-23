@@ -27,6 +27,7 @@ import { Wallets } from './';
 
 
 const networkIcons = {
+  'TON':  { icon: TON, nick: 'TON (telegram)' },
   'Berachain Artio':  { icon: berachain, nick: ' Berachain Testnet' },
   'X Layer Mainnet':  { icon: okb, nick: 'X Layer' },
   //'Sepolia ETH': { icon: eth, nick: ' Sepolia ETH' },
@@ -50,7 +51,6 @@ const networkIcons = {
   //'Fantom Opera':  { icon: fantom, nick: ' Fantom' },
   'ZetaChain Mainnet':  { icon: zetachain, nick: ' Zeta Chain' },
   //'ZetaChain Athens 3 Testnet':  { icon: zetachain, nick: ' Zeta Chain Testnet' },
-  'TON':  { icon: TON, nick: 'TON (telegram)' },
   'Solana': { icon: solana, nick: ' Solana Devnet' },
 
 

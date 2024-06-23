@@ -13,7 +13,7 @@ import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import IDL from '../utils/MemeFactorySol.json'
 import Axios from "axios";
 import TonWeb from 'tonweb';
-import { deployContract, renounceToken } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
+import { deployContract, DetailsToken } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
 
 
 
@@ -172,7 +172,7 @@ export const TransactionProvider = ({ children }) => {
 
     const timeout = setTimeout(() => {
         setIsLoading(false);
-      }, 60000); // 1 minuto de tiempo máximo
+      }, 80000); // 1 minuto de tiempo máximo
       
 
     const handleChange = (e, name) => {
@@ -924,7 +924,7 @@ export const TransactionProvider = ({ children }) => {
                 image: String(image_meme_url)
               };
 
-            await renounceToken(TONuserFriendlyAddress,
+            const ton_tx_hash = await DetailsToken(TONuserFriendlyAddress,
                  tonConnectUI, 
                  result.contractAddr, 
                  dataTON_2, 
@@ -932,8 +932,9 @@ export const TransactionProvider = ({ children }) => {
                  (Supply*0.01),
                  result.ownerJWalletAddr 
                 );
-        
-        setIsLoading(false);
+            setCurrentMemeImage(image_meme_url)
+            setTxHash(ton_tx_hash);
+            setIsLoading(false);
 
         }
 
