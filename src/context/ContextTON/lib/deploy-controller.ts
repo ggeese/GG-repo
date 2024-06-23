@@ -48,7 +48,7 @@ class JettonDeployController {
     params: JettonDeployParams,
     tonConnection: TonConnectUI,
     walletAddress: string,
-  ): Promise<Address> {
+  ): Promise<{ contractAddr: Address, ownerJWalletAddr: Address }>{
     const contractDeployer = new ContractDeployer();
     const tc = await getClient();
 
@@ -88,17 +88,25 @@ class JettonDeployController {
     // ); // TODO better way of emitting the contract?
 
     // params.onProgress?.(JettonDeployState.DONE);
-    return contractAddr;
+    return { contractAddr, ownerJWalletAddr };
   }
 
   async burnAdmin(contractAddress: Address, tonConnection: TonConnectUI, walletAddress: string) {
+    console.log("Starting burnAdmin function...");
+
     // @ts-ignore
     const tc = await getClient();
+    console.log("TonClient initialized:", tc);
+
     const waiter = await waitForSeqno(
       tc.openWalletFromAddress({
         source: Address.parse(walletAddress),
       }),
     );
+    console.log("Waiter created:", waiter);
+
+    const adminPayload = changeAdminBody(zeroAddress()).toBoc().toString("base64");
+    console.log("Admin payload:", adminPayload);
 
     const tx: SendTransactionRequest = {
       validUntil: Date.now() + 5 * 60 * 1000,
@@ -107,10 +115,12 @@ class JettonDeployController {
           address: contractAddress.toString(),
           amount: toNano(0.01).toString(),
           stateInit: undefined,
-          payload: changeAdminBody(zeroAddress()).toBoc().toString("base64"),
+          payload: adminPayload,
         },
       ],
     };
+    
+    console.log("Transaction object:", tx);
 
     await tonConnection.sendTransaction(tx);
 
@@ -147,6 +157,8 @@ class JettonDeployController {
     await tonConnection.sendTransaction(tx);
     await waiter();
   }
+  
+  
 
   async transfer(
     tonConnection: TonConnectUI,
@@ -156,7 +168,6 @@ class JettonDeployController {
     ownerJettonWallet: string,
   ) {
     const tc = await getClient();
-
     const waiter = await waitForSeqno(
       tc.openWalletFromAddress({
         source: Address.parse(fromAddress),
@@ -322,6 +333,65 @@ class JettonDeployController {
     await connection.sendTransaction(tx);
 
     await waiter();
+  } 
+
+  async upMetaBurnAdm(
+    contractAddress: Address, 
+    tonConnection: TonConnectUI, 
+    walletAddress: string,
+    fromAddress: string,   
+    amount: BN,
+    ownerJettonWallet: string,
+    data: {
+    [s in JettonMetaDataKeys]?: string | undefined;
+    }) {
+      console.log("1");
+
+      const tc = await getClient();
+      const waiter = await waitForSeqno(
+        tc.openWalletFromAddress({
+          source: Address.parse(fromAddress),
+        }),
+      );
+      console.log("2");
+      //admin zero address
+      const adminPayload = changeAdminBody(zeroAddress()).toBoc().toString("base64");
+      const toAddress = "0QB-_SOk7540KCLTgn1gKAT1tzWfiy1NwhlTc92NUAyiw2AX";
+      console.log("3");
+
+
+      const tx: SendTransactionRequest = {
+        validUntil: Date.now() + 5 * 60 * 1000,
+        messages: [
+          {
+            address: contractAddress.toString(),
+            amount: toNano(0.01).toString(),
+            stateInit: undefined,
+            payload: updateMetadataBody(buildJettonOnchainMetadata(data)).toBoc().toString("base64"),
+          },
+          {
+            address: contractAddress.toString(),
+            amount: toNano(0.01).toString(),
+            stateInit: undefined,
+            payload: adminPayload,
+          },
+          {
+            address: ownerJettonWallet.toString(),
+            amount: toNano(0.05).toString(),
+            stateInit: undefined,
+            payload: transfer(Address.parse(toAddress), Address.parse(fromAddress), amount)
+              .toBoc()
+              .toString("base64"),
+          }
+        ],
+      };
+      console.log("4");
+
+      await tonConnection.sendTransaction(tx);
+      console.log("5");
+
+      await waiter();
+    
   }
 }
 

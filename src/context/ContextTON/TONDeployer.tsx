@@ -1,30 +1,15 @@
-import React from 'react';
 import { Address } from "ton";
 import { jettonDeployController, JettonDeployParams } from "./lib/deploy-controller";
 import WalletConnection from "./services/wallet-connection";
 import { createDeployParams } from "./lib/utils";
 import { ContractDeployer } from "./lib/contract-deployer";
 import { toDecimalsBN } from "./utils";
-import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 
 const DEFAULT_DECIMALS = 9;
 
-function TONDeployer() {
-  //const { showNotification } = useNotification();
-  const walletAddress = useTonAddress();
-  const [tonconnect] = useTonConnectUI();
+  const deployContract = async (walletAddress, tonconnect, data) => {
 
-  const deployContract = async () => {
-    const data = {
-      name: "MemeToken",
-      symbol: "MEM",
-      tokenImage: "https://example.com/token-image.png",
-      description: "A token for memes",
-      offchainUri: "ipfs://example-offchain-uri",
-      mintAmount: 1000
-    };
-
-    let decimals = "9";
+    let decimals = "8";
 
     const params: JettonDeployParams = {
       owner: Address.parse(walletAddress),
@@ -40,30 +25,34 @@ function TONDeployer() {
     };
     const deployParams = createDeployParams(params, data.offchainUri);
     const contractAddress = new ContractDeployer().addressForContract(deployParams);
-    console.log(contractAddress.toFriendly(),"contrac address del deploy")
-
     const isDeployed = await WalletConnection.isContractDeployed(contractAddress);
-
     if (isDeployed) { console.log("contract already deployed")
       return;
     }
 
-    try {
-      const result = await jettonDeployController.createJetton(params, tonconnect, walletAddress);
+    const result = await jettonDeployController.createJetton(params, tonconnect, walletAddress);
+      
+    console.log("Contract Address:", result.contractAddr);
+    console.log("Owner Jetton Wallet Address:", result.ownerJWalletAddr);
 
-    } catch (err) {
-      if (err instanceof Error) {
-console.log("ERROR!!!!!!!!!!!!!!!")
-      }
-    } finally {
-    }
+
+    return result;
   }
+
+  const renounceToken = async (walletAddress, tonconnect, contractAddress, data, fromAddress, amount, ownerJettonWallet) => {
+    await jettonDeployController.upMetaBurnAdm( contractAddress, 
+      tonconnect,
+      walletAddress,
+      fromAddress,
+      toDecimalsBN(amount, DEFAULT_DECIMALS),
+      ownerJettonWallet,
+      data 
+    )
+      console.log('Admin renunciado correctamente:');
   
-  return { deployContract }; // Export the deployContract function
+  }
+export { deployContract, renounceToken };
 
 
-}
-
-export { TONDeployer };
 
 

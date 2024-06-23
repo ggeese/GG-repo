@@ -170,9 +170,8 @@ function parseJettonOnchainMetadata(contentSlice: Slice): {
   const res: { [s in JettonMetaDataKeys]?: string } = {};
 
   Object.keys(jettonOnChainMetadataSpec).forEach((k) => {
-    const dictKey = toKey(sha256(k).toString("hex"));
     const val = dict
-      .get(dictKey.toString(10))
+      .get(toKey(sha256(k).toString("hex")))
       ?.toString(jettonOnChainMetadataSpec[k as JettonMetaDataKeys]);
     if (val) res[k as JettonMetaDataKeys] = val;
   });

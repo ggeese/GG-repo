@@ -18,6 +18,7 @@ import linea from "../images/linea_name.svg";
 import klaytn from "../images/klaytn.svg";
 import merlin from "../images/merlin.svg";
 import solana from "../images/solana.svg";
+import TON from "../images/TON.svg";
 import zetachain from "../images/zetachain.svg";
 import logo from "../images/gg_coin_2.png";
 import { HiMenuAlt4 } from 'react-icons/hi';
@@ -49,7 +50,7 @@ const networkIcons = {
   //'Fantom Opera':  { icon: fantom, nick: ' Fantom' },
   'ZetaChain Mainnet':  { icon: zetachain, nick: ' Zeta Chain' },
   //'ZetaChain Athens 3 Testnet':  { icon: zetachain, nick: ' Zeta Chain Testnet' },
-  'TON':  { icon: okb, nick: 'TON Testnet (telegram)' },
+  'TON':  { icon: TON, nick: 'TON (telegram)' },
   'Solana': { icon: solana, nick: ' Solana Devnet' },
 
 

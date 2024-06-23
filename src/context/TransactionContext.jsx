@@ -13,7 +13,7 @@ import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import IDL from '../utils/MemeFactorySol.json'
 import Axios from "axios";
 import TonWeb from 'tonweb';
-import { TONDeployer } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
+import { deployContract, renounceToken } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
 
 
 
@@ -142,7 +142,6 @@ const findInterFee = (networkName) => {
 
 
 export const TransactionProvider = ({ children }) => {
-    const { deployContract } = TONDeployer();
     const [tonAddress, setTonAddress] = useState('');
     const [currentAccount, setCurrentAccount] = useState ('');
     const [currentMemeImage, setCurrentMemeImage] = useState ('');
@@ -785,13 +784,6 @@ export const TransactionProvider = ({ children }) => {
         };
 
 
-        const createJetton = async () => {
-
-            await deployContract();
-
-        };
-        
-
 
     //cambiar red//
     const changeNetwork = async (network) => {
@@ -907,12 +899,45 @@ export const TransactionProvider = ({ children }) => {
         const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
         setIsLoading(true);
         console.log(Network, "network")
-        if (Network==="TON") {
-            console.log("ton");
-            createJetton();
-        };
 
-        if (Network==="Solana") {
+        if (Network==="TON") {
+            const dataTON = {
+                name: String(MemeName),
+                symbol: String(Symbol),
+                decimals: String(9),
+                mintAmount: (Supply*1.01),
+                description: String(description),
+                tokenImage: String("https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903")
+              };
+            //desplegamos el token 
+            const result = await deployContract(TONuserFriendlyAddress, tonConnectUI, dataTON);
+            console.log("friendly address contract", result.contractAddr.toFriendly())
+            setcurrentMemeContract(result.contractAddr.toFriendly())
+            //subimos la imagen al server
+            const image_meme_url = await saveImageToServer(file); 
+            
+            const dataTON_2 = {
+                name: String(MemeName),
+                symbol: String(Symbol),
+                decimals: String(9),
+                description: String(description),
+                image: String(image_meme_url)
+              };
+
+            await renounceToken(TONuserFriendlyAddress,
+                 tonConnectUI, 
+                 result.contractAddr, 
+                 dataTON_2, 
+                 TONuserFriendlyAddress, 
+                 (Supply*0.01),
+                 result.ownerJWalletAddr 
+                );
+        
+        setIsLoading(false);
+
+        }
+
+        else if (Network==="Solana") {
             //asignacion de fees
             //updateTransactionFee();
             try{

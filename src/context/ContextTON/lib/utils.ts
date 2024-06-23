@@ -17,7 +17,7 @@ export function zeroAddress(): Address {
     .storeUint(0, 256)
     .endCell()
     .beginParse()
-    .loadAddress() as Address;
+    .readAddress() as Address;
 }
 
 export async function waitForSeqno(wallet: any) {
