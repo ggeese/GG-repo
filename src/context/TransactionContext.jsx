@@ -14,6 +14,7 @@ import IDL from '../utils/MemeFactorySol.json'
 import Axios from "axios";
 import TonWeb from 'tonweb';
 import { deployContract, DetailsToken } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
 
 
@@ -39,14 +40,6 @@ const isMobile = () => {
 
 const { ethereum } = window;
 
-const getEthereumContract = async (contractAddress_meme_factory) => {
-    
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const transactionsContract = new ethers.Contract(contractAddress_meme_factory, contractABI_MEME_FACTORY, signer);
-
-    return transactionsContract;
-}
 
 const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url, Creator, Website, Twitter, Discord, Telegram, Fee, description) => {
     // Extrayendo la hora y fecha
@@ -157,6 +150,8 @@ export const TransactionProvider = ({ children }) => {
         return localStorage.getItem('network') || 'X Layer Mainnet';
       });
     
+    const { disconnect } = useDisconnect()
+
       //capturamos la direccion de la wallet
       const TONuserFriendlyAddress = useTonAddress();
 
@@ -179,6 +174,20 @@ export const TransactionProvider = ({ children }) => {
         setFormData((prevState) => ({...prevState, [name]: e.target.value}));
     }
 
+    const getEthereumContract = async (contractAddress_meme_factory) => {
+        //const provider = sdk.makeWeb3Provider();
+        //const provider = new ethers.BrowserProvider(window.ethereum);
+        //const signer = await provider.getSigner();
+        console.log(provider, "getsigner")
+        const signer = provider.signer;
+
+        console.log("llegamos aqui signers")
+        const transactionsContract = new ethers.Contract(contractAddress_meme_factory, contractABI_MEME_FACTORY, signer);
+        console.log(transactionsContract," 2  llegamos aqui signers")
+
+        return transactionsContract;
+    }
+    
     const checkIfWalletIsConnected = async () => {
         try{
             if (!ethereum) return console.log("please install metamask");            
@@ -205,23 +214,31 @@ export const TransactionProvider = ({ children }) => {
         }
         
     };
+    const { connectors, connect, error, status } = useConnect()
+    const account = useAccount()
 
     const connectSmartWallet = async () => {
         try {
           // Initialize Coinbase Wallet SDK
-          const sdk = new CoinbaseWalletSDK({ appName:"An Awesome App", appChainIds:[84532] });
-    
-          // Make web3 provider
-          const provider = sdk.makeWeb3Provider();
-    
+          console.log("conectors", connectors)
+          const coinbaseConnector = connectors.find(
+            (connector) => connector.name === 'Coinbase Wallet'
+          )
+          if (coinbaseConnector) {
+            await connect({ connector: coinbaseConnector });
+          }
+          setCurrentAccount(account.addresses[0]);
+          
+        
           // Request access to user accounts
-          const accounts = await provider.request({ method: 'eth_requestAccounts' });
-    
+          //const accounts = await provider.request({ method: 'eth_requestAccounts' });
+            
           // Set the current account
-          setCurrentAccount(accounts[0]);
+          //setCurrentAccount(accounts[0]);
+          //setProviderState(provider);
     
           // Change to the desired network (implement changeNetwork as needed)
-          await changeNetwork(appChainIds[0]);
+          //await changeNetwork(appChainIds[0]);
         } catch (error) {
           console.error("Error connecting to Coinbase Wallet:", error);
         }
@@ -247,8 +264,9 @@ export const TransactionProvider = ({ children }) => {
     
           // Solicita acceso a las cuentas del usuario
           const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    
+          const provider = new ethers.BrowserProvider(window.ethereum); 
           setCurrentAccount(accounts[0]);
+          setProviderState(provider);
     
           // Cambia a la red actual
           await changeNetwork(Network);
@@ -849,6 +867,7 @@ export const TransactionProvider = ({ children }) => {
     const disconnectWallet = async () => {
         setCurrentAccount(null);
         console.log("Disconnected");
+        disconnect();
         await tonConnectUI.disconnect();
 
     }

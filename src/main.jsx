@@ -12,16 +12,25 @@ import App from "./App";
 import { TransactionProvider } from './context/TransactionContext';
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { WagmiProvider } from 'wagmi';
+
+import { config } from './wagmi.ts';
+
+globalThis.Buffer = Buffer
+
+const queryClient = new QueryClient()
 
 // Usar createRoot en lugar de ReactDOM.render
 const root = createRoot(document.getElementById("root"));
 
 root.render(
   <TonConnectUIProvider manifestUrl="https://raw.githubusercontent.com/goldengcoin/goldengcoin.github.io/main/tonconnect-manifest.json">
+  <WagmiProvider config={config}>
+  <QueryClientProvider client={queryClient}>
   <TransactionProvider>
     <React.StrictMode>
       <BrowserRouter>
-
         <App/>
         <Routes>
 
@@ -38,6 +47,8 @@ root.render(
       </BrowserRouter>
     </React.StrictMode>
   </TransactionProvider>
+  </QueryClientProvider>
+  </WagmiProvider>
   </TonConnectUIProvider>
 
 );

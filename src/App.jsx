@@ -26,9 +26,11 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { Wallets } from './';
 
 
+
 const networkIcons = {
+  'Base':  { icon: base, nick: 'Base' },
+  'Base Sepolia':  { icon: base, nick: 'Base Testnet' },
   'TON':  { icon: TON, nick: 'TON (telegram)' },
-  'Berachain Artio':  { icon: berachain, nick: ' Berachain Testnet' },
   'X Layer Mainnet':  { icon: okb, nick: 'X Layer' },
   //'Sepolia ETH': { icon: eth, nick: ' Sepolia ETH' },
   //'Ethereum':  { icon: eth, nick: ' Ethereum' },
@@ -37,8 +39,6 @@ const networkIcons = {
   //'X Layer Testnet':  { icon: okb, nick: 'X layer Testnet' },
   //'Merlin Mainnet':  { icon: merlin, nick: ' Merlin Chain' },
   //'Merlin Testnet':  { icon: merlin, nick: ' Merlin Testnet' },
-  'Base':  { icon: base, nick: 'Base' },
-  'Base Sepolia':  { icon: base, nick: 'Base Testnet' },
   //'Avalanche C-Chain':  { icon: avax, nick: ' Avalanche' },
   //'Avalanche Testnet C-Chain':  { icon: avax, nick: ' Avalanche Testnet' },
   //'OP Mainnet':  { icon: optimism, nick: ' Optimism' },
@@ -52,6 +52,7 @@ const networkIcons = {
   'ZetaChain Mainnet':  { icon: zetachain, nick: ' Zeta Chain' },
   //'ZetaChain Athens 3 Testnet':  { icon: zetachain, nick: ' Zeta Chain Testnet' },
   'Solana': { icon: solana, nick: ' Solana Devnet' },
+  'Berachain Artio':  { icon: berachain, nick: ' Berachain Testnet' },
 
 
 };
@@ -125,22 +126,19 @@ const App = () => {
   }, []);
   
   useEffect(() => {
-    const closeMenu = (event) => {
-      // Verificar si el clic proviene del menú desplegable o su botón de alternancia
-      if (
-        !event.target.closest(".toggle-menu") &&
-        !event.target.closest(".toggle-button")
-      ) {
-        setToggleMenu(false);
+    const handleOutsideClick = (event) => {
+      // Verifica si el clic proviene del menú desplegable o su área circundante
+      if (!event.target.closest(".wallet-button") && dropdownOpen) {
+        setDropdownOpen(false);
       }
     };
   
-    document.addEventListener("click", closeMenu);
+    document.addEventListener("click", handleOutsideClick);
   
     return () => {
-      document.removeEventListener("click", closeMenu);
+      document.removeEventListener("click", handleOutsideClick);
     };
-  }, []);
+  }, [dropdownOpen]);
   
 
 

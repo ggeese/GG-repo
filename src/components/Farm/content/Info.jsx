@@ -31,10 +31,10 @@ const Info = () => {
             <p className="flex text-xl flex-col">
             </p >
             <p className="flex text-xl flex-col mt-8">
-                Stake Memes
+                Stake $GOOSE
             </p >
             <p className="flex text-xl flex-col mt-7">
-                Earn $GOOSE
+                Earn Memes
             </p >
 
             <p className="flex flex-col p-16">

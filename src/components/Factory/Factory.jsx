@@ -24,7 +24,6 @@ const Factory = () => {
       <div className="relative">
         <Welcome_Factory />
         <Meme_Search />
-        <Footer />
       </div>
     </div>
   );

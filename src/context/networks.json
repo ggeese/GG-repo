@@ -146,7 +146,7 @@
         "rpcUrl": "https://sepolia.base.org/",
         "symbol": "ETH",
         "explorerUrl": "https://sepolia-explorer.base.org/",
-        "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "factory":"0xA22d1069fe06C33e13c0e6FacA1a305c0735A1bD",
         "nick":"Base",
         "fee":0.0001
       },
