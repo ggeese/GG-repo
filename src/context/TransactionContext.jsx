@@ -1206,7 +1206,7 @@ export const TransactionProvider = ({ children }) => {
         //interaccion con el contrato de staking
         const transactionHash = await transactionsContract_3.updateBoost(uboost);
         console.log(transactionHash, "passed")
-    }
+    };
     
     const PauseContract = async () => {
         const { contract } = FormData_5;
@@ -1216,7 +1216,7 @@ export const TransactionProvider = ({ children }) => {
         const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
         //interaccion con el contrato de staking
         const transactionHash = await transactionsContract_3.pause();
-    }
+    };
 
     const UnpauseContract = async () => {
         const { contract } = FormData_5;
@@ -1226,7 +1226,7 @@ export const TransactionProvider = ({ children }) => {
         const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
         //interaccion con el contrato de staking
         const transactionHash = await transactionsContract_3.unpause();
-    }
+    };
 
     const setExpMinter = async () => {
         const { poolcontract, poolstate }= FormData_5;
@@ -1237,7 +1237,7 @@ export const TransactionProvider = ({ children }) => {
         //interaccion con el contrato de staking
         console.log("exp setminter contract ", contractAdrress_golden_exp, "pool contract", poolcontract)
         const transactionHash = await transactionsContract_3.setMinter([poolcontract], [poolstate]);
-    }
+    };
 
     const StatusContract = async () => {
         const { contract }= FormData_5;
@@ -1250,8 +1250,20 @@ export const TransactionProvider = ({ children }) => {
         const transaction_2 = await transactionsContract_3.rewardPerToken();
         console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
         return (transaction_1,transaction_2)
-    }
+    };
 
+    const CreatePool = async () => {
+        const { contract }= FormData_5;
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
+        //interaccion con el contrato de staking
+        const transaction_1 = await transactionsContract_3.lastTimeRewardApplicable();
+        const transaction_2 = await transactionsContract_3.rewardPerToken();
+        console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
+        return (transaction_1,transaction_2)
+    };
     /////////////CHAINS/////////////
 
 
@@ -1302,6 +1314,7 @@ export const TransactionProvider = ({ children }) => {
             sendTransaction_2, 
             sendTransaction_3, 
             sendTransaction_3_Unstake,
+            CreatePool,
             Claim_Rewards, 
             sendTransaction_4,
             sendTransaction_3_test,

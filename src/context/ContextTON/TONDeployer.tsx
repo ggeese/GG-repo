@@ -9,7 +9,7 @@ const DEFAULT_DECIMALS = 9;
 
   const deployContract = async (walletAddress, tonconnect, data) => {
 
-    let decimals = "8";
+    let decimals = "9";
 
     const params: JettonDeployParams = {
       owner: Address.parse(walletAddress),

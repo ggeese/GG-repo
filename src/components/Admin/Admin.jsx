@@ -187,6 +187,29 @@ const Admin = () => {
           </div>
         </div>
       </div>
+      <div className="border-t-8 border-dashed border-[#9c9c9c] w-full"></div>
+      <div className="flex flex-col items-center">
+        <div className="text-2xl p-4">Create Pool</div>
+          <div className="flex flex-col space-y-2 items-center ">
+            <div className="mr-2">Create Pool:</div>
+            <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="poolcontract" type="text" handleChange_5={handleChange_5} />
+            <div className="flex flex-fil mr-2 ">State:</div>
+              <div className="flex flex-fil px-8 py-2 border border-gray-300 rounded">
+                <select
+                  name="poolstate"
+                  value={FormData_5.poolstate}
+                  onChange={(e) => handleChange_5(e, "poolstate")}
+                  className="flex flex-fil px-8 py-2 border border-gray-300 rounded"
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+            <button className="flex flex-fil ml-2 px-4 py-2 bg-black text-white rounded" onClick={set_Exp_Minter}>
+              Update
+            </button>
+            </div>
+          </div>
+          </div>
     </div>
   );
   

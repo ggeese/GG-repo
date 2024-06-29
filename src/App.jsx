@@ -38,7 +38,7 @@ const networkIcons = {
   //'Merlin Mainnet':  { icon: merlin, nick: ' Merlin Chain' },
   //'Merlin Testnet':  { icon: merlin, nick: ' Merlin Testnet' },
   'Base':  { icon: base, nick: 'Base' },
-  //'Base Sepolia':  { icon: base, nick: 'Base Testnet' },
+  'Base Sepolia':  { icon: base, nick: 'Base Testnet' },
   //'Avalanche C-Chain':  { icon: avax, nick: ' Avalanche' },
   //'Avalanche Testnet C-Chain':  { icon: avax, nick: ' Avalanche Testnet' },
   //'OP Mainnet':  { icon: optimism, nick: ' Optimism' },
@@ -250,29 +250,10 @@ const App = () => {
             <ul
               className="fixed top-0 right-0 px-2 gap-5 w-[50vw] h-screen shadow-2xl md:hidden list-none
               flex flex-col justify-start items-center bg-black text-white"
+              onClick={(e) => e.stopPropagation()} // Evitar cierre al hacer clic dentro del menú
             >
               <li className="text-xl w-full my-2"><AiOutlineClose onClick={() => setToggleMenu(false)} /></li>
-              <div>
-                {currentAccount ? (
-                  <p className="text-xl font-semibold">
-                    {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
-                  </p>
-                ) : (
-                  <button
-                    className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]"
-                    onClick={connectWallet}
-                  >
-                    <p className="text-xl text-black">Connect Wallet</p>
-                  </button>
-                )}
-              </div>
-
-              <Link to="/" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Home</Link>
-              <Link to="/Factory" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Factory</Link>
-              <Link to="/Farm" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Farm</Link>
-              <Link to="/Points" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Points</Link>
-              
-
+            
                   {/* Agregar la barra de selección de redes aquí */}
               <div className="relative flex items-center justify-between mb-6 text-left">
                 <Select
@@ -316,6 +297,27 @@ const App = () => {
                     })
                   }}
                 />
+              </div>
+                
+              
+              <Link to="/" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Home</Link>
+              <Link to="/Factory" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Factory</Link>
+              <Link to="/Farm" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Farm</Link>
+              <Link to="/Points" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Points</Link>
+
+              <div>
+                {currentAccount ? (
+                  <p className="text-xl font-semibold">
+                    {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
+                  </p>
+                ) : (
+                  <button
+                    className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]"
+                    onClick={() => setShowMyModal(true)}
+                    >
+                    <p className="text-xl text-black">Connect Wallet</p>
+                  </button>
+                )}
               </div>
               {/* Fin de la barra de selección de redes */}
             </ul>

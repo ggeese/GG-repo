@@ -6,6 +6,7 @@ import { Farm } from './components/Farm';
 import { Home } from './components/Home';
 import { Points } from './components/Points';
 import { Admin } from './components/Admin';
+import { Degen } from './components/Degen';
 import "./index.css";
 import App from "./App";
 import { TransactionProvider } from './context/TransactionContext';
@@ -27,6 +28,7 @@ root.render(
           <Route path="/" element={<Home/>} />
           <Route path="/Factory" element={<Factory/>} />
           <Route path="/Farm" element={<Farm/>} />
+          <Route path="/Degen" element={<Degen/>} />
           <Route path="/Points" element={<Points/>} />
           <Route path="/Admin" element={<Admin/>} />
 
