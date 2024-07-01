@@ -50,7 +50,7 @@ const Info = () => {
                   Total Value Locked
                 </div>
                 <div className="text-center text-5xl font-bold">
-                  $4,736,563
+                  $4,736
                 </div>
               </div>
               <div className="hidden md:block flex flex-fil text-sm px-16" >

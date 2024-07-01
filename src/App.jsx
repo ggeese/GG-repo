@@ -148,13 +148,13 @@ const App = () => {
       <header className="relative w-full bg-black flex md:justify-center justify-between items-center">
         <div className="relative z-10 flex items-center justify-between w-full max-w-screen-xl mx-auto px-4">
           <Link to="/" className="flex text-2xl px-4 py-2 hover:text-gray-300">
-            <img src={logo} alt="logo" className="w-32 cursor-pointer" />
+            <img src={logo} alt="logo" className="w-20 cursor-pointer" />
           </Link>
           
           <nav className="hidden md:flex list-none gap-20 items-center flex-initial">
             <Link to="/Factory" className="text-white text-xl px-4 py-2 hover:text-gray-300">Factory</Link>
             <Link to="/Farm" className="text-white text-xl px-4 py-2 hover:text-gray-300">Farm</Link>
-            <Link to="/Points" className="text-white text-xl px-4 py-2 hover:text-gray-300">Points</Link>
+            <Link to="/Hall" className="text-white text-xl px-4 py-2 hover:text-gray-300">Hall</Link>
             
             {/* Dropdown Menu */}
             <div className="relative flex items-center justify-between mb-6 text-left">
@@ -301,7 +301,7 @@ const App = () => {
               <Link to="/" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Home</Link>
               <Link to="/Factory" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Factory</Link>
               <Link to="/Farm" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Farm</Link>
-              <Link to="/Points" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Points</Link>
+              <Link to="/Hall" className="text-xl my-2 text-white" onClick={() => setToggleMenu(false)}>Hall</Link>
 
               <div>
                 {currentAccount ? (

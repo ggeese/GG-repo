@@ -32,6 +32,7 @@ function Wallets({ visible, onClose }) {
                 <TonConnectButton className="bg-gray-200 p-4 flex items-center" style={{ float: "right" }}>
                     {/* Puedes añadir un icono para TonConnect si tienes uno */}
                 </TonConnectButton>
+
             </div>
         </div>
     );

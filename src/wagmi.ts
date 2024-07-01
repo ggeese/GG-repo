@@ -1,17 +1,34 @@
 import { http, createConfig } from 'wagmi'
-import { mainnet, sepolia } from 'wagmi/chains'
+import { baseSepolia, base, xLayer, bsc, blast, linea, polygon, zetachain, berachainTestnet } from 'wagmi/chains'
 import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
 
 export const config = createConfig({
-  chains: [mainnet, sepolia],
-  connectors: [
+  chains: [
+    base,
+    baseSepolia,
+    xLayer,
+    bsc,
+    blast,
+    linea,
+    polygon,
+    zetachain,
+    berachainTestnet],
+    connectors: [
     injected(),
     coinbaseWallet(),
     walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    [base.id]: http(),
+    [baseSepolia.id]: http(),
+    [xLayer.id]: http(),
+    [bsc.id]: http(),
+    [blast.id]: http(),
+    [linea.id]: http(),
+    [polygon.id]: http(),
+    [zetachain.id]: http(),
+    [berachainTestnet.id]: http(),
+
   },
 })
 

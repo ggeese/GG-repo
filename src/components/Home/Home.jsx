@@ -17,7 +17,9 @@ import copy_logo from "../../../images/copy.svg";
 
 
 const Home = () => {
-  const [contractAddress] = useState('CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2');
+  const [contractAddress] = useState('');
+//  const [contractAddress] = useState('CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2');
+
   const [currentSection, setCurrentSection] = useState('');
   const tokenInfoRef = useRef(null);
   const [clicked, setClicked] = useState(false);
@@ -68,35 +70,36 @@ const Home = () => {
         <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${bg_1})` }}></div>
         <div className="absolute inset-0 z-10 bg-cover bg-center" style={{ backgroundImage: `url(${bg_1_1})` }}></div>
 
-        <div className="absolute left-10 top-1/4">
-          <div className="move-right-animation inline-block">
-            <div className="">
-              <div className="animatedSprite"></div>
-            </div>
-          </div>
-        </div>
-        <div className="absolute right-20 top-1/3 z-2 scale-90">
-          <div className="move-left-animation inline-block">
-            <div className="scale-90">
-              <div className="animatedSprite"></div>
-            </div>
-          </div>
-        </div>
-        <div className="absolute top-1/2 right-0 z-2">
-          <div className="move-left-animation inline-block">
-            <div className="scale-50">
-              <div className="animatedSprite"></div>
-            </div>
-          </div>
-        </div>
+        <div className="absolute left-10 top-1/4 hidden md:block">
+  <div className="move-right-animation inline-block">
+    <div className="">
+      <div className="animatedSprite"></div>
+    </div>
+  </div>
+</div>
+<div className="absolute right-20 top-1/3 z-2 scale-90">
+  <div className="move-left-animation inline-block">
+    <div className="scale-90">
+      <div className="animatedSprite"></div>
+    </div>
+  </div>
+</div>
+<div className="absolute top-1/2 right-0 z-2">
+  <div className="move-left-animation inline-block">
+    <div className="scale-50">
+      <div className="animatedSprite"></div>
+    </div>
+  </div>
+</div>
 
-        <div className="absolute top-1/2 mt-20 left-5 z-2">
-          <div className="move-right-animation inline-block">
-            <div className="scale-75">
-              <div className="animatedSprite"></div>
-            </div>
-          </div>
-        </div>
+<div className="absolute top-1/2 mt-20 left-5 z-2 hidden md:block">
+  <div className="move-right-animation inline-block">
+    <div className="scale-75">
+      <div className="animatedSprite"></div>
+    </div>
+  </div>
+</div>
+
         <div className="absolute inset-0 flex items-center justify-center z-20">
           <Welcome />
         </div>
@@ -130,7 +133,7 @@ const Home = () => {
             }}></div>
             <button>
             <a href="#faq">
-              <img src={piece} alt="piece" className="relative transform transition-all w-40 h-auto sm:w-44 md:w-52 lg:w-72 xl:w-80 hover:scale-110" />
+              <img src={piece} alt="piece" className="relative transform transition-all w-20 h-auto sm:w-44 md:w-52 lg:w-72 xl:w-80 hover:scale-110" />
             </a>
             </button>
           </div>
@@ -138,7 +141,7 @@ const Home = () => {
         <img
           src={goose_static}
           alt="Goose"
-          className="transform transition-all hover:scale-110 w-40 h-auto sm:w-44 md:w-52 lg:w-72 xl:w-80 object-cover cursor-pointer" // Ajusta el tamaño de la imagen según sea necesario
+          className="transform transition-all hover:scale-110 w-20 h-auto sm:w-44 md:w-52 lg:w-50 xl:w-72 object-cover cursor-pointer" // Ajusta el tamaño de la imagen según sea necesario
           onClick={togglePiece} // Agregar evento onClick
         />
       </div>
@@ -152,19 +155,20 @@ const Home = () => {
           <img
             src={cloud_red}
             alt="cloud"
-            className="w-40 h-auto sm:w-44 md:w-52 lg:w-72 xl:w-80 object-cover" // Ajusta el tamaño de la imagen según sea necesario
+            className="w-40 h-auto sm:w-32 md:w-40 lg:w-52 xl:w-60 object-cover" // Ajusta el tamaño de la imagen según sea necesario
           />
           <div
-            className="flex flex-col absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-70 p-4 rounded-full focus:outline-none items-center text-center"
+            className="flex flex-col absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-70 p-4 sm:p-2 md:p-4 rounded-full focus:outline-none items-center text-center"
           >
-            <p className="text-black font-bold mb-1">CONTRACT</p>
+            <p className="text-black text-sm font-bold mb-1 sm:text-sm md:text-base">CONTRACT</p>
             <div className="flex items-center">
-              <img src={copy_logo} alt="Copy" className="w-6 h-6 mr-2" />
-              <span>{contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}</span>
+              <img src={copy_logo} alt="Copy" className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 mr-2" />
+              <span className="sm:text-sm md:text-sm lg:text-base">{contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}</span>
             </div>
           </div>
         </button>
       </div>
+
     </div>
   );
 }

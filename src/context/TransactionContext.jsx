@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 //import SolCreateTokens from './TContextSol'; // Ajusta la ruta según sea necesario
-import { contractAddress_meme_factory, contractAdrress_golden_exp } from "../utils/constants";
+import { contractAddress_meme_factory, contractAdrress_golden_exp, contractABI_GOLDENGNFT, contractAdrress_goldengnft } from "../utils/constants";
 import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
 import networksData from './networks.json'; // Importa el archivo JSON
 import { Connection, PublicKey, clusterApiUrl, Transaction, LAMPORTS_PER_SOL, SystemProgram as SystemProgramXD } from '@solana/web3.js';
@@ -14,7 +14,9 @@ import IDL from '../utils/MemeFactorySol.json'
 import Axios from "axios";
 import TonWeb from 'tonweb';
 import { deployContract, DetailsToken } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useSwitchChain, useWriteContract } from 'wagmi';
+
+//import { useWriteContracts, useCallsStatus } from 'wagmi/experimental'
 
 
 
@@ -25,7 +27,8 @@ const token_22_address = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const TOKEN_PROGRAM_ID = new PublicKey(token_22_address);
 //const treasury_address = "HqZ5oLpg13EftbJQXT37fFbMrS7B4v39KxEq3cTTjfsX";
 const treasury_address = new PublicKey("6Esfh8TgNV4gMSWvca1x6kPqJt4iPzc4JQHXuPip1vyn");
-const rpc_url = "https://api.devnet.solana.com";
+const rpc_url = "https://nd-378-937-112.p2pify.com/8236fbdbf2853b515d9dde5a1ef18542"
+//const rpc_url = "https://api.devnet.solana.com";
 const connection = new Connection(rpc_url, "confirmed");
 const tonweb = new TonWeb();
 
@@ -146,11 +149,16 @@ export const TransactionProvider = ({ children }) => {
     const [provider, setProviderState] = useState(null);
     const [TxHash , setTxHash] = useState ('');
     const [tonweb, setTonweb] = useState(null);
+    const { chains, error: switchError, switchChain } = useSwitchChain();
+    const { data: writeData, writeContract } = useWriteContract();
+
+
     const [Network, setNetwork] = useState(() => {
-        return localStorage.getItem('network') || 'X Layer Mainnet';
+        return localStorage.getItem('network') || 'Base Sepolia';
       });
     
-    const { disconnect } = useDisconnect()
+    const { disconnect } = useDisconnect();
+    const [walletext, setWalletext] = useState("");
 
       //capturamos la direccion de la wallet
       const TONuserFriendlyAddress = useTonAddress();
@@ -176,11 +184,8 @@ export const TransactionProvider = ({ children }) => {
 
     const getEthereumContract = async (contractAddress_meme_factory) => {
         //const provider = sdk.makeWeb3Provider();
-        //const provider = new ethers.BrowserProvider(window.ethereum);
-        //const signer = await provider.getSigner();
-        console.log(provider, "getsigner")
-        const signer = provider.signer;
-
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
         console.log("llegamos aqui signers")
         const transactionsContract = new ethers.Contract(contractAddress_meme_factory, contractABI_MEME_FACTORY, signer);
         console.log(transactionsContract," 2  llegamos aqui signers")
@@ -225,20 +230,12 @@ export const TransactionProvider = ({ children }) => {
             (connector) => connector.name === 'Coinbase Wallet'
           )
           if (coinbaseConnector) {
-            await connect({ connector: coinbaseConnector });
-          }
-          setCurrentAccount(account.addresses[0]);
-          
-        
-          // Request access to user accounts
-          //const accounts = await provider.request({ method: 'eth_requestAccounts' });
-            
-          // Set the current account
-          //setCurrentAccount(accounts[0]);
-          //setProviderState(provider);
-    
-          // Change to the desired network (implement changeNetwork as needed)
-          //await changeNetwork(appChainIds[0]);
+          connect({ connector: coinbaseConnector });
+          const base_account = account.addresses[0];
+          setCurrentAccount(base_account);
+          setWalletext("Base Wallet");
+          changeNetwork(Network);
+        }
         } catch (error) {
           console.error("Error connecting to Coinbase Wallet:", error);
         }
@@ -267,9 +264,14 @@ export const TransactionProvider = ({ children }) => {
           const provider = new ethers.BrowserProvider(window.ethereum); 
           setCurrentAccount(accounts[0]);
           setProviderState(provider);
-    
+          //dedsconectando de las otras wallets
+          setWalletext("metamask");
+          await tonConnectUI.disconnect();
+          disconnect();
+
           // Cambia a la red actual
           await changeNetwork(Network);
+
         } catch (error) {
           console.error("No ethereum object or user denied request:", error);
         }
@@ -322,7 +324,8 @@ export const TransactionProvider = ({ children }) => {
           };
 
           const connectPhantom = async () => {
-            const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+//          const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+            const connection = new Connection('https://nd-378-937-112.p2pify.com/8236fbdbf2853b515d9dde5a1ef18542', 'confirmed');
             
             const provider = await getProvider();
             if (provider) {
@@ -333,10 +336,13 @@ export const TransactionProvider = ({ children }) => {
                 const solaccount = publicKey.toString();
                 console.log('Conectado a la wallet:', solaccount);
           
-                const balance = await connection.getBalance(publicKey);
-                console.log('Saldo de la cuenta:', balance);
+                //const balance = await connection.getBalance(publicKey);
+                //console.log('Saldo de la cuenta:', balance);
                 setCurrentAccount(solaccount);
-                
+                disconnect();
+                console.log("Disconnected");
+                await tonConnectUI.disconnect();
+
                 return { connection, publicKey };
               } catch (err) {
                 console.error('Error conectando la wallet:', err);
@@ -806,13 +812,16 @@ export const TransactionProvider = ({ children }) => {
     //cambiar red//
     const changeNetwork = async (network) => {
         try {
+            
             const networkData = networksData.networks.find(net => net.name === network);
             if (!networkData) {
                 throw new Error(`No se encontró información para la red ${network}.`);
             }
     
             const { chainId, rpcUrl, symbol, explorerUrl } = networkData;
-    
+            //base switch network
+            switchChain({chainId:  chainId })
+
             if (window.ethereum) {
                 try {
                     await window.ethereum.request({
@@ -822,7 +831,7 @@ export const TransactionProvider = ({ children }) => {
                     console.log(`Red cambiada a ${network}.`);
                     setNetwork(network); // Solo actualizar la red si el cambio se realizó con éxito
                     const accounts = await ethereum.request({ method: 'eth_accounts' });
-                    setCurrentAccount(accounts[0])
+                    //setCurrentAccount(accounts[0]);
                     console.log("red actual ",network)
                 } catch (switchError) {
                     if (switchError.code === 4902) {
@@ -865,16 +874,16 @@ export const TransactionProvider = ({ children }) => {
     };
     
     const disconnectWallet = async () => {
+        disconnect();
         setCurrentAccount(null);
         console.log("Disconnected");
-        disconnect();
         await tonConnectUI.disconnect();
 
     }
 
     const sendTransaction = async () => {
         try{
-            connectWallet()
+            connectWallet();
             if (!ethereum) return alert("Please install metamask");
        
         }   catch (error) {
@@ -908,16 +917,28 @@ export const TransactionProvider = ({ children }) => {
 
     //funcion para cambiar el input de pools usando los botones de %
     const change_input_staking = (percent) => {
-        setFormData_3((prevFormData) => ({
-          ...prevFormData,
-          stake: percent.toString()
-        }));
-      };
+        try {
+            if (percent === null) {
+                throw new Error("El valor de percent no puede ser null");
+            }
+            
+            setFormData_3((prevFormData) => ({
+                ...prevFormData,
+                stake: percent.toString()
+            }));
+        } catch (error) {
+            console.error("Error al cambiar el input de staking:", error);
+        }
+    };
+    
+    
       
     const sendTransaction_2 = async (file) => {
         const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
         setIsLoading(true);
         console.log(Network, "network")
+
+
 
         if (Network==="TON") {
             const dataTON = {
@@ -955,6 +976,18 @@ export const TransactionProvider = ({ children }) => {
             setTxHash(ton_tx_hash);
             setIsLoading(false);
 
+        }
+        else if (walletext==="Base Wallet") {
+            let Fee_tx = Fee !== undefined ? Fee : 0;
+            const recipient = currentAccount;
+            const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
+            const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
+            writeContract({
+                abi: contractABI_MEME_FACTORY,
+                address: contractAddress_meme_factory,
+                functionName: 'createMeme',
+                args: [MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed],
+              })
         }
 
         else if (Network==="Solana") {
@@ -1046,6 +1079,9 @@ export const TransactionProvider = ({ children }) => {
     }
 
     const sendTransaction_3 = async (stake_contract, token_stake_contract) => {
+        if (Network != "Base Sepolia") {
+            await changeNetwork("Base Sepolia");
+        }
         console.log ("previo a stake transaction ")
         const { stake } = FormData_3;
         const provider = new ethers.BrowserProvider(window.ethereum);
@@ -1067,20 +1103,31 @@ export const TransactionProvider = ({ children }) => {
 
         //interaccion con el contrato de staking
         const transactionHash = await transactionsContract_3.stake(stake_amount)
+        
     }
 
 
     const sendTransaction_3_Unstake = async (stake_contract) => {
-        console.log ("previo a stake transaction ")
-        const { stake } = FormData_3;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
-        const stake_amount = ethers.parseEther(stake)
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.unstake(stake_amount)
-    }
+        try {
+            console.log("Previo a stake transaction");
+    
+            const { stake } = FormData_3;
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
+    
+            // Ponemos los datos del contrato de staking
+            const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
+            const stake_amount = ethers.parseEther(stake);
+    
+            // Interacción con el contrato de staking
+            const transactionHash = await transactionsContract_3.unstake(stake_amount);
+    
+            console.log("Transacción exitosa:", transactionHash);
+        } catch (error) {
+            console.error("Error en la transacción de unstake:", error);
+        }
+    };
+    
 
     const Claim_Rewards = async (stake_contract) => {
         const provider = new ethers.BrowserProvider(window.ethereum);
@@ -1179,7 +1226,35 @@ export const TransactionProvider = ({ children }) => {
         } catch (error) {
         console.log(error);
         }
-    }
+    };
+
+    const MintNft = async () => {
+        console.log("pasa por aqui")
+        console.log(walletext,Network)
+        if (Network === "Base Sepolia") {
+            if (walletext==="Base Wallet") {
+            writeContract({
+                abi: contractABI_GOLDENGNFT,
+                address: contractAdrress_goldengnft,
+                functionName: 'mintTo',
+                args: [currentAccount, "https://raw.githubusercontent.com/goldengcoin/NFT-goldeng/main/URI.json"],
+                value: ethers.parseEther('0.0001'),
+        
+            });
+            }
+            else if (walletext==="metamask") {
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                console.log("pasa por aqui")
+                const signer = await provider.getSigner();
+                const commissionAmount = ethers.parseEther(0.0001.toString());
+                //ponemos los datos del contrato de staking
+                const transactionsContract = new ethers.Contract(contractAdrress_goldengnft, contractABI_GOLDENGNFT, signer);
+                const mintNFT = await transactionsContract.mintTo(currentAccount, "https://raw.githubusercontent.com/goldengcoin/NFT-goldeng/main/URI.json", {value: commissionAmount} );
+
+        };   
+    };
+}
+
 
     ///////////ADMIN FUNCTIONS////////////
     
@@ -1295,6 +1370,8 @@ export const TransactionProvider = ({ children }) => {
             //setTonweb(tonwebInstance);
             console.log("TON address:", TONuserFriendlyAddress);
             setCurrentAccount(TONuserFriendlyAddress);
+            switchChain({chainId:  chainId })
+
         }
     }, [TONuserFriendlyAddress, connectTON]);
     //connectWallet();
@@ -1333,6 +1410,7 @@ export const TransactionProvider = ({ children }) => {
             sendTransaction_2, 
             sendTransaction_3, 
             sendTransaction_3_Unstake,
+            MintNft,
             CreatePool,
             Claim_Rewards, 
             sendTransaction_4,
@@ -1351,7 +1429,7 @@ export const TransactionProvider = ({ children }) => {
             PauseContract,
             UnpauseContract,
             setExpMinter,
-            StatusContract
+            StatusContract,
             }}>
 
             {children}

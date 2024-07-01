@@ -20,6 +20,7 @@ const LoadingBox = () => (
 );
 
 const PopUp_Unstake = ({item_1, handleStakeClick_1, handleUnStakeClick_1, handleClaimClick_1}) => (
+    
     <div>
         <div className="rounded-lg px-4 py-2 border-2 border-black mt-2 bg-[#C2EAFF]" style={{ width: '320px'}}>
                 <div className="text-center text-lg font-semibold">
@@ -107,9 +108,10 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
     const [UserPools, setUserPools] = useState([]);
     const [search, setSearch] = useState("");
     const [pointsEarnedList, setPointsEarnedList] = useState([]);
-    const { currentAccount, Points_Earned } = useContext(TransactionContext); 
+    const { currentAccount, Points_Earned, changenetwork } = useContext(TransactionContext); 
 
     useEffect(() => {
+        //Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
         Axios.get("https://app-memes-golden-g-goose.onrender.com/db_pools_memes").then((response) => {
             setPoolsMemes(response.data);
             console.log("pools memesXD",response.data)
@@ -120,6 +122,7 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
     
 
     useEffect(() => {
+        //Axios.get("http://localhost:3001/db_stakers", {
         Axios.get("https://app-users-5z99.onrender.com/db_stakers", {
           params: {
             address: currentAccount
@@ -260,10 +263,19 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
                             <PopUp_Unstake key={item.stake_contract} item_1={item} handleStakeClick_1={handleStakeClick} handleUnStakeClick_1={handleUnStakeClick} handleClaimClick_1={handleClaimClick}/>
                         : 
                         <div>
-                            <div className="flex justify-center items-center">
-                                <button className="bg-red-800 text-white font-semibold px-10 w-80 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
-                                    onClick={() => handleStakeClick(item.stake_contract, item.token, item.token_name)}>
-                                    + Stake
+                            <div className="flex flex-fil justify-center gap-1 items-center">
+                            <button 
+                                className="bg-red-800 text-white font-semibold px-5 w-40 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                                onClick={() => {
+                                    handleStakeClick(item.stake_contract, item.token, item.token_name);
+                                    //changenetwork("Base Sepolia");
+                                }}
+                            >
+                                + Stake
+                            </button> 
+                                                        <button className="bg-gray-300 text-black font-semibold px-5 w-40 py-2 rounded-md shadow hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
+                                    onClick={() => handleUnStakeClick(item.stake_contract, item.token, item.token_name)}>
+                                    - Unstake
                                 </button>  
                             </div>
 

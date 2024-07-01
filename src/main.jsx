@@ -38,7 +38,7 @@ root.render(
           <Route path="/Factory" element={<Factory/>} />
           <Route path="/Farm" element={<Farm/>} />
           <Route path="/Degen" element={<Degen/>} />
-          <Route path="/Points" element={<Points/>} />
+          <Route path="/Hall" element={<Points/>} />
           <Route path="/Admin" element={<Admin/>} />
 
         

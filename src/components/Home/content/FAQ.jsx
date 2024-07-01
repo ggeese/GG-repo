@@ -31,7 +31,7 @@ const FAQ = () => {
           Cuak! Cuak! go there via{" "}
           <a
             className="text-blue-500 underline"
-            href="https://birdeye.so/token/CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2/Hjjpt3M2koFkAvS39uyinYRRsqRWqPi1Vt5jjkJeKwNn?chain=solana"
+            href="https://aerodrome.finance/swap?from=0x4200000000000000000000000000000000000006&to=eth"
             target="_blank"
             rel="noopener noreferrer"
           >

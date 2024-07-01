@@ -84,7 +84,7 @@ const Welcome = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setHideSquare(false);
-    }, 5000); // Desaparecer después de 5 segundos
+    }, 3000); // Desaparecer después de 5 segundos
 
     return () => clearTimeout(timer);
   }, []);
@@ -132,6 +132,7 @@ const Welcome = () => {
       {!isClicked && (
         <>
           {/* Animaciones y video */}
+          
           <div>
           <div className={`absolute inset-0 flex items-center justify-center z-10 h-auto left-4 top-40 ${showWire3 ? 'opacity-100' : 'opacity-0'}`}>
             <div className=" -translate-y-1/3 mt-16">
@@ -148,12 +149,18 @@ const Welcome = () => {
               <img src={wire} alt="wire" className=" h-auto z-2 scale-100"/>
             </div>
           </div>
-          <div className={`absolute inset-0 w-full flex items-center justify-center z-10 h-auto ${hideSquare ? 'opacity-100 transition-opacity duration-500' : 'opacity-0'}`}>
-            <div className="absolute transform -translate-y-1/3 mt-40">
-              <div className="animatedSquare">
+          {!isSmallScreen && (
+              <div className={`fixed inset-0 flex items-center justify-center z-10 ${hideSquare ? 'opacity-100 transition-opacity duration-500' : 'opacity-0'}`}>
+                <div className="relative transform -translate-y-1/3 mt-40">
+                  <div className="animatedSquare">
+                    {/* Contenido de la animación animatedSquare */}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+
+            {!isSmallScreen && (
+
           <div className={`absolute inset-0 flex z-1 top-1/5 scale-50`}>
             <div className={`${showBird ? 'move-diagonal-animation' : 'opacity-0'}`}>
               <div className="">
@@ -162,6 +169,7 @@ const Welcome = () => {
               </div>
             </div>
           </div>
+            )}
           <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${showVideo ? 'opacity-100 z-20' : 'opacity-0'}`}>
           <div className={`${!isSmallScreen && showFall ? 'fall-animation' : ''}`}>
               <div className="relative w-full max-w-[850px] md:right-[-60px] md:top-[-35px] right-0 top-0 px-2 md:px-0">
@@ -178,35 +186,33 @@ const Welcome = () => {
       )}
       {isClicked && (
         <div>
-          <div className="fixed right-0 flex flex-fil p-4 gap-2 ">
-          <a
-            href="https://discord.com/invite/FfeHwrqdAY"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white hover:bg-yellow-200 text-white font-bold p-4 rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
-          >
-            <img src={discord} alt="Discord" className="w-8" />
-          </a>
+  <div className="fixed right-0 flex flex-col p-2 gap-2 sm:flex-row sm:p-4">
+    <a
+      href="https://discord.com/invite/FfeHwrqdAX"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+    >
+      <img src={discord} alt="Discord" className="w-6 sm:w-8" />
+    </a>
 
-          {/* Botón de Telegram */}
-          <a
-            href="https://t.me/goldeng"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white hover:bg-yellow-200 text-white font-bold p-4 rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
-          >
-            <img src={telegram} alt="Telegram" className="w-8" />
-          </a>
+    <a
+      href="https://t.me/goldeng"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+    >
+      <img src={telegram} alt="Telegram" className="w-6 sm:w-8" />
+    </a>
 
-          {/* Botón de Twitter */}
-          <a
-            href="https://x.com/GoldenGoosememe"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white hover:bg-yellow-200 font-bold p-4 rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
-          >
-            <img src={twitter} alt="Twitter" className="w-8" />
-          </a> 
+    <a
+      href="https://x.com/GoldenG"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="bg-white hover:bg-yellow-200 font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+    >
+      <img src={twitter} alt="Twitter" className="w-6 sm:w-8" />
+    </a>
           </div>
           <div className="flex flex-col items-center justify-around min-h-screen p-5">
             <div className="w-full text-center mt-10 sm:mt-10 md:mt-0 lg:mt-0">

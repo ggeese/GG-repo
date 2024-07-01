@@ -35,17 +35,17 @@ const Welcome_Factory = () => {
       <div className="flex flex-col justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 px-5 py-20 overflow-hidden">
         {/* Contenedor principal para el texto */}
         <div className="self-stretch flex flex-col w-full max-w-[420px] lg:w-[780px] lg:max-w-[980px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
-          <h1 className="flex justify-center md:text-6xl sm:text-5xl lg:text-9xl text-7xl text-center font-bold text-black p-5">
+          <h1 className="flex justify-center font-semibold md:text-6xl sm:text-5xl lg:text-9xl text-7xl text-center text-black p-5">
             Create your meme
           </h1>
-          <p className="text-2xl text-center md:text-left text-black p-8">
+          <p className="text-xl md:text-xl sm:text-2xl lg:text-3xl text-center md:text-left font-semibold text-black p-8">
             Here you can design memes easily and quickly. Who knows? Maybe your
             creation will be the next viral phenomenon. Start now and let your
             creativity fly!
           </p>
           <div className="flex justify-center mb-10">
             <button
-              className="bg-black rounded-3xl hover:bg-yellow-600 px-20 py-8 text-5xl text-white font-bold mt-10 self-center"
+              className="bg-black rounded-3xl hover:bg-yellow-600 px-20 py-8 text-5xl text-white font-semibold font-semibold mt-10 self-center"
               onClick={() => setShowMyModal(true)}
             >
               Create
@@ -60,10 +60,10 @@ const Welcome_Factory = () => {
       {/* Contenedor para el segundo texto */}
       <div className="flex justify-center relative">
         {/* Contenedor para el texto superpuesto */}
-        <div className="flex justify-center flex-col transform text-white font-bold text-5xl text-center">
-          <div className="bg-black rounded-t-3xl">
+        <div className="flex justify-center flex-col transform text-white font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-center">
+          <div className="bg-black rounded-t-3xl font-semibold">
             <p className='p-6'>TOTAL MEMES CREATED</p>
-            <p className='p-6'>15,156,155</p>
+            <p className='p-6'>1,515</p>
           </div>
 
           <div className="relative p-4 w-full md:w-full md:max-w-[840px] lg:w-[960px] lg:max-w-full xl:w-[1080px] border-t-3 border-b-3 md:border-3 border-yellow-600 md:rounded-b-3xl bg-black from-gray-300 to-transparent overflow-hidden">

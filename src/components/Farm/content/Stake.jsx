@@ -15,7 +15,7 @@ const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
 
 function Stake({visible, onClose, stake_contract, token_stake_contract, token_name, balance_token_wallet }) {
         
-    const { FormData_3, sendTransaction_3, handleChange_3, change_input_staking, sendTransaction_3_test } = useContext(TransactionContext); 
+    const { FormData_3, sendTransaction_3, handleChange_3, change_input_staking } = useContext(TransactionContext); 
 
     const [formularioVisible, setFormularioVisible] = useState(false);
     
@@ -106,11 +106,7 @@ function Stake({visible, onClose, stake_contract, token_stake_contract, token_na
                         className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black uppercase h-9 px-4 py-2">
                         100%
                       </button>
-                      <button
-                        onClick={() => sendTransaction_3_test(stake_contract)} // Usa una función de flecha para llamar a change_input con el valor 25
-                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 border-2 border-black uppercase h-9 px-4 py-2">
-                        TEST
-                      </button>
+
                     </div>
                   </div>
 

@@ -18,8 +18,8 @@ const Token_Info = () => {
       {/* Title Section */}
       <div className="flex flex-col items-center">
         <img src={golden_egg} alt="Golden Egg" className="w-24 h-24 mb-4" />
-        <h1 className="text-5xl font-goldeng text-white font-extrabold">An Immortal Meme</h1>
-        <h2 className="text-3xl font-goldeng text-white">(GOLDENG)</h2>
+        <h1 className="text-5xl text-center font-goldeng text-white font-extrabold">An Immortal Meme</h1>
+        <h2 className="text-3xl font-goldeng text-white">(GOOSE)</h2>
       </div>
 
       {/* Cards Section */}
@@ -57,7 +57,7 @@ const Token_Info = () => {
       <div className="flex flex-col items-center space-y-6 w-full max-w-2xl">
   <a
     className="text-lg font-goldeng md:text-xl lg:text-2xl font-bold text-white transition duration-300 ease-in-out transform hover:scale-110 bg-gradient-to-r from-yellow-500 to-red-600 hover:from-red-600 hover:to-orange-500 py-10 px-10 md:py-8 md:px-28 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-    href="https://birdeye.so/token/CcxreSMUycHVRGUxbSTMrPG9GgRiZ9A8pKFzn6G6YAM2/Hjjpt3M2koFkAvS39uyinYRRsqRWqPi1Vt5jjkJeKwNn?chain=solana"
+    href="https://aerodrome.finance/swap?from=0x4200000000000000000000000000000000000006&to=eth"
     target="_blank"
     rel="noopener noreferrer"
   >
