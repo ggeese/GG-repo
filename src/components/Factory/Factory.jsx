@@ -1,12 +1,9 @@
 import React from "react";
-import { Welcome_Factory, Footer, Meme_Search, Test } from './content';
+import { Welcome_Factory, Footer, Meme_Search } from './content';
 import image_farm from '../../../images/farmegg2.jpeg';
 
 const Factory = () => {  
-    const handleDeploy = async () => {
-      console.log("deploy");
-      await deployContract();
-    };
+
 
   // Estilo para el contenedor de fondo con desenfoque
   const backgroundStyle = {

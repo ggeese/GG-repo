@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { CoinbaseWalletSDK } from '@coinbase/wallet-sdk';
-import logo_wallet from '../../images/coinbase_wallet.svg';
+import logo_wallet from '../../../../images/coinbase_wallet.svg';
 
 const sdk = new CoinbaseWalletSDK({
   appName: 'My Dapp With SDK',
@@ -41,3 +41,4 @@ const BlackCreateWalletButton = ({ height = 66, width = 200 }) => {
 };
 
 export { BlackCreateWalletButton, createWallet };
+

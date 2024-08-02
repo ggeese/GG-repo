@@ -6,7 +6,9 @@
         "rpcUrl": "https://sepolia.infura.io/v3/",
         "symbol": "SepoliaETH",
         "explorerUrl": "https://sepolia.etherscan.io",
-        "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
+        "poolFactory": "0x28B67E07d4f3B96B77726DBA296E6c172FD1740e",
+        "poolInteract": "0xd30AD690f1fF1aC69f99C8F372DcBa3f56A60B9B",
+        "factory":"0xb255eA397Be6975FE9A793DeBC8DB472e8E8BDEc",
         "nick":"Sepolia ETH",
         "fee":0.0001
       },      
@@ -16,6 +18,8 @@
         "rpcUrl": "https://eth.llamarpc.com",
         "symbol": "ETH",
         "explorerUrl": "https://etherscan.io",
+        "poolFactory": "0x76aD7c04b7bAcc9dDFF6b4a39Da2b0C156F4e64A",
+        "poolInteract": "0x9C607cd07e458aB463b2c0815FD7E24956Ae69F4",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Ethereum",
         "fee":0.00001
@@ -26,6 +30,8 @@
         "rpcUrl": "",
         "symbol": "ETH",
         "explorerUrl": "",
+        "poolFactory": "0x76aD7c04b7bAcc9dDFF6b4a39Da2b0C156F4e64A",
+        "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"",
         "nick":"Ethereum",
         "fee":0.00001
@@ -36,6 +42,8 @@
         "rpcUrl": "https://bsc-dataseed1.bnbchain.org",
         "symbol": "BNB",
         "explorerUrl": "https://bscscan.com/",
+        "poolFactory": "0x76aD7c04b7bAcc9dDFF6b4a39Da2b0C156F4e64A",
+        "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x6033a173c92170e7Ee1F1fDE11fA8458B5A62283",
         "nick":"BNB Chain",
         "fee":0.00001
@@ -46,6 +54,8 @@
         "rpcUrl": "https://bsc-testnet.drpc.org",
         "symbol": "tBNB",
         "explorerUrl": "https://testnet.bscscan.com/",
+        "poolFactory": "0x76aD7c04b7bAcc9dDFF6b4a39Da2b0C156F4e64A",
+        "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
         "nick":"BNB Chain",
         "fee":0.001
@@ -56,6 +66,8 @@
         "rpcUrl": "https://artio.rpc.berachain.com/",
         "symbol": "BERA",
         "explorerUrl": "https://artio.beratrail.io/",
+        "poolFactory": "0x76aD7c04b7bAcc9dDFF6b4a39Da2b0C156F4e64A",
+        "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x43b620CDCD633de6CE4EcB647aEA355910492A63",
         "nick":"Bera Chain",
         "fee":0.001
@@ -66,6 +78,8 @@
         "rpcUrl": "https://polygon-rpc.com/",
         "symbol": "MATIC",
         "explorerUrl": "https://polygonscan.com",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x457c0B0430b16BF9bd57FfF2c9C1980c632910e2",
         "nick":"Polygon",
         "fee":0.00001
@@ -76,6 +90,8 @@
         "rpcUrl": "https://api.avax.network/ext/bc/C/rpc",
         "symbol": "AVAX",
         "explorerUrl": "https://snowtrace.io",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x6600b714Be5b4E7656aeA572c6a4857Bf708a850",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Avalanche",
         "fee":0.00001
@@ -86,6 +102,8 @@
         "rpcUrl": "https://api.avax-test.network/ext/bc/C/rpc",
         "symbol": "AVAX",
         "explorerUrl": "https://subnets-test.avax.network/",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
         "nick":"Avalanche Testnet",
         "fee":0.02
@@ -96,6 +114,8 @@
         "rpcUrl": "https://arb1.arbitrum.io/rpc",
         "symbol": "ETH",
         "explorerUrl": "https://arbiscan.io/",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Arbitrum One",
         "fee":0.00001
@@ -106,6 +126,8 @@
         "rpcUrl": "https://rpc.ftm.tools",
         "symbol": "FTM",
         "explorerUrl": "https://ftmscan.com",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Fantom",
         "fee":0.00001
@@ -116,6 +138,8 @@
         "rpcUrl": "https://mainnet.optimism.io",
         "symbol": "ETH",
         "explorerUrl": "https://optimistic.etherscan.io/",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Optimism",
         "fee":0.00001
@@ -126,6 +150,8 @@
         "rpcUrl": "https://mainnet.base.org/",
         "symbol": "ETH",
         "explorerUrl": "https://basescan.org",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Base",
         "fee":0.00001
@@ -136,6 +162,8 @@
         "rpcUrl": "https://sepolia.base.org/",
         "symbol": "ETH",
         "explorerUrl": "https://sepolia-explorer.base.org/",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
         "nick":"Base",
         "fee":0.0001
@@ -146,6 +174,8 @@
         "rpcUrl": "https://sepolia.base.org/",
         "symbol": "ETH",
         "explorerUrl": "https://sepolia-explorer.base.org/",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xA22d1069fe06C33e13c0e6FacA1a305c0735A1bD",
         "nick":"Base",
         "fee":0.0001
@@ -156,6 +186,8 @@
         "rpcUrl": "https://pacific-rpc.manta.network/http",
         "symbol": "ETH",
         "explorerUrl": "https://pacific-explorer.manta.network",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Manta",
         "fee":0.00001
@@ -166,6 +198,8 @@
         "rpcUrl": "https://rpc.blast.io",
         "symbol": "ETH",
         "explorerUrl": "https://blastscan.io",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Blast",
         "fee":0.00001
@@ -176,6 +210,8 @@
         "rpcUrl": "https://rpc.merlinchain.io",
         "symbol": "BTC",
         "explorerUrl": "https://scan.merlinchain.io",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Merlin Mainnet",
         "fee":0.00001
@@ -186,6 +222,8 @@
         "rpcUrl": "https://testnet-rpc.merlinchain.io",
         "symbol": "BTC",
         "explorerUrl": "https://testnet-scan.merlinchain.io",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x33a88274f6e782Fe2b028F75cDB6543B1E78A74f",
         "nick":"Merlin Testnet",
         "fee":0.00001
@@ -196,6 +234,8 @@
         "rpcUrl": "https://rpc.xlayer.tech",
         "symbol": "OKB",
         "explorerUrl": "https://www.oklink.com/xlayer",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x6033a173c92170e7Ee1F1fDE11fA8458B5A62283",
         "nick":"OKB Mainnet",
         "fee":0.00001
@@ -206,6 +246,8 @@
         "rpcUrl": "https://endpoints.omniatech.io/v1/xlayer/testnet/public",
         "symbol": "OKB",
         "explorerUrl": "https://www.oklink.com/xlayer-test",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x0D09168ecF4f0589F6eFa76FdF32e388ee1664dE",
         "nick":"OKB Mainnet",
         "fee":0.02
@@ -216,6 +258,8 @@
         "rpcUrl": "https://1rpc.io/linea",
         "symbol": "ETH",
         "explorerUrl": "https://lineascan.build",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Linea",
         "fee":0.00001
@@ -226,6 +270,8 @@
         "rpcUrl": "https://public-en-cypress.klaytn.net",
         "symbol": "KLAY",
         "explorerUrl": "https://scope.klaytn.com/",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"klay",
         "fee":0.00001
@@ -236,6 +282,8 @@
         "rpcUrl": "https://zetachain-athens-evm.blockpi.network/v1/rpc/public",
         "symbol": "ZETA",
         "explorerUrl": "https://athens3.explorer.zetachain.com",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Zeta testnet",
         "fee":1
@@ -246,6 +294,8 @@
         "rpcUrl": "https://zetachain-evm.blockpi.network/v1/rpc/public",
         "symbol": "ZETA",
         "explorerUrl": "https://explorer.mainnet.zetachain.com",
+        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
+        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Zeta",
         "fee":1

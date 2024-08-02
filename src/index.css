@@ -362,3 +362,85 @@ body {
   max-height: 500px; /* Ajusta según el contenido */
 }
 
+
+.custom-react-select .react-select__control {
+  background-color: #000000; /* bg-black */
+  border-color: #000000; /* border-black */
+  color: #ffffff; /* text-white */
+}
+
+.custom-react-select .react-select__control:hover {
+  border-color: #000000; /* border-black */
+}
+
+.custom-react-select .react-select__single-value {
+  display: flex;
+  align-items: center;
+  color: #ffffff; /* text-white */
+}
+
+.custom-react-select .react-select__menu {
+  background-color: #1f2937; /* bg-gray-800 */
+  color: #ffffff; /* text-white */
+}
+
+.custom-react-select .react-select__option {
+  background-color: #1f2937; /* bg-gray-800 */
+  color: #ffffff; /* text-white */
+}
+
+.custom-react-select .react-select__option--is-selected {
+  background-color: #374151; /* bg-gray-700 */
+}
+
+.custom-react-select .react-select__option--is-focused {
+  background-color: #4b5563; /* bg-gray-600 */
+}
+
+.custom-react-select .react-select__option:hover {
+  background-color: #4b5563; /* bg-gray-600 */
+}
+
+/* src/components/Factory/content/switch.css */
+.switch-container {
+  position: relative;
+  background-color: #dbe5e5; /* Color de fondo del switch */
+  height: 40px; /* Aumenta la altura del switch */
+  width: 120px; /* Ajusta el ancho del switch */
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #4a90e2; /* Color del borde del switch */
+}
+
+.switch-button {
+  position: absolute;
+  background-color: #000000; /* Color del botón deslizante */
+  height: 80%;
+  width: 50%;
+  border-radius: 100px;
+  transition: transform 0.3s;
+}
+
+.switch-left {
+  transform: translateX(0);
+}
+
+.switch-right {
+  transform: translateX(100%);
+}
+
+.switch-options {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2%;
+}
+
+.switch-option {
+  width: 50%;
+  text-align: center;
+  color: #333; /* Color del texto */
+  font-weight: arial;
+}

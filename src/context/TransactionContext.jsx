@@ -1,37 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-//import SolCreateTokens from './TContextSol'; // Ajusta la ruta según sea necesario
-import { contractAddress_meme_factory, contractAdrress_golden_exp, contractABI_GOLDENGNFT, contractAdrress_goldengnft } from "../utils/constants";
+import { contractABI_GOLDENGNFT, contractAdrress_goldengnft } from "../utils/constants";
 import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
-import networksData from './networks.json'; // Importa el archivo JSON
-import { Connection, PublicKey, clusterApiUrl, Transaction, LAMPORTS_PER_SOL, SystemProgram as SystemProgramXD } from '@solana/web3.js';
-import { AnchorProvider, setProvider, Program, BN, web3, utils } from '@project-serum/anchor';
-import { createAssociatedTokenAccountInstruction, ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeTransferFeeConfigInstruction, createSetAuthorityInstruction, AuthorityType } from '@solana/spl-token';
-import { createCreateMetadataAccountV3Instruction, PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
-import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+import networksData from './Network/networks.json'; // Importa el archivo JSON
 import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
-import IDL from '../utils/MemeFactorySol.json'
-import Axios from "axios";
-import TonWeb from 'tonweb';
-import { deployContract, DetailsToken } from "./ContextTON/TONDeployer"; // Asegúrate de que la ruta es correcta
-import { useAccount, useConnect, useDisconnect, useSwitchChain, useWriteContract } from 'wagmi';
-
-//import { useWriteContracts, useCallsStatus } from 'wagmi/experimental'
-
-
-
-
-
-//const token_22_address = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
-const token_22_address = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-const TOKEN_PROGRAM_ID = new PublicKey(token_22_address);
-//const treasury_address = "HqZ5oLpg13EftbJQXT37fFbMrS7B4v39KxEq3cTTjfsX";
-const treasury_address = new PublicKey("6Esfh8TgNV4gMSWvca1x6kPqJt4iPzc4JQHXuPip1vyn");
-const rpc_url = "https://nd-378-937-112.p2pify.com/8236fbdbf2853b515d9dde5a1ef18542"
-//const rpc_url = "https://api.devnet.solana.com";
-const connection = new Connection(rpc_url, "confirmed");
-const tonweb = new TonWeb();
-
+import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransactionReceipt  } from 'wagmi';
+import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/ServerInteract";
 
 // Configurar el entorno para usar `buffer` y `process`
 
@@ -44,135 +18,39 @@ const isMobile = () => {
 const { ethereum } = window;
 
 
-const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url, Creator, Website, Twitter, Discord, Telegram, Fee, description) => {
-    // Extrayendo la hora y fecha
-    const Creation_Date = new Date().toLocaleString();
-
-    Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
-        
-        name: MemeName,
-        ticker: Symbol,
-        fee: Fee,
-        contract: contract_meme,
-        image: image_meme_url,
-        creator: Creator,
-        creation: Creation_Date,
-        supply: Supply,
-        webpage: Website,
-        twitter: Twitter !== undefined && Twitter.trim() !== "" ? "https://twitter.com/" + Twitter : "",
-        description: description,
-        discord: Discord !== undefined && Discord.trim() !== "" ? "https://www.discord.com/invite/" + Discord : "",
-        telegram: Telegram !== undefined && Telegram.trim() !== "" ? "https://t.me/" + Telegram : "",
-    }).then(() => {
-        console.log("Meme registrado");
-    });
-};
-
-const handleCreateJson = async (name, symbol, imageurl) => {
-    const jsonData = {
-        name: name,
-        symbol: symbol,
-        description: "Just a test for how to name your token, again and again ;)",
-        image: imageurl
-    }
-    try {
-        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/create-json', jsonData);
-        console.log("json URI uploaded")
-
-        if (response.data.success) {
-            return response.data.url;
-        } else {
-            console.error('Error uploading JSON:', response.data.message);
-            return 'Error uploading JSON';
-        }
-    } catch (error) {
-        console.error('Error creando JSON:', error);
-        return 'Error creating JSON';
-    }
-  };
-
-
-
-const saveImageToServer = async (imageFile) => {
-    try {
-        const formData = new FormData();
-        formData.append('image', imageFile);
-
-        // Enviar la solicitud POST al servidor
-        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-
-        // Verificar si la respuesta contiene el nombre de la imagen
-        if (response && response.data && response.data.imageUrl) {
-            const imageUrl = response.data.imageUrl;
-            console.log('Image uploaded successfully. Image name:', imageUrl);
-            // Aquí puedes hacer lo que necesites con el nombre de la imagen, como mostrarlo en el frontend o usarlo para otras operaciones
-            return imageUrl; // Devolver el nombre de la imagen
-        } else {
-            console.error('Error: Image name not received from the server.');
-            return null; // Devolver null si no se recibió el nombre de la imagen
-        }
-    } catch (error) {
-        console.error('Error uploading image:', error);
-        return null; // Devolver null en caso de error
-
-    }
-};
-
-const findContract = (networkName) => {
-    // Busca el contrato correspondiente en el archivo JSON
-    const contract = networksData.networks.find(contract => contract.name === networkName);
-    // Si se encuentra el contrato, devuelve la fábrica asociada, de lo contrario, devuelve null o un valor predeterminado
-    return contract ? contract.factory : null;
-};
-
-const findInterFee = (networkName) => {
-    // Busca el contrato correspondiente en el archivo JSON
-    const internal_fee = networksData.networks.find(internal_fee => internal_fee.name === networkName);
-    // Si se encuentra el contrato, devuelve la fábrica asociada, de lo contrario, devuelve null o un valor predeterminado
-    return internal_fee ? internal_fee.fee : null;
-}
-
-
 export const TransactionProvider = ({ children }) => {
-    const [tonAddress, setTonAddress] = useState('');
     const [currentAccount, setCurrentAccount] = useState ('');
+    const [ TONAddress, setTONAddress] = useState ('');
+    const [ SOLAddress, setSOLAddress] = useState ('');
+    const [ EVMAddress, setEVMAddress] = useState ('');
     const [currentMemeImage, setCurrentMemeImage] = useState ('');
-    const [currentMemeContract, setcurrentMemeContract] = useState ('')
-    const [program, setProgram] = useState(null);;
+    const [ imageFile, setImageFile] = useState ('');
+    const [factoryContract, setFactoryContract] = useState ('');
+    const [poolFactoryContract, setpoolFactoryContract] = useState('');
+    const [interactFactoryContract, setinteractFactoryContract] = useState('');
+    const [currentMemeContract, setcurrentMemeContract] = useState ('');
+    const [feeIntContract, setfeeIntContract] = useState ("");
+    const [walletext, setWalletext] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [FormData, setFormData] = useState({addressTo: '', amount: '', message: ''});
-    const [walletAddress, setWalletAddress] = useState(null);
-    const [provider, setProviderState] = useState(null);
-    const [TxHash , setTxHash] = useState ('');
-    const [tonweb, setTonweb] = useState(null);
-    const { chains, error: switchError, switchChain } = useSwitchChain();
-    const { data: writeData, writeContract } = useWriteContract();
-
-
+    const [providereth, setProviderState] = useState(null);
+    const [TxHash, setTxHash] = useState ('');
+    const [TxHashBase, setTxHashBase] = useState ('');
+    const { switchChain } = useSwitchChain();
+    const { writeContract } = useWriteContract();
     const [Network, setNetwork] = useState(() => {
         return localStorage.getItem('network') || 'Base Sepolia';
       });
-    
+
+    //disconnect wagmi
     const { disconnect } = useDisconnect();
-    const [walletext, setWalletext] = useState("");
+    const disconnectWagmi = disconnect;
 
       //capturamos la direccion de la wallet
-      const TONuserFriendlyAddress = useTonAddress();
 
       //discoonect wallet TON
       const [tonConnectUI] = useTonConnectUI();
-
-      //const tonConnectUIcontract = new TonConnectUI();
-
-      // Guardar en localStorage cada vez que Network cambie
-
     
-    //lo mas dificil de entender!!!!
-
     const timeout = setTimeout(() => {
         setIsLoading(false);
       }, 80000); // 1 minuto de tiempo máximo
@@ -182,17 +60,16 @@ export const TransactionProvider = ({ children }) => {
         setFormData((prevState) => ({...prevState, [name]: e.target.value}));
     }
 
-    const getEthereumContract = async (contractAddress_meme_factory) => {
+    const getEthereumContract = async (contractAddress_meme_factory, contractABI) => {
         //const provider = sdk.makeWeb3Provider();
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        console.log("llegamos aqui signers")
-        const transactionsContract = new ethers.Contract(contractAddress_meme_factory, contractABI_MEME_FACTORY, signer);
-        console.log(transactionsContract," 2  llegamos aqui signers")
-
+        const signer = await providereth.getSigner();
+        const transactionsContract = new ethers.Contract(contractAddress_meme_factory, contractABI, signer);
+        
         return transactionsContract;
     }
     
+
+
     const checkIfWalletIsConnected = async () => {
         try{
             if (!ethereum) return console.log("please install metamask");            
@@ -207,8 +84,7 @@ export const TransactionProvider = ({ children }) => {
             console.log("acc", accounts[0]);
             console.log("balance de cuenta")
             //esto da el balance
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const balance = await provider.getBalance(accounts[0]);
+            const balance = await providereth.getBalance(accounts[0]);
         
             console.log("balance de cuenta", balance);
 
@@ -219,615 +95,99 @@ export const TransactionProvider = ({ children }) => {
         }
         
     };
-    const { connectors, connect, error, status } = useConnect()
-    const account = useAccount()
 
+    const { connectors, connect } = useConnect()
+
+    //obteniendo datos del wagmi a partir del hash para el contrato
+  const { data: BaseDataHash } = useTransactionReceipt ({
+        hash: TxHashBase,
+    })  
+
+    
     const connectSmartWallet = async () => {
-        try {
+
+   try {
+          disconnectWagmi();
           // Initialize Coinbase Wallet SDK
-          console.log("conectors", connectors)
           const coinbaseConnector = connectors.find(
             (connector) => connector.name === 'Coinbase Wallet'
           )
           if (coinbaseConnector) {
-          connect({ connector: coinbaseConnector });
-          const base_account = account.addresses[0];
-          setCurrentAccount(base_account);
-          setWalletext("Base Wallet");
-          changeNetwork(Network);
-        }
+          connect({ connector: coinbaseConnector },
+            {onSuccess: async (data) => {
+                const base_account = data.accounts[0];
+                setCurrentAccount(base_account);
+                setEVMAddress(base_account);
+                console.log(base_account,"actual acc")
+                const wallet ="Base Wallet" ;
+                setWalletext(wallet);
+                console.log("wallet ext en connect", wallet)
+            }
+        });
+        };
+        changeNetwork(Network);
         } catch (error) {
           console.error("Error connecting to Coinbase Wallet:", error);
         }
       };
 
-    const connectTON = (address) => {
-        setTonAddress(address);
-        // Lógica adicional para conectar TON si es necesario
-    };
-
-
-    const connectWallet = async () => {
-        try {
-          if (!window.ethereum) {
-            if (isMobile()) {
-              // Redirige a la aplicación MetaMask en móviles
-              window.location.href = 'https://metamask.app.link/dapp/goldengcoin.github.io';
-            } else {
-              alert("Please install MetaMask");
-            }
-            return;
-          }
-    
-          // Solicita acceso a las cuentas del usuario
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          const provider = new ethers.BrowserProvider(window.ethereum); 
-          setCurrentAccount(accounts[0]);
-          setProviderState(provider);
-          //dedsconectando de las otras wallets
-          setWalletext("metamask");
-          await tonConnectUI.disconnect();
-          disconnect();
-
-          // Cambia a la red actual
-          await changeNetwork(Network);
-
-        } catch (error) {
-          console.error("No ethereum object or user denied request:", error);
-        }
-      };
-        const changeNetSol = async () => {
-            connectPhantom();
-            setNetwork("Solana");
-            console.log("network in changenet ",Network)
-
-        };
-     
-        const getProvider = async () => {
-            if ("solana" in window) {
-                const provider = window.solana;
-                if (provider.isPhantom) {
-                    if (!provider.isConnected) {
-                        await provider.connect();
-                    }
-                    return provider;
-                } else {
-                    // Si la billetera Phantom no está conectada, pero existe en la ventana, no es necesario abrir la ventana de redirección.
-                    return null;
-                }
-            } else {
-                // Si la billetera Phantom no está instalada, abre la ventana de redirección.
-                window.open('https://phantom.app/', '_blank');
-                return null;
-            }
-        };
-        
-        const initialize = async (provider) => {
-            try {
-              if (provider) {
-                setWalletAddress(provider.publicKey.toString());
-          
-                const anchorProvider = new AnchorProvider(connection, provider, {
-                  preflightCommitment: 'confirmed',
-                });
-                setProvider(anchorProvider);
-                //setProviderState(anchorProvider);
-          
-                // Crear una instancia del programa
-                const programId = new PublicKey("GePjK51tHX7aCAucmxyh4mXjrogrkimuStK18AnJxAGw");
-                const anchorProgram = new Program(IDL, programId);
-                setProgram(anchorProgram);
-              }
-            } catch (error) {
-              console.error('Error initializing program:', error);
-            }
-          };
-
-          const connectPhantom = async () => {
-//          const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
-            const connection = new Connection('https://nd-378-937-112.p2pify.com/8236fbdbf2853b515d9dde5a1ef18542', 'confirmed');
-            
-            const provider = await getProvider();
-            if (provider) {
-              try {
-                initialize(provider);
-                
-                const publicKey = provider.publicKey;
-                const solaccount = publicKey.toString();
-                console.log('Conectado a la wallet:', solaccount);
-          
-                //const balance = await connection.getBalance(publicKey);
-                //console.log('Saldo de la cuenta:', balance);
-                setCurrentAccount(solaccount);
-                disconnect();
-                console.log("Disconnected");
-                await tonConnectUI.disconnect();
-
-                return { connection, publicKey };
-              } catch (err) {
-                console.error('Error conectando la wallet:', err);
-                return null;
-              }
-            } else {
-              console.log('Phantom Wallet no está instalada');
-              return null;
-            }
-          };
-
-    // funcion para el contrato de solana tokenfactory
-
-    const SolCreateToken = async (tokenName, Symbol, amount, file) => {
-        if (!program) {
-            console.error('Program is not initialized');
-            return;
-          }
-
-    //asignamos el nonce para el token decimales la cantidad a mintear para la wallet y el treasury ademas de un fee
-
-        const nonce = new BN(Date.now()); // Usa BN de anchor
-        const decimals = 6;
-        const amountInMinUnit = new BN(amount).mul(new BN(10).pow(new BN(decimals)));
-        const amountInMinUnit_Treasure = new BN(amount*0.01).mul(new BN(10).pow(new BN(decimals)));
-        //const tokenUri = "https://raw.githubusercontent.com/goldengcoin/metadata/main/data.json";
-        const Feelamports = (0.001 * LAMPORTS_PER_SOL);
-
-        //PDA from token 
-        const [mintPDA, mintBump] = PublicKey.findProgramAddressSync(
-          [
-            Buffer.from('token-2022-token'),
-            (window.solana.publicKey).toBuffer(),
-            Buffer.from(tokenName),
-            nonce.toArrayLike(Buffer, 'le', 8),
-          ],
-          program.programId
-        );
-
-    // PDA de la cuenta del token
-
-        const [tokenAccountPDA, tokenAccountBump] = PublicKey.findProgramAddressSync(
-          [
-            Buffer.from('token-2022-token-account'),
-            window.solana.publicKey.toBuffer(),
-            mintPDA.toBuffer(),
-          ],
-          program.programId
-        );
-    
-        try {
-            // Create token instruction 
-            const createTokenInstruction = await program.methods.createToken(tokenName, nonce)
-                .accounts({
-                signer: window.solana.publicKey,
-                mint: mintPDA,
-                systemProgram: web3.SystemProgram.programId,
-                tokenProgram: TOKEN_PROGRAM_ID,
-                })
-                .instruction();
-            // create token account instruction
-            const createTokenAccountInstruction = await program.methods.createTokenAccount()
-            .accounts({
-                signer: window.solana.publicKey,
-                mint: mintPDA,
-                tokenAccount: tokenAccountPDA,
-                systemProgram: web3.SystemProgram.programId,
-                tokenProgram: TOKEN_PROGRAM_ID,
-            })
-            .instruction();
-            
-            //getting metadata PDA
-    
-            const [metadataPDA] = PublicKey.findProgramAddressSync(
-                [
-                    Buffer.from("metadata"),
-                    PROGRAM_ID.toBuffer(),
-                    mintPDA.toBuffer(),
-                ],
-                PROGRAM_ID
-            );
-
-            // getting associated token account address from treasury wallet
-
-            const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
-            [
-                treasury_address.toBuffer(),
-                TOKEN_PROGRAM_ID.toBuffer(),
-                mintPDA.toBuffer(),
-            ],
-            ASSOCIATED_TOKEN_PROGRAM_ID
-            );
-
-            // instruction to mint tokens to users wallet
-            const createMintTokenInstruction = await program.methods.mintToken(amountInMinUnit)
-              .accounts({
-                  signer: window.solana.publicKey,
-                  mint: mintPDA,
-                  receiver: tokenAccountPDA,
-                  tokenProgram: TOKEN_PROGRAM_ID,
-              })
-              .instruction();
-
-            //mint tokens instruction to treasury wallet
-            const createMintTokenInstruction_2 = await program.methods.mintToken(amountInMinUnit_Treasure)
-            .accounts({
-                signer: window.solana.publicKey,
-                mint: mintPDA,
-                receiver: associatedTokenAddress,
-                tokenProgram: TOKEN_PROGRAM_ID,
-            })
-            .instruction();
-
-
-            //associated token account instruction
-            const AssociatedTokenAccounInstructions = createAssociatedTokenAccountInstruction(
-                window.solana.publicKey, // Payer
-                associatedTokenAddress, // Associated token account address
-                treasury_address, // Owner
-                mintPDA, // Mint
-                TOKEN_PROGRAM_ID,
-                ASSOCIATED_TOKEN_PROGRAM_ID
-            );
-
-            const ComissionFeeSol = SystemProgramXD.transfer({
-                fromPubkey: window.solana.publicKey,
-                toPubkey: treasury_address,
-                lamports: Feelamports,
-              });
-
-            // current blokhash
-            const { blockhash } = await connection.getRecentBlockhash();
-
-
-            //all transaction sequence
-
-            const tx = new Transaction({
-                recentBlockhash: blockhash,
-                feePayer: window.solana.publicKey,
-            }).add(createTokenInstruction, createTokenAccountInstruction, AssociatedTokenAccounInstructions ,
-                createMintTokenInstruction , createMintTokenInstruction_2, ComissionFeeSol);
-
-                const signature = await window.solana.signAndSendTransaction(tx);
-                await connection.confirmTransaction(signature);
-      
-                console.log('Token account:', mintPDA.toBase58());
-                console.log('Token account created:', tokenAccountPDA.toBase58());
-                
-                //metadata account instructions
-                //guardar metadata en el server
-                let image_meme_url;
-
-                if (file) {
-                    image_meme_url = await saveImageToServer(file); 
-                    setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
-
-                }else{
-                    image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903"; 
-                    setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
-
-                }
-
-                const tokenUri = await handleCreateJson(tokenName, Symbol, image_meme_url);
-                
-                const metadataAccountInstruction = createCreateMetadataAccountV3Instruction(
-                    {
-                        metadata: metadataPDA,
-                        mint: mintPDA,
-                        mintAuthority: window.solana.publicKey,
-                        payer: window.solana.publicKey,
-                        updateAuthority: window.solana.publicKey,
-                    },
-                    {
-                        createMetadataAccountArgsV3: {
-                            data: {
-                                name: tokenName,
-                                symbol: Symbol,
-                                uri: tokenUri,
-                                creators: null,
-                                sellerFeeBasisPoints: 0,
-                                collection: null,
-                                uses: null,
-                            },
-                            isMutable: false,
-                            collectionDetails: null,
-
-                        },
-                    }
-                );
-            //renunciando al contrato
-            
-            const renounceAuthorityInstruction  = createSetAuthorityInstruction(
-                mintPDA,
-                window.solana.publicKey,
-                AuthorityType.MintTokens,
-                null,
-            );
-                
-            const tx_1 = new Transaction({
-                recentBlockhash: blockhash,
-                feePayer: window.solana.publicKey,
-            }).add( metadataAccountInstruction, renounceAuthorityInstruction );
-                
-          // Envía la transacción
-          const signature_1 = await window.solana.signAndSendTransaction(tx_1);
-          const txhash = await connection.confirmTransaction(signature_1);
-          console.log('txhash', txhash);
-
-          setTxHash(txhash);
-
-          console.log('Metadata created');
-
-
-          return mintPDA.toString();
-        
-
-        } catch (error) {
-          console.error('Failed to create token or token account:', error);
-          throw error;
-        }
-
-      };
-
-      
-    const SolTokenFactory = async (tokenName, amount) => {
-        if (!program) {
-            console.error('Program is not initialized');
-            return;
-          }
-
-    //asignamos el nonce para el token decimales la cantidad a mintear para la wallet y el treasury ademas de un fee
-
-        const nonce = new BN(Date.now()); // Usa BN de anchor
-        const decimals = 6;
-        const amountInMinUnit = new BN(amount).mul(new BN(10).pow(new BN(decimals)));
-        const amountInMinUnit_Treasure = new BN(amount*0.01).mul(new BN(10).pow(new BN(decimals)));
-        //const tokenUri = "https://raw.githubusercontent.com/goldengcoin/metadata/main/data.json";
-        const Feelamports = (0.01 * LAMPORTS_PER_SOL);
-
-        //PDA from token 
-        const [mintPDA, mintBump] = PublicKey.findProgramAddressSync(
-          [
-            Buffer.from('token-2022-token'),
-            (window.solana.publicKey).toBuffer(),
-            Buffer.from(tokenName),
-            nonce.toArrayLike(Buffer, 'le', 8),
-          ],
-          program.programId
-        );
-
-    // PDA de la cuenta del token
-
-        const [tokenAccountPDA, tokenAccountBump] = PublicKey.findProgramAddressSync(
-          [
-            Buffer.from('token-2022-token-account'),
-            window.solana.publicKey.toBuffer(),
-            mintPDA.toBuffer(),
-          ],
-          program.programId
-        );
-    
-        try {
-            // Create token instruction 
-            const createTokenInstruction = await program.methods.createToken(tokenName, nonce)
-                .accounts({
-                signer: window.solana.publicKey,
-                mint: mintPDA,
-                systemProgram: web3.SystemProgram.programId,
-                tokenProgram: TOKEN_PROGRAM_ID,
-                })
-                .instruction();
-            // create token account instruction
-            const createTokenAccountInstruction = await program.methods.createTokenAccount()
-            .accounts({
-                signer: window.solana.publicKey,
-                mint: mintPDA,
-                tokenAccount: tokenAccountPDA,
-                systemProgram: web3.SystemProgram.programId,
-                tokenProgram: TOKEN_PROGRAM_ID,
-            })
-            .instruction();
-
-            // getting associated token account address from treasury wallet
-
-            const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
-            [
-                treasury_address.toBuffer(),
-                TOKEN_PROGRAM_ID.toBuffer(),
-                mintPDA.toBuffer(),
-            ],
-            ASSOCIATED_TOKEN_PROGRAM_ID
-            );
-
-            // instruction to mint tokens to users wallet
-            const createMintTokenInstruction = await program.methods.mintToken(amountInMinUnit)
-              .accounts({
-                  signer: window.solana.publicKey,
-                  mint: mintPDA,
-                  receiver: tokenAccountPDA,
-                  tokenProgram: TOKEN_PROGRAM_ID,
-              })
-              .instruction();
-
-            //mint tokens instruction to treasury wallet
-            const createMintTokenInstruction_2 = await program.methods.mintToken(amountInMinUnit_Treasure)
-            .accounts({
-                signer: window.solana.publicKey,
-                mint: mintPDA,
-                receiver: associatedTokenAddress,
-                tokenProgram: TOKEN_PROGRAM_ID,
-            })
-            .instruction();
-
-
-            //associated token account instruction
-            const AssociatedTokenAccounInstructions = createAssociatedTokenAccountInstruction(
-                window.solana.publicKey, // Payer
-                associatedTokenAddress, // Associated token account address
-                treasury_address, // Owner
-                mintPDA, // Mint
-                TOKEN_PROGRAM_ID,
-                ASSOCIATED_TOKEN_PROGRAM_ID
-            );
-
-            const ComissionFeeSol = SystemProgramXD.transfer({
-                fromPubkey: window.solana.publicKey,
-                toPubkey: treasury_address,
-                lamports: Feelamports,
-              });
-
-            // current blokhash
-            const { blockhash } = await connection.getRecentBlockhash();
-
-
-            //all transaction sequence
-
-            const tx = new Transaction({
-                recentBlockhash: blockhash,
-                feePayer: window.solana.publicKey,
-            }).add(createTokenInstruction, createTokenAccountInstruction, AssociatedTokenAccounInstructions ,
-                createMintTokenInstruction , createMintTokenInstruction_2, ComissionFeeSol);
-
-                const signature = await window.solana.signAndSendTransaction(tx);
-                await connection.confirmTransaction(signature);
-      
-                console.log('Token account:', mintPDA.toBase58());
-                console.log('Token account created:', tokenAccountPDA.toBase58());
-            
-                return mintPDA;
-        } catch (error) {
-            console.error('Failed to create token or token account:', error);
-            throw error;
-        }
-    }
-
-
-      const SetMetadataRenounceOwner = async (mintPDA, tokenName, Symbol, file) => { 
-
-            let image_meme_url;
-
-            if (file) {
-                image_meme_url = await saveImageToServer(file); 
-                setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
-
-            }else{
-                image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903"; 
-                setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
-
-            }
-
-            //getting metadata PDA
-
-            const [metadataPDA] = PublicKey.findProgramAddressSync(
-                [
-                    Buffer.from("metadata"),
-                    PROGRAM_ID.toBuffer(),
-                    mintPDA.toBuffer(),
-                ],
-                PROGRAM_ID
-            );
-
-            const tokenUri = await handleCreateJson(tokenName, Symbol, image_meme_url);
-            
-            const metadataAccountInstruction = createCreateMetadataAccountV3Instruction(
-                {
-                    metadata: metadataPDA,
-                    mint: mintPDA,
-                    mintAuthority: window.solana.publicKey,
-                    payer: window.solana.publicKey,
-                    updateAuthority: window.solana.publicKey,
-                },
-                {
-                    createMetadataAccountArgsV3: {
-                        data: {
-                            name: tokenName,
-                            symbol: Symbol,
-                            uri: tokenUri,
-                            creators: null,
-                            sellerFeeBasisPoints: 0,
-                            collection: null,
-                            uses: null,
-                        },
-                        isMutable: false,
-                        collectionDetails: null,
-
-                    },
-                }
-            );
-        //renunciando al contrato
-        
-        const renounceAuthorityInstruction  = createSetAuthorityInstruction(
-            mintPDA,
-            window.solana.publicKey,
-            AuthorityType.MintTokens,
-            null,
-        );
-
-        const { blockhash } = await connection.getRecentBlockhash();
-
-        const tx_1 = new Transaction({
-            recentBlockhash: blockhash,
-            feePayer: window.solana.publicKey,
-        }).add( metadataAccountInstruction, renounceAuthorityInstruction );
-            
-    // Envía la transacción
-    const signature_1 = await window.solana.signAndSendTransaction(tx_1);
-    const txhash = await connection.confirmTransaction(signature_1);
-    console.log('txhash', txhash);
-    console.log('Metadata created');
-    return txhash
-
-
-}
-
-      async function updateTransactionFee() {
-
-        const connection = new web3.Connection(web3.clusterApiUrl('devnet'), 'confirmed');
-        const payer = web3.Keypair.generate(); // Su wallet
-        const mintPublicKey = new web3.PublicKey('J34SovzkfTtXEN8JBoBomMcduED6tM3TMsFZ97VDGnm'); // PublicKey del token
-        const feeRecipient = new web3.PublicKey('F2AUZRvqB8G5XwveWpyYycAqL3BkGbw7FkjXAVvJUxkQ'); // PublicKey de la cuenta que recibirá las tarifas
-        const TOKEN_PROGRAM_ID = new web3.PublicKey("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
-        const feeRate = 10000; //1%
-        const maxFee = BigInt(10000000);  // Tarifa máxima permitida
-
-        // Configurar la nueva tarifa
-        const transaction = new Transaction().add(
-            createInitializeTransferFeeConfigInstruction(
-            mintPublicKey,
-            null,
-            null,
-            feeRate,
-            feeRate,
-            TOKEN_PROGRAM_ID
-            )
-        );
-     // Firmar y enviar la transacción
-            try {
-                const signature = await web3.sendAndConfirmTransaction(connection, transaction, [payer]);
-                console.log(`Tarifa de transacción configurada. Transacción: ${signature}`);
-            } catch (error) {
-                console.error(`Error al configurar la tarifa de transacción: ${error}`);
-            }
-        };
-
-
-
     //cambiar red//
     const changeNetwork = async (network) => {
+
+    if (network === "TON"){
+        setNetwork("TON")
+        if (!TONAddress) {
+            setCurrentAccount(null)
+        }
+        else {setCurrentAccount(TONAddress)};
+        console.log("network: ",Network)
+
+    }else if(network==="Solana"){
+        setNetwork("Solana")
+        if (!SOLAddress) {
+            setCurrentAccount(null)
+        }
+        else {setCurrentAccount(SOLAddress)};
+        console.log("network: ",Network)
+    
+    }else{
+        if (EVMAddress) {
+            setCurrentAccount(EVMAddress)
+        }
+
         try {
-            
             const networkData = networksData.networks.find(net => net.name === network);
             if (!networkData) {
                 throw new Error(`No se encontró información para la red ${network}.`);
             }
     
-            const { chainId, rpcUrl, symbol, explorerUrl } = networkData;
+            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, factory, fee } = networkData;
+
+            setFactoryContract(factory);
+            setfeeIntContract(fee);
+            setpoolFactoryContract(poolFactory);
+            setinteractFactoryContract(poolInteract);
+
             //base switch network
-            switchChain({chainId:  chainId })
+                try{
+                    switchChain({chainId:  chainId },
+                        {onError: async (error) => {
+                            disconnectWagmi();
+                            setEVMAddress(null);
+                        }})
+                    }
+                catch(error) 
+                    {console.log("error switch chain",error)}
+                
 
             if (window.ethereum) {
+
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
                         params: [{ chainId: `0x${chainId.toString(16)}` }],
                     });
+
                     console.log(`Red cambiada a ${network}.`);
                     setNetwork(network); // Solo actualizar la red si el cambio se realizó con éxito
                     const accounts = await ethereum.request({ method: 'eth_accounts' });
@@ -853,7 +213,7 @@ export const TransactionProvider = ({ children }) => {
                             console.log(`Red ${network} añadida y cambiada.`);
                             setNetwork(network); // Actualizar la red si se agregó correctamente
                             const accounts = await ethereum.request({ method: 'eth_accounts' });
-                            setCurrentAccount(accounts[0])
+                            setEVMAddress(accounts[0])
                             console.log("red actual ",network)
                         } catch (addError) {
                             console.error('Error al añadir la red:', addError);
@@ -871,27 +231,19 @@ export const TransactionProvider = ({ children }) => {
             console.error('Error al cambiar de red:', error);
             // Aquí podrías mostrar un mensaje de error al usuario
         }
-    };
+    }};
     
     const disconnectWallet = async () => {
-        disconnect();
+        disconnectWagmi();
         setCurrentAccount(null);
         console.log("Disconnected");
-        await tonConnectUI.disconnect();
-
+        try{
+            await tonConnectUI.disconnect();
+        }catch (error) {
+            throw new Error("wallet already disconnected")
+        }
     }
 
-    const sendTransaction = async () => {
-        try{
-            connectWallet();
-            if (!ethereum) return alert("Please install metamask");
-       
-        }   catch (error) {
-            console.log(error);
-
-            throw new Error("No ethereum object.")
-        }
-    };
 
     //boton 2 para creacion de meme, a partir de aqui es mi codigo
 
@@ -903,16 +255,6 @@ export const TransactionProvider = ({ children }) => {
     const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
     const handleChange_3 = (e3, name_3) => {
         setFormData_3((prevState) => ({ ...prevState, [name_3]: e3.target.value }));
-    }
-
-    const [FormData_4, setFormData_4] = useState({ paramater: ''});
-    const handleChange_4 = (e4, name_4) => {
-        setFormData_4((prevState) => ({ ...prevState, [name_4]: e4.target.value }));
-    }
-
-    const [FormData_5, setFormData_5] = useState({ contract: '', ewithdraw: '', notify: '', ureward: '', uboost: '', poolcontract: '', poolstate:''});
-    const handleChange_5 = (e5, name_5) => {
-        setFormData_5((prevState) => ({ ...prevState, [name_5]: e5.target.value }));
     }
 
     //funcion para cambiar el input de pools usando los botones de %
@@ -931,208 +273,55 @@ export const TransactionProvider = ({ children }) => {
         }
     };
     
-    
-      
-    const sendTransaction_2 = async (file) => {
-        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
-        setIsLoading(true);
-        console.log(Network, "network")
 
-
-
-        if (Network==="TON") {
-            const dataTON = {
-                name: String(MemeName),
-                symbol: String(Symbol),
-                decimals: String(9),
-                mintAmount: (Supply*1.01),
-                description: String(description),
-                tokenImage: String("https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903")
-              };
-            //desplegamos el token 
-            const result = await deployContract(TONuserFriendlyAddress, tonConnectUI, dataTON);
-            console.log("friendly address contract", result.contractAddr.toFriendly())
-            setcurrentMemeContract(result.contractAddr.toFriendly())
-            //subimos la imagen al server
-            const image_meme_url = await saveImageToServer(file); 
-            
-            const dataTON_2 = {
-                name: String(MemeName),
-                symbol: String(Symbol),
-                decimals: String(9),
-                description: String(description),
-                image: String(image_meme_url)
-              };
-
-            const ton_tx_hash = await DetailsToken(TONuserFriendlyAddress,
-                 tonConnectUI, 
-                 result.contractAddr, 
-                 dataTON_2, 
-                 TONuserFriendlyAddress, 
-                 (Supply*0.01),
-                 result.ownerJWalletAddr 
-                );
-            setCurrentMemeImage(image_meme_url)
-            setTxHash(ton_tx_hash);
-            setIsLoading(false);
-
-        }
-        else if (walletext==="Base Wallet") {
-            let Fee_tx = Fee !== undefined ? Fee : 0;
-            const recipient = currentAccount;
-            const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
-            const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
-            writeContract({
-                abi: contractABI_MEME_FACTORY,
-                address: contractAddress_meme_factory,
-                functionName: 'createMeme',
-                args: [MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed],
-              })
-        }
-
-        else if (Network==="Solana") {
-            //asignacion de fees
-            //updateTransactionFee();
-            try{
-                //const contract_meme = await SolCreateToken(MemeName, Symbol, Supply, file);
-                const contract_meme = await SolTokenFactory(MemeName, Supply);
-                if (contract_meme) {
-                    console.log("contract meme ",contract_meme);
-                    const tx_hash = await SetMetadataRenounceOwner(contract_meme, MemeName, Symbol, file)
-                    setTxHash(tx_hash);
-                    await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, currentAccount, Website, Twitter, Discord, Telegram, Fee, description)
-                    clearTimeout(timeout);
-                    setIsLoading(false);
-                    setcurrentMemeContract(contract_meme.toBase58());
-                }
-            //console.log("token created");  
-            }   catch (error) {
-                clearTimeout(timeout);
-                setIsLoading(false);
-                console.log(error);
-
-                throw new Error("No ethereum object.")
-            };
-        } 
-        else {
-            
-            try{
-                if (!ethereum) return alert("Please install metamask");
-                //fee tx fixed contract
-                let Fee_tx = Fee !== undefined ? Fee : 0;
-                const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
-                const account = await ethereum.request({ method: 'eth_accounts' });
-                const recipient = account[0];
-                const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
-                const contractAddress_meme_factory_2 = findContract(Network);
-                //para el contrato con comisiones
-                //const internal_Fee = parseFloat(findInterFee(Network))
-                //const commissionAmount = ethers.parseEther(internal_Fee.toString());
-                // Convertir 0.001 ether a wei
-                const transactionsContract_2 = await getEthereumContract(contractAddress_meme_factory_2)
-                //const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory_2, contractABI_MEME_FACTORY, signer);
-                console.log ("previo a la interaccion con el contrato")
-                setIsLoading(true);
-                    const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed);
-                    //con comision en moneda on chain
-                    //const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed, {value: commissionAmount});
-                    console.log(`Loading - ${transactionHash.hash}`);
-                    //await transactionHash.wait();
-                    if (file) {
-                        console.log("Uploadingg", file.name);
-                        const image_meme_url = await saveImageToServer(file); 
-                        console.log("Uploaded", file.name);
-                        const txHashChain = await transactionHash.wait();
-                        setTxHash(txHashChain);
-                        const contract_meme = txHashChain.logs[0].address;
-                        console.log("contract meme ",contract_meme);
-                        await Add_Meme(MemeName, Symbol, Supply, contract_meme, image_meme_url, recipient, Website, Twitter, Discord, Telegram, Fee, description)
-                        clearTimeout(timeout);
-                        setIsLoading(false);
-                        setCurrentMemeImage(image_meme_url);// guarda el URL del meme contract_meme
-                        setcurrentMemeContract(contract_meme);
-                        // Guardar la imagen en el servidor
-                        //setFile(null); // Limpiar el archivo después de enviar la transacción
-                        //setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
-                    } else {
-                        const image_meme_url = null; 
-                        const txHashChain = await transactionHash.wait();
-                        setTxHash(txHashChain);
-                        const contract_meme = txHashChain.logs[0].address;
-                        console.log("contract meme ",contract_meme);
-                        await Add_Meme(MemeName, Symbol, Supply, contract_meme, image_meme_url, recipient, Website, Twitter, Discord, Telegram, Fee, description)
-                        clearTimeout(timeout);
-                        setIsLoading(false);
-                        setCurrentMemeImage(image_meme_url) // Devuelve contract_meme
-                        setcurrentMemeContract(contract_meme)
-                    }            
-                //console.log(`Success - ${transactionHash.hash}`);
-
-            }   catch (error) {
-                clearTimeout(timeout);
-                setIsLoading(false);
-                console.log(error);
-
-                throw new Error("No ethereum object.")
-            }
-        }
-    }
-
-    const sendTransaction_3 = async (stake_contract, token_stake_contract) => {
-        if (Network != "Base Sepolia") {
-            await changeNetwork("Base Sepolia");
-        }
-        console.log ("previo a stake transaction ")
-        const { stake } = FormData_3;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        console.log ("stake contract XDDDD ", stake_contract)
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
-        console.log ("previo a la interaccion con el contrato stake");
-        //ponemos los datos del token que queremos que controle el contrato de staking
-        const erc20Contract = new ethers.Contract(token_stake_contract, contractABI_MEME, signer); //contrato del token GTA
-        const stake_amount = ethers.parseEther(stake)
-        console.log ("llamada al contrato del token");
-        console.log(stake_amount)
-        //permiso para que el contrato X pida a la wallet el uso de cierto token
-
-        const transaction = await erc20Contract.approve(stake_contract, stake_amount);
-        await transaction.wait(); // Esperar a que se complete la transacción
-        console.log (`Se aprobaron ${stake} tokens para el contrato ${stake_contract}`);
-
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.stake(stake_amount)
+       // Llamando a la función para probarla
         
-    }
-
-
-    const sendTransaction_3_Unstake = async (stake_contract) => {
-        try {
-            console.log("Previo a stake transaction");
-    
-            const { stake } = FormData_3;
-            const provider = new ethers.BrowserProvider(window.ethereum);
-            const signer = await provider.getSigner();
-    
-            // Ponemos los datos del contrato de staking
-            const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
-            const stake_amount = ethers.parseEther(stake);
-    
-            // Interacción con el contrato de staking
-            const transactionHash = await transactionsContract_3.unstake(stake_amount);
-    
-            console.log("Transacción exitosa:", transactionHash);
-        } catch (error) {
-            console.error("Error en la transacción de unstake:", error);
+    const meme_adding = async(currentMemeContract) => {
+        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
+        let image_meme_url
+        if (imageFile) {
+            image_meme_url = await saveImageToServer(imageFile);
+        } else {
+            image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903";
         }
-    };
+        setCurrentMemeImage(image_meme_url);
+        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Telegram, Fee, description);
+    }
+    
+    const sendTransactionBase = async (file) => {
+        const { MemeName, Symbol, Supply, Fee } = FormData_2;
+        let Fee_tx = Fee !== undefined ? Fee : 0;
+        const recipient = currentAccount;
+        setImageFile(file);
+        const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
+        const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
+        //const contractAddress_meme_factory = findContract(Network);
+        setIsLoading(true);
+        writeContract({
+            abi: contractABI_MEME_FACTORY,
+            address: factoryContract,
+            functionName: 'createMeme',
+            args: [MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed],
+          },
+          {onSuccess: async (data) => {
+            console.log("Transacción enviada con éxito:", data);
+                setTxHashBase(data);
+                setTxHash(data)
+                setIsLoading(false)
+        },
+        
+        onError: (err) => {
+            console.error("Error al mintear:", err);
+            setIsLoading(false)
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+        },
+    })
+
+    }
     
 
     const Claim_Rewards = async (stake_contract) => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const tokenContract = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
+        const tokenContract = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
         console.log("PREVIO A CLAIM REWARDS")
         const claim_rewards = await tokenContract.claim();
         const rewards = ethers.formatEther(claim_rewards.toString());
@@ -1142,65 +331,14 @@ export const TransactionProvider = ({ children }) => {
     }
 
     const Points_Earned = async (stake_contract) => {
-        const { unstake } = FormData_3;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
         //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(stake_contract, contractABI_STAKING_REWARDS, signer);
+        const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
         //interaccion con el contrato de staking
         const PointsEarned = await transactionsContract_3.earned(currentAccount)
         console.log(PointsEarned, "earned!!!!!!!!!!!!!!!!")
         return PointsEarned
     }
 
-
-    const sendTransaction_3_test = async () => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contractAdrress_golden_exp, contractABI_GOLDEN_EXP, signer);
-        console.log ("previo a la interaccion con el contrato stake");
-
-        //const unstake_amount = ethers.parseEther(unstake)
-        console.log ("llamada al contrato del token");
-
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.setMinter(["0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b", "0x7dA9De9c0009a94F817Ca85B7c248f335a718D59"], [true, true]);
-
-        console.log(transactionHash, "earned")
-    }
-
-
-    const sendTransaction_4 = async () => {
-        const { parameter } = FormData_4;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract("0x435vb34", contractABI_STAKING_REWARDS, signer);
-        console.log ("previo a la interaccion con el contrato stake");
-
-        const transactionHash = await transactionsContract_3.updateRewardDuration(parameter)
-    }
-
-    const Get_Token_Balance = async(contract_meme) => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const tokenContract = new ethers.Contract(contract_meme, contractABI_MEME, signer);
-        const balance = await tokenContract.balanceOf(currentAccount);
-        console.log("balance token", balance)
-        return ethers.formatEther(balance.toString());
-    }
-    
-    const Get_Balance_Staked = async(contract_staking) => {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const tokenContract = new ethers.Contract(contract_staking, contractABI_STAKING_REWARDS, signer);
-        const balance = await tokenContract.balanceOf(currentAccount);
-        console.log("balance token Staked", balance)
-        return ethers.formatEther(balance.toString());
-    }
-
-    
 
     const add_metamask = async(tokenAddress, tokenImage) => {        
         try {
@@ -1228,9 +366,13 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const MintNft = async () => {
+    const MintNft = async (firstname, lastname, country, city, province, company, address, postalCode, email) => {
+
         console.log("pasa por aqui")
         console.log(walletext,Network)
+        const amount = 1;
+        const item= 1;
+
         if (Network === "Base Sepolia") {
             if (walletext==="Base Wallet") {
             writeContract({
@@ -1239,197 +381,103 @@ export const TransactionProvider = ({ children }) => {
                 functionName: 'mintTo',
                 args: [currentAccount, "https://raw.githubusercontent.com/goldengcoin/NFT-goldeng/main/URI.json"],
                 value: ethers.parseEther('0.0001'),
-        
+            },
+            {    onSuccess: (transaction) => {
+                    console.log("Transacción enviada con éxito:");
+                    const txHash = transaction.hash;
+                    console.log("Hash de la transacción:", txHash);
+                    
+                    // Llama a Create_Delivery después de obtener el hash de la transacción
+                    Create_Delivery(firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount);
+                },
+                
+                onError: (err) => {
+                    console.error("Error al mintear:", err);
+                    // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                },
             });
-            }
+        }
             else if (walletext==="metamask") {
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                console.log("pasa por aqui")
-                const signer = await provider.getSigner();
                 const commissionAmount = ethers.parseEther(0.0001.toString());
                 //ponemos los datos del contrato de staking
-                const transactionsContract = new ethers.Contract(contractAdrress_goldengnft, contractABI_GOLDENGNFT, signer);
+                const transactionsContract = await getEthereumContract(contractAdrress_goldengnft, contractABI_GOLDENGNFT)
                 const mintNFT = await transactionsContract.mintTo(currentAccount, "https://raw.githubusercontent.com/goldengcoin/NFT-goldeng/main/URI.json", {value: commissionAmount} );
 
-        };   
-    };
-}
-
-
-    ///////////ADMIN FUNCTIONS////////////
-    
-    const EmergWithdraw = async () => {
-        const { contract, ewithdraw } = FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        const transactionHash = await transactionsContract_3.emergencyWithdraw([ewithdraw], true);
-        console.log(transactionHash, "passed")
+            };   
+        };
     }
 
-    const notifyRewards = async () => {
-        const { contract, notify } = FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        const reward_amount = ethers.parseEther(notify)
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.notifyRewardAmount(reward_amount);
-        console.log(transactionHash, "passed")
-    }
-
-    const updateRewDur = async () => {
-        const { contract, ureward } = FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.updateRewardDuration(ureward);
-        console.log(transactionHash, "passed")
-    }
-
-    const UpdateBoostContract = async () => {
-        const { contract, uboost } = FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.updateBoost(uboost);
-        console.log(transactionHash, "passed")
-    };
-    
-    const PauseContract = async () => {
-        const { contract } = FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.pause();
-    };
-
-    const UnpauseContract = async () => {
-        const { contract } = FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        //interaccion con el contrato de staking
-        const transactionHash = await transactionsContract_3.unpause();
-    };
-
-    const setExpMinter = async () => {
-        const { poolcontract, poolstate }= FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contractAdrress_golden_exp, contractABI_GOLDEN_EXP, signer);
-        //interaccion con el contrato de staking
-        console.log("exp setminter contract ", contractAdrress_golden_exp, "pool contract", poolcontract)
-        const transactionHash = await transactionsContract_3.setMinter([poolcontract], [poolstate]);
-    };
-
-    const StatusContract = async () => {
-        const { contract }= FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        //interaccion con el contrato de staking
-        const transaction_1 = await transactionsContract_3.lastTimeRewardApplicable();
-        const transaction_2 = await transactionsContract_3.rewardPerToken();
-        console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
-        return (transaction_1,transaction_2)
-    };
-
-    const CreatePool = async () => {
-        const { contract }= FormData_5;
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = new ethers.Contract(contract, contractABI_STAKING_REWARDS, signer);
-        //interaccion con el contrato de staking
-        const transaction_1 = await transactionsContract_3.lastTimeRewardApplicable();
-        const transaction_2 = await transactionsContract_3.rewardPerToken();
-        console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
-        return (transaction_1,transaction_2)
-    };
     /////////////CHAINS/////////////
 
-
-    useEffect(() => {
-    //Verificacion de si esta conectado TON
-        if (TONuserFriendlyAddress) {
-            connectTON(TONuserFriendlyAddress);
-            //const provider = new TonWeb.HttpProvider('https://testnet.toncenter.com/api/v2/jsonRPC');
-            //const tonwebInstance = new TonWeb(provider);
-            //setTonweb(tonwebInstance);
-            console.log("TON address:", TONuserFriendlyAddress);
-            setCurrentAccount(TONuserFriendlyAddress);
-            switchChain({chainId:  chainId })
-
-        }
-    }, [TONuserFriendlyAddress, connectTON]);
     //connectWallet();
     useEffect(() => {
         localStorage.setItem('network', Network);
       }, [Network]);
+    
 
+    useEffect(() => {
+        if (BaseDataHash) {
+            const contract_meme = BaseDataHash.logs[1].address;
+            setcurrentMemeContract(contract_meme);
+            console.log("meme contract",contract_meme)
+            // Aquí puedes continuar con la lógica que necesitas
+            meme_adding(contract_meme);
+        }
+    }, [BaseDataHash]);
 
+    useEffect(() => {
+        if (EVMAddress) {
+            setCurrentAccount(EVMAddress);
+        } else if (SOLAddress) {
+            setCurrentAccount(SOLAddress);
+        } else if (TONAddress) {
+            setCurrentAccount(TONAddress);
+        }
+        else{
+            //setCurrentAccount(null)
+        }
+    }, [EVMAddress, SOLAddress, TONAddress]);
+    
+    
     return (
         <TransactionContext.Provider value={{ 
-            connectWallet,
+            //connectWallet,
+            setTxHash,
             setCurrentAccount,
-            connectPhantom,
+            setTONAddress, 
+            setSOLAddress,
+            setEVMAddress,
+            setCurrentMemeImage,
+            setIsLoading, 
+            setWalletext,
+            setcurrentMemeContract,
             connectSmartWallet,
-            connectTON,
-            changeNetSol,
             currentAccount, 
-            FormData, 
             isLoading,
             TxHash,
             Network,
+            factoryContract,
+            poolFactoryContract,
+            interactFactoryContract,
+            walletext,
+            FormData, 
             FormData_2, 
             FormData_3, 
-            FormData_4, 
-            FormData_5, 
             setFormData, 
             handleChange, 
             handleChange_2, 
             handleChange_3, 
-            handleChange_4,
-            handleChange_5, 
             changeNetwork,
             disconnectWallet,
-            sendTransaction,
-            SolCreateToken,
-            sendTransaction_2, 
-            sendTransaction_3, 
-            sendTransaction_3_Unstake,
+            sendTransactionBase,
             MintNft,
-            CreatePool,
             Claim_Rewards, 
-            sendTransaction_4,
-            sendTransaction_3_test,
             add_metamask,
             currentMemeImage, 
             currentMemeContract,
-            Get_Token_Balance,
-            Get_Balance_Staked,
             change_input_staking,
             Points_Earned,
-            EmergWithdraw,
-            notifyRewards,
-            updateRewDur,
-            UpdateBoostContract,
-            PauseContract,
-            UnpauseContract,
-            setExpMinter,
-            StatusContract,
+
             }}>
 
             {children}

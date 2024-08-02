@@ -1,5 +1,7 @@
 import React, { useContext, useState } from "react";
-import { TransactionContext } from '../../context/TransactionContext';
+//import { TransactionContext } from '../../context/TransactionContext';
+import { TransactionContextETH } from '../../context/ContextETH/ContextETH';
+
 
 const Input = ({ placeholder, name_5, type, value, handleChange_5 }) => (
   <input
@@ -12,7 +14,8 @@ const Input = ({ placeholder, name_5, type, value, handleChange_5 }) => (
 );
 
 const Admin = () => {
-  const { handleChange_5, FormData_5, EmergWithdraw, notifyRewards, updateRewDur, UpdateBoostContract, PauseContract, UnpauseContract, setExpMinter, StatusContract } = useContext(TransactionContext); 
+  //const { handleChange_5, FormData_5, EmergWithdraw, notifyRewards, updateRewDur, UpdateBoostContract, PauseContract, UnpauseContract, setExpMinter, StatusContract } = useContext(TransactionContext); 
+  const { handleChange_5, FormData_5, EmergWithdraw, notifyRewards, updateRewDur, UpdateBoostContract, PauseContract, UnpauseContract, setExpMinter, StatusContract, ChangePoolTreasury } = useContext(TransactionContextETH); 
 
   const [ContractData, setContractData] = useState ('');
 
@@ -78,6 +81,15 @@ const Admin = () => {
     if( !poolcontract | !poolstate ) return;
 
     setExpMinter(); 
+  }
+
+  const setTokenFactorySettings = (e5) => {
+    const {contract, tokenPoolReciever } = FormData_5;
+    e5.preventDefault();
+
+    if( !contract| !tokenPoolReciever ) return;
+
+    ChangePoolTreasury(tokenPoolReciever); 
   }
 
   const Status_Contract = (e5) => {
@@ -189,7 +201,7 @@ const Admin = () => {
       </div>
       <div className="border-t-8 border-dashed border-[#9c9c9c] w-full"></div>
       <div className="flex flex-col items-center">
-        <div className="text-2xl p-4">Create Pool</div>
+        <div className="text-2xl p-4">Create Staking Pool</div>
           <div className="flex flex-col space-y-2 items-center ">
             <div className="mr-2">Create Pool:</div>
             <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="poolcontract" type="text" handleChange_5={handleChange_5} />
@@ -205,6 +217,20 @@ const Admin = () => {
                   <option value="false">False</option>
                 </select>
             <button className="flex flex-fil ml-2 px-4 py-2 bg-black text-white rounded" onClick={set_Exp_Minter}>
+              Update
+            </button>
+            </div>
+          </div>
+          </div>
+
+      <div className="border-t-8 border-dashed border-[#9c9c9c] w-full"></div>
+      <div className="flex flex-col items-center">
+        <div className="text-2xl p-4">Token Factory Settings</div>
+          <div className="flex flex-col space-y-2 items-center ">
+            <div className="mr-2">Change token pool reciever:</div>
+            <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="tokenPoolReciever" type="text" handleChange_5={handleChange_5} />
+              <div className="flex flex-fil px-8 py-2 border border-gray-300 rounded">
+            <button className="flex flex-fil ml-2 px-4 py-2 bg-black text-white rounded" onClick={setTokenFactorySettings}>
               Update
             </button>
             </div>

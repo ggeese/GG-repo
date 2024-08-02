@@ -1,5 +1,8 @@
 import abi from './Transactions.json';
 import abi_meme_factory from './MemeFactory.json';
+import abi_PoolFactory from './UniswapV2Factory';
+import abi_PoolInteract from './UniswapV2Router02';
+import abi_PoolPair from './UniswapV2Pair';
 import abi_meme from './MemeCoin.json';
 import abi_staking from './GoldenStaking.json';
 import abi_staking_rewards from './GoldenStakingRewards.json'
@@ -7,11 +10,15 @@ import abi_golden_exp from './GoldenExp.json';
 import GoldengNFT from './GoldengNFT';
 
 export const contractABI_MEME_FACTORY = abi_meme_factory.abi;
+export const contractABI_POOLFACTORY = abi_PoolFactory.abi;
+export const contractABI_POOLINTERACT = abi_PoolInteract.abi;
+export const contractABI_POOLPAIR = abi_PoolPair.abi;
 export const contractABI_MEME = abi_meme.abi;
 export const contractABI_STAKING = abi_staking.abi;
 export const contractABI_STAKING_REWARDS = abi_staking_rewards.abi;
 export const contractABI_GOLDEN_EXP = abi_golden_exp.abi;
 export const contractABI_GOLDENGNFT = GoldengNFT.abi;
+
 
 
 //export const contractAddress = '0xF86D8C06d6B33ef54e09902302eD8e863B46A97A' ;

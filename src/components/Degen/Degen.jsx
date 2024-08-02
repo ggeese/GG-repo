@@ -1,9 +1,10 @@
 import React from "react";
-import { Body } from './content/index';
+import { Body } from './content';
 import image_Degen from '../../../images/farmegg2.jpeg';
 
 
 const Degen = () => {
+
 
     const backgroundStyle = {
         backgroundImage: `url(${image_Degen })`,

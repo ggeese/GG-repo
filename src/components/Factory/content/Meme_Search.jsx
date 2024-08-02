@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useNavigate } from 'react-router-dom'; // Importar useHistory
 import { TransactionContext } from '../../../context/TransactionContext';
 import discordImage from "../../../../images/discordia.png";
 import telegram from "../../../../images/telegrama.png";
@@ -29,11 +30,12 @@ const LoadingBox = () => (
 );
 
 const Meme_Search = () => {
-    const { add_metamask } = useContext(TransactionContext); 
 
+    const { add_metamask } = useContext(TransactionContext); 
     const [memes, setMemes] = useState([]);
     const [search, setSearch] = useState("");
     const [scalingButtons, setScalingButtons] = useState({});
+    const Navigate = useNavigate(); // Crear una instancia de useHistory
 
     const handleKeyPress = (event) => {
         if (event.key === 'Enter') {
@@ -65,7 +67,9 @@ const Meme_Search = () => {
     };
     
     useEffect(() => {
-        Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+        //Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+        Axios.get("http://localhost:3001/db_memes", {
+    
             params: {}
         }).then((response) => {
             setMemes(response.data);
@@ -78,7 +82,9 @@ const Meme_Search = () => {
     const handleSearch = async () => {
         try {
             console.log("Enviando solicitud de búsqueda...");
-            const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+            //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+            const response = await Axios.get("http://localhost:3001/db_memes", {
+
                 params: {
                     name: search, // Usar el estado 'search' en lugar de 'memes'
                 }
@@ -103,7 +109,13 @@ const Meme_Search = () => {
             meme.name && meme.name.toLowerCase().includes(search.toLowerCase())
         );
     }
-    console.log(results, " results");
+
+
+    const handleClick = (meme) => {
+        Navigate(`/Degen/${meme.contract}`, { state: { meme } });
+    };
+
+
     return (
         <div className="flex flex-col p-5 " > {/* Fondo cálido */}
         <div className="rounded-2xl ">
@@ -169,14 +181,20 @@ const Meme_Search = () => {
                                 <img src={copy_logo} alt="copy_logo" className="w-5"/>
                             </button>
                         </div>
+                        <div className="flex w-full justify-between">
+                        <h1 className="flex text-md font-semibold mb-2 px-4 text-gray-700">Red: {meme.network}</h1>
+
+                        </div>
 
                         <h1 className="text-md font-semibold mb-2 text-center text-gray-700 p-2">{meme.description}</h1>
-                        <img className="rounded-3xl p-3" src={meme.image || no_image} alt={meme.name} style={{maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', margin: 'auto', objectFit: 'contain'}}/>
-                        <div className="flex">
-                            <a href={"https://sepolia.basescan.org/" + meme.contract} target="_blank" rel="noopener noreferrer"
-                                className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">Created by: {meme.creator.slice(0, 6)}...{meme.creator.slice(-4)}
-                            </a>
-                        </div>
+                            <div onClick={() => handleClick(meme)}>
+                                <img className="rounded-3xl p-3 cursor-pointer" src={meme.image || no_image} alt={meme.name} style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto', margin: 'auto', objectFit: 'contain' }} />
+                            </div>
+                            <div className="flex">
+                                <a href={"https://sepolia.basescan.org/" + meme.contract} target="_blank" rel="noopener noreferrer"
+                                    className="text-sm font-semibold mb-2 px-4 text-left text-gray-700">Created by: {meme.creator.slice(0, 6)}...{meme.creator.slice(-4)}
+                                </a>
+                            </div>
                         <div className="flex justify-end">
                             {meme.webpage && (
                                 <a href={"https://" + meme.webpage} target="_blank" rel="noopener noreferrer" className="p-2">

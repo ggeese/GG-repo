@@ -1,5 +1,4 @@
-import { TransactionContext } from '../../../context/TransactionContext';
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { PopUp } from './';
 import goose_pointer from '../../../../images/goose_pointer.png';
 import bnb_name from "../../../../images/bnb_name.svg";
@@ -16,18 +15,10 @@ import linea_name from "../../../../images/linea_name.svg";
 import eggs from "../../../../images/eggs.png";
 
 const Welcome_Factory = () => {
-  const { FormData_3, sendTransaction_3_unstake } = useContext(TransactionContext);
 
   const [showMyModal, setShowMyModal] = useState(false);
 
   const handleOnClose = () => setShowMyModal(false);
-
-  const handleSubmit_3_unstake = (e3) => {
-    const { unstake } = FormData_3;
-    e3.preventDefault();
-    if (!unstake) return;
-    sendTransaction_3_unstake();
-  };
 
 
   return (
@@ -39,9 +30,7 @@ const Welcome_Factory = () => {
             Create your meme
           </h1>
           <p className="text-xl md:text-xl sm:text-2xl lg:text-3xl text-center md:text-left font-semibold text-black p-8">
-            Here you can design memes easily and quickly. Who knows? Maybe your
-            creation will be the next viral phenomenon. Start now and let your
-            creativity fly!
+          where creating a memes is a breeze !!!. Start now and let your imagination soar across every blockchain! 🚀✨
           </p>
           <div className="flex justify-center mb-10">
             <button

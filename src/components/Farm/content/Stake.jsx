@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
-import { TransactionContext } from '../../../context/TransactionContext';
+import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
+
 
 const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
     <input
@@ -13,9 +14,9 @@ const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
 
   
 
-function Stake({visible, onClose, stake_contract, token_stake_contract, token_name, balance_token_wallet }) {
+function Stake({visible, onClose, stake_contract, token_stake_contract, decimals, token_name, balance_token_wallet }) {
         
-    const { FormData_3, sendTransaction_3, handleChange_3, change_input_staking } = useContext(TransactionContext); 
+    const { FormData_3, handleChange_3, sendTransactionStake, change_input_staking } = useContext(TransactionContextETH); 
 
     const [formularioVisible, setFormularioVisible] = useState(false);
     
@@ -34,7 +35,7 @@ function Stake({visible, onClose, stake_contract, token_stake_contract, token_na
   
       if(!stake ) return;
   
-      sendTransaction_3(stake_contract, token_stake_contract); 
+      sendTransactionStake(stake_contract, token_stake_contract, decimals); 
       console.log("stake contract stake and meme cotnract",stake_contract," " , token_stake_contract)   
     }
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { Collapse } from 'react-collapse';
 import golden_coin from "../../../../images/gg_coin.png";
 import { TransactionContext } from '../../../context/TransactionContext';
+import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
+
 import Axios from "axios";
 
 const LoadingBox = () => (
@@ -29,11 +31,11 @@ const PopUp_Unstake = ({item_1, handleStakeClick_1, handleUnStakeClick_1, handle
                 <div className="mt-4">
                     <div className="flex gap-1.5">
                         <div className="flex flex-shrink-0 w-[42px] h-[42px]">
-                            imagen
+                            image
                         </div>
                     <div className="font-semibold leading-none">
                         <div className="leading-none uppercase font-normal text-sm">
-                            {item_1.token_name} Staked:
+                            {item_1.token_name} Staked  :
                         </div>
                         <div className="mt-1.5 text-base">
                             100
@@ -107,8 +109,9 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
     const [PoolsMemes, setPoolsMemes] = useState([]);
     const [UserPools, setUserPools] = useState([]);
     const [search, setSearch] = useState("");
-    const [pointsEarnedList, setPointsEarnedList] = useState([]);
-    const { currentAccount, Points_Earned, changenetwork } = useContext(TransactionContext); 
+    const { currentAccount } = useContext(TransactionContext); 
+    const { Points_Earned } = useContext(TransactionContextETH); 
+
 
     useEffect(() => {
         //Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
@@ -267,14 +270,14 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
                             <button 
                                 className="bg-red-800 text-white font-semibold px-5 w-40 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
                                 onClick={() => {
-                                    handleStakeClick(item.stake_contract, item.token, item.token_name);
+                                    handleStakeClick(item.stake_contract, item.token, item.token_name, item.decimals);
                                     //changenetwork("Base Sepolia");
                                 }}
                             >
                                 + Stake
                             </button> 
                                                         <button className="bg-gray-300 text-black font-semibold px-5 w-40 py-2 rounded-md shadow hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
-                                    onClick={() => handleUnStakeClick(item.stake_contract, item.token, item.token_name)}>
+                                    onClick={() => handleUnStakeClick(item.stake_contract, item.token, item.token_name, item.decimals)}>
                                     - Unstake
                                 </button>  
                             </div>

@@ -1,5 +1,7 @@
 import React, { useContext, useEffect } from "react";
-import { TransactionContext } from '../../../context/TransactionContext';
+//import { TransactionContext } from '../../../context/TransactionContext';
+import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
+
 
 const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
     <input
@@ -13,9 +15,11 @@ const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
 
   
 
-function Unstake({visible, onClose, stake_contract, token_stake_contract, token_name, balance_Staked_wallet }) {
+function Unstake({visible, onClose, stake_contract, token_stake_contract, decimals, token_name, balance_Staked_wallet }) {
         
-    const { FormData_3, handleChange_3, change_input_staking, sendTransaction_3_Unstake } = useContext(TransactionContext); 
+    //const { FormData_3, handleChange_3, change_input_staking, sendTransaction_3_Unstake } = useContext(TransactionContext); 
+    const { FormData_3, handleChange_3, change_input_staking, sendTransactionUnstake } = useContext(TransactionContextETH); 
+
 
     const handleOnClose = (event) => {
         if (event.target.id === 'container_meme') onClose()
@@ -41,7 +45,7 @@ function Unstake({visible, onClose, stake_contract, token_stake_contract, token_
   
       if(!stake ) return;
   
-      sendTransaction_3_Unstake(stake_contract); 
+      sendTransactionUnstake(stake_contract, decimals); 
     }
 
     if (!visible) return null;

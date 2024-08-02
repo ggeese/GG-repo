@@ -2,6 +2,14 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { Loader } from './'
 import { PopUp_2 } from "./"
 import { TransactionContext } from '../../../context/TransactionContext';
+import { TransactionContextTON } from '../../../context/ContextTON/ContextTON';
+import { TransactionContextSOL } from '../../../context/ContextSOL/ContextSOL';
+import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
+import { NetworkSelectMini } from '../../../context/Network/NetworkSelect';
+import TransportMethod from './switch';
+import AddLiquidity from './AddLiquidity';
+import Wallets from '../../../Wallets';
+import { FileUpload } from './'
 
 
 const Input2 = ({ placeholder, name_2, type, value, handleChange_2 }) => (
@@ -28,121 +36,37 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
 );
 
 
-
-function FileUpload({ onFileSelect }) {
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const fileInputRef = useRef(null); // Ref para acceder al input de archivo
-
-
-  const handleDragOver = (event) => {
-      event.preventDefault(); // Evita comportamientos por defecto
-  };
-
-  const handleDrop = (event) => {
-      event.preventDefault();
-      const files = event.dataTransfer.files;
-      if (files && files.length > 0) {
-          const file = files[0];
-          setFile(file);
-          updatePreview(file);
-      }
-  };
-
-  const handleFileChange = (event) => {
-      const file = event.target.files[0];
-      setFile(file);
-      updatePreview(file);
-      onFileSelect(file);
-  };
-
-  const handleClick = () => {
-    fileInputRef.current.click(); // Activa el input de archivo cuando se hace clic en el área
-  };
-
-  const updatePreview = (file) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-          setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-  };
-
-  const handleRemoveFile = () => {
-    setFile(null);
-    setPreviewUrl(null);
-  };
-
-
-
-  return (
-      <div>
-          <div
-              onClick={handleClick} // Maneja clic aquí
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              className="flex border-dashed border-4 border-gray-300 py-1 px-5 text-center cursor-pointer"
-              style={{ width: 300, minHeight: 150,  maxHeight: "auto" }}
-          >
-              {previewUrl ? (
-                <div className="relative">
-                  <div className="flex justify-center">
-                    <img src={previewUrl} alt="Preview" className="max-w-full max-h-96 object-contain" />
-                  </div>
-                  <div className="absolute top-0 right-0">
-                    <button onClick={handleRemoveFile} className="text-black rounded-full p-1 cursor-pointer hover:bg-blue-100 text-3xl">
-                      X
-                    </button>
-                  </div>
-                </div>
-
-              ) : (
-                <div className="flex text-center text-gray-500 items-center justify-center">  
-                    Drag and drop an image here, or click to select file
-                </div>
-            )}
-              <input
-                  type="file"
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                  ref={fileInputRef} // Referencia al input
-
-                  // ref={input => input && !previewUrl && input.click()} // Automatically trigger click if no file
-              />
-          </div>
-
-      </div>
-  );
-}
-  
-
-
 function PopUp({visible, onClose}) {
-    
-    const { FormData_2, sendTransaction_2, handleChange_2, isLoading, TxHash, Network } = useContext(TransactionContext); 
+    const { sendTransactionTON } = useContext(TransactionContextTON);
+    const { FormData_2, sendTransactionBase, walletext, handleChange_2, currentAccount, isLoading, TxHash, Network } = useContext(TransactionContext); 
+    const { sendTransactionSOL } = useContext(TransactionContextSOL); 
+    const { sendTransactionETH } = useContext(TransactionContextETH); 
+    const [showMyModalWallets, setShowMyModalWallets] = useState(false);
     const [file, setFile] = useState(null); // Agregar estado para el archivo
     const [formularioVisible, setFormularioVisible] = useState(false);
     const [showMyModal_2, setShowMyModal_2] = useState(false);
     const [lastTxHash, setlastTxHash] = useState(""); // Nuevo estado para prevLoadingState
-    
+    const [switchState, setSwitchState] = useState("meme"); // Estado para el interruptor
+
     const handleOnClose = (event) => {
         if (event.target.id === 'container_meme') onClose()
     };
 
     //comandos para controlar el pop up 2
-
     
     const handleOnClose_2 = () => setShowMyModal_2(false);
 
+    const handleOnCloseWallets = () => setShowMyModalWallets(false);
+
+
       // Verificar si isLoading cambió de true a false
     useEffect(() => {
-      if (TxHash && lastTxHash !== TxHash) {
+
+      if (lastTxHash !== TxHash) {
         // Ejecutar la función cuando isLoading vuelve a ser false
         setShowMyModal_2(true);
-      } else if (lastTxHash === TxHash) {
-        setShowMyModal_2(false); // Ocultar el modal si el TxHash es el mismo que el último
-      } 
-      setlastTxHash(TxHash);
+        setlastTxHash(TxHash);
+      }
     }, [TxHash]); // Este efecto se ejecutará cada vez que isLoading cambie
 
     const toggleFormulario = () => {
@@ -155,41 +79,45 @@ function PopUp({visible, onClose}) {
     };
 
     
-
     const handleSubmit_2 = (file) => {
-      const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
+      const { MemeName, Symbol, Supply } = FormData_2;
       
       if (!MemeName || !Symbol || !Supply) return;
       
-      sendTransaction_2(file);
-      
-      if (file) {
-        console.log("Uploading", file.name);
-        // saveImageToServer(file); // Guardar la imagen en el servidor
-        //setFile(null); // Limpiar el archivo después de enviar la transacción
-        //setPreviewUrl(null); // Limpiar la vista previa después de enviar la transacción
+      if (Network === "TON") {
+        sendTransactionTON(file);
+      } else if (Network === "Solana") {
+        sendTransactionSOL(file);
+      } else {
+        if (walletext === "Base Wallet") {
+          sendTransactionBase(file);
+        } else{
+          sendTransactionETH(file)};
       }
     };
-      
-      
+    
       
 
     if (!visible) return null;
 
     return (
         <div 
-            id= 'container_meme'
-            onClick={handleOnClose} 
-            className="fixed z-30 inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center ">
-            <div className="flex flex-col justify-center bg-white rounded-2xl p-2 overflow-y-auto">
-              <div className="flex justify-end p-2">
-                  <button className="flex p-2 rounded-full h-10 w-10 flex justify-center bg-white border border-zinc-500 ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-                      onClick={onClose}>
-                      X
-                  </button>
-              </div>
+          id="container_meme"
+          onClick={handleOnClose} 
+          className="fixed z-30 inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center">
+          <div className="relative flex flex-col justify-center bg-white rounded-2xl p-2 overflow-y-auto">
+            <button 
+              className="absolute top-2 right-2 p-1 sm:p-2 rounded-full h-8 w-8 sm:h-10 sm:w-10 bg-white border border-zinc-500 ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+              onClick={onClose}>
+                X
+            </button>
+            
               <div className="flex flex-col p-3 items-center max-h-screen sm:max-h-screen lg:max-h-screen md:max-h-screen">
-                <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center">
+              <TransportMethod switchState={switchState} setSwitchState={setSwitchState}/>
+              {switchState === "meme" ? (
+                <div>
+                  <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center">
+
                       <div className="flex flex-col items-center p-2 ">  {/* Columna 1 */}
                           <p className="font-bold p-2">* Name your meme:</p>
                           <Input2 placeholder="Golden Goose" name_2="MemeName" type="text" handleChange_2={handleChange_2} />
@@ -204,122 +132,135 @@ function PopUp({visible, onClose}) {
                       </div>
                   </div>
 
-            
-
-                <button className= "p-4"
-                  onClick={toggleFormulario}>
-                    {formularioVisible && (
-                      <div>
-                        Less Options
-                      </div>
-                    )}
-                    {!formularioVisible && (
-                      <div>
-                        More Options
-                      </div>
-                    )}
-                </button>
-           
-                {formularioVisible && (
-                <div>
-                  <div className="flex flex-col sm:flex-row">
-                    {/* Primera columna */}
-                    <div className="flex flex-col flex-1 mb-4 md:mb-0 md:mr-4">  {/* Ajusta los márgenes para la separación */}
-                      <p className="font-bold text-center mb-2">Brief description:</p>
-                      <div className="flex flex-col justify-center items-center p-2 italic input-container">
-                        <Textarea
-                            placeholder="we are people who make memes that goes to da moon!!!!"
-                            name_2="description"
-                            type="text"
-                            handleChange_2={handleChange_2}
-                            className="resize-none border rounded p-2"
-                            // Ajustamos el estilo para que el textarea tenga el mismo aspecto que el input
-                            style={{ minHeight: 'auto' }}
-                            // Establecemos una altura mínima para el textarea
-                        />
-                    </div>
-  
+                  <div className="relative flex items-center justify-around mb-6 text-left mt-6">
+                    <NetworkSelectMini
+                    />
                   </div>
-
-                  {/* Segunda columna */}
-                  <div className="flex flex-col flex-1"> {/* Utiliza flex-1 para que esta columna ocupe el espacio restante */}
-                    <div className="flex flex-col justify-center font-bold">
-                      <h1 className="text-center">Image:</h1>
-                    </div>
-                    <div className="flex justify-center p-2">
-                      <FileUpload onFileSelect={handleFileSelect}  />
-                    </div>
-                  </div>
-                </div>
-
-               
-                <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center">
-                  <div className="flex flex-col">
-                    <div className="flex flex-col">
-                        <p className="flex font-bold justify-center">Web Page</p>
-                        <Input2 placeholder="www.yourmeme.com" name_2="Website" type="text" handleChange_2={handleChange_2} />
-                    </div>
-
-                    <div className="flex flex-col">
-                        <p className="flex justify-center font-bold">Twitter</p>
-                        <div className="flex justify-end">
-                            <p className="flex justify-center p-2 italic">twitter.com/</p>
-                            <Input2 placeholder="GoldenGoosememe" name_2="Twitter" type="text" handleChange_2={handleChange_2} className="border-none outline-none" />
-                        </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col">
-                    <div className="flex flex-col">
-                        <p className="flex justify-center font-bold">Discord</p>
-                        <div className="flex justify-end">
-                            <p className="flex justify-center p-2 italic">discord.com/</p>
-                            <Input2 placeholder="invite/FfeHwrqdAY" name_2="Discord" type="text" handleChange_2={handleChange_2} />
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col">
-                        <p className="flex justify-center font-bold">Telegram</p>
-                        <div className="flex justify-end">
-                            <p className="flex justify-center p-2 italic">t.me/</p>
-                            <Input2 placeholder="goldeng" name_2="Telegram" type="text" handleChange_2={handleChange_2} />
-                        </div>
-                    </div>
-                  </div>
-                </div>
-                  {Network != "Solana" && (
-                      <>
-                        <p className="flex justify-center justify-center font-bold p-2">Fee (0 - 5) %</p>
-                        <p className="flex justify-center justify-center text-sm italic">(Transaction Fee)</p>
-                        <div className="flex justify-center">
-                          <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} />
-                          <p className="flex justify-center font-bold p-2">% </p>
-                        </div>
-                      </>
-                    )}
-
-                </div>
-                  )}
-
-
-                {isLoading
-                ? <Loader/>
-                
-                : (
-                  <div className="flex p-4 ">
-                    <button className="px-10 py-4 bg-blue-500 text-xl text-white rounded-2xl shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                    type="button"
-                    
-                    onClick={() => handleSubmit_2(file)} // Pasar 'file' como parámetro
-                    
-                    >
-                    Create Meme
+                  <div className="flex justify-center font-goldeng">
+                    <button className="p-4" onClick={toggleFormulario}>
+                      {formularioVisible ? "Less Options" : "More Options"}
                     </button>
+                  </div>
+
+           
+                  {formularioVisible && (
+                  <div>
+                    <div className="flex flex-col sm:flex-row">
+                      {/* Primera columna */}
+                      <div className="flex flex-col flex-1 mb-4 md:mb-0 md:mr-4">  {/* Ajusta los márgenes para la separación */}
+                        <p className="font-bold text-center mb-2">Brief description:</p>
+                        <div className="flex flex-col justify-center items-center p-2 italic input-container">
+                          <Textarea
+                              placeholder="we are people who make memes that goes to da moon!!!!"
+                              name_2="description"
+                              type="text"
+                              handleChange_2={handleChange_2}
+                              className="resize-none border rounded p-2"
+                              // Ajustamos el estilo para que el textarea tenga el mismo aspecto que el input
+                              style={{ minHeight: 'auto' }}
+                              // Establecemos una altura mínima para el textarea
+                          />
+                      </div>
+
+                    </div>
+
+                    {/* Segunda columna */}
+                    <div className="flex flex-col flex-1"> {/* Utiliza flex-1 para que esta columna ocupe el espacio restante */}
+                      <div className="flex flex-col justify-center font-bold">
+                        <h1 className="text-center">Image:</h1>
+                      </div>
+                      <div className="flex justify-center p-2">
+                        <FileUpload onFileSelect={handleFileSelect}  />
+                      </div>
+                    </div>
+                  </div>
+
+                  
+                  <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center">
+                    <div className="flex flex-col">
+                      <div className="flex flex-col">
+                          <p className="flex font-bold justify-center">Web Page</p>
+                          <Input2 placeholder="www.yourmeme.com" name_2="Website" type="text" handleChange_2={handleChange_2} />
+                      </div>
+
+                      <div className="flex flex-col">
+                          <p className="flex justify-center font-bold">Twitter</p>
+                          <div className="flex justify-end">
+                              <p className="flex justify-center p-2 italic">twitter.com/</p>
+                              <Input2 placeholder="GoldenGoosememe" name_2="Twitter" type="text" handleChange_2={handleChange_2} className="border-none outline-none" />
+                          </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="flex flex-col">
+                          <p className="flex justify-center font-bold">Discord</p>
+                          <div className="flex justify-end">
+                              <p className="flex justify-center p-2 italic">discord.com/</p>
+                              <Input2 placeholder="invite/FfeHwrqdAY" name_2="Discord" type="text" handleChange_2={handleChange_2} />
+                          </div>
+                      </div>
+
+                      <div className="flex flex-col">
+                          <p className="flex justify-center font-bold">Telegram</p>
+                          <div className="flex justify-end">
+                              <p className="flex justify-center p-2 italic">t.me/</p>
+                              <Input2 placeholder="goldeng" name_2="Telegram" type="text" handleChange_2={handleChange_2} />
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                    {Network != "Solana" && (
+                        <>
+                          <p className="flex justify-center justify-center font-bold p-2">Fee (0 - 5) %</p>
+                          <p className="flex justify-center justify-center text-sm italic">(Transaction Fee)</p>
+                          <div className="flex justify-center">
+                            <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} />
+                            <p className="flex justify-center font-bold p-2">% </p>
+                          </div>
+                        </>
+                      )}
+
+                  </div>
+                    )}
+
+
+                  {isLoading ? (
+                    <Loader />
+                  ) : (
+                    <div className="flex justify-center">
+                      {currentAccount ? (
+                        <div className="flex p-4 text-xl font-goldeng">
+                          <button
+                            className="px-10 py-4 bg-black text-xl text-white rounded-2xl shadow-md hover:bg-[#9e701f] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                            onClick={() => handleSubmit_2(file)} // Pasar 'file' como parámetro
+                          >
+                            Create Meme
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="bg-black py-4 px-4 mx-2 rounded-xl mt-7 cursor-pointer hover:bg-[#9e701f]"
+                          onClick={() => setShowMyModalWallets(true)}
+                        >
+                          <p className="text-xl text-white">Connect Wallet</p>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  
+              </div>
+                ) : (
+                  <div className="flex flex-col items-center p-2">
+                    <AddLiquidity/>
                   </div>
                 )}
               </div>
+              
             </div>
+            
           <PopUp_2 onClose_2 = {handleOnClose_2} visible_2 = {showMyModal_2}/>
+          <Wallets onCloseWallets={handleOnCloseWallets} visibleWallets={showMyModalWallets} />
           </div>
 
     )
