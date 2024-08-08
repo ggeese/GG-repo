@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { saveImageToServer, Add_Meme } from "../ServerInteract/ServerInteract";
-import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_POOLPAIR, contractABI_MEME_FACTORY, contractAdrress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME } from "../../utils/constants";
+import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractAdrress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME } from "../../utils/constants";
 import { TransactionContext } from '../TransactionContext';
 import { ethers } from "ethers";
 
@@ -9,7 +9,7 @@ export const TransactionContextETH = React.createContext();
 
 export const TransactionProviderETH = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, Network, setIsLoading, setcurrentMemeContract, setWalletext,currentAccount, setTxHash } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, Network, setIsLoading, setcurrentMemeContract, setWalletext, currentAccount, setBalance, setTxHash } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
 
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
@@ -108,7 +108,7 @@ export const TransactionProviderETH = ({ children }) => {
                 setTxHash(txHashChain);
                 const contract_meme = txHashChain.logs[0].address;
                 console.log("contract meme ",contract_meme);
-                await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, recipient, Website, Twitter, Discord, Telegram, Fee, description)
+                await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, recipient, Website, Twitter, Discord, Telegram, Fee, description, Network)
                 clearTimeout(timeout);
                 setIsLoading(false);
                 setcurrentMemeContract(contract_meme)
@@ -180,6 +180,21 @@ const change_input_staking = (percent) => {
         setFormData_3((prevFormData) => ({
             ...prevFormData,
             stake: percent.toString()
+        }));
+    } catch (error) {
+        console.error("Error al cambiar el input de staking:", error);
+    }
+};
+
+const change_input_swap = (percent) => {
+    try {
+        if (percent === null) {
+            throw new Error("El valor de percent no puede ser null");
+        }
+        
+        setFormData_6((prevFormData) => ({
+            ...prevFormData,
+            amountswap: percent.toString()
         }));
     } catch (error) {
         console.error("Error al cambiar el input de staking:", error);
@@ -389,6 +404,23 @@ const ChangePoolTreasury = async () => {
 }
 
 
+const AddFastLiquidity = async (contract, eth) => {
+    const gasPrice = ethers.parseUnits('10', 'gwei');
+    const gas = {
+        gasPrice: gasPrice,
+        gasLimit: 900000
+    }
+    const ethtopool = ethers.parseEther(eth.toString());
+    const transactionsContract_3 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY);
+    const transaction_1 = await transactionsContract_3.fastAddLiquidity(
+        contract,
+         {
+            value:ethtopool, ...gas
+        }
+    );
+}
+
+
 ////////////////////test//////////////////
 
 const sendTransaction_3_test = async () => {
@@ -496,14 +528,30 @@ const PoolFactoryInteract = async () => {
             console.error("Error interactuando con el contrato:", error);
         }
     }
-
-
+    useEffect(() => {
+        if (currentAccount) {
+          const getETHBalance = async () => {
+            try {
+              const balance = await providereth.getBalance(currentAccount);
+              const balanceInEth = ethers.formatEther(balance);
+              const balanceFinal = parseFloat(balanceInEth).toFixed(5);
+              console.log("balance account", balanceFinal);
+              setBalance(balanceFinal);
+            } catch (error) {
+              console.error("Error fetching balance:", error);
+            }
+          };
+          
+          getETHBalance();
+        }
+      }, [currentAccount, providereth]);
 
   return (
     <TransactionContextETH.Provider value={{ 
         
         FormData_3,
         FormData_5,
+        FormData_6,
         handleChange_3,
         handleChange_5,
         handleChange_6,
@@ -511,9 +559,11 @@ const PoolFactoryInteract = async () => {
         sendTransactionETH,
         BuyMeme,
         SellMeme,
+        AddFastLiquidity,
         sendTransactionStake,
         sendTransactionUnstake,
         change_input_staking,
+        change_input_swap,
         Get_Token_Balance,
         Get_Balance_Staked,
         Get_ETH_Balance,

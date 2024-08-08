@@ -42,7 +42,7 @@ root.render(
                       <Route path="/" element={<Home/>} />
                       <Route path="/Factory" element={<Factory/>} />
                       <Route path="/Farm" element={<Farm/>} />
-                      <Route path="/Degen" element={<Degen/>} />
+                      <Route path="/Degen/" element={<Degen/>} />
                       <Route path="/Degen/:id" element={<Degen />} />
                       <Route path="/Hall" element={<Points/>} />
                       <Route path="/Admin" element={<Admin/>} />

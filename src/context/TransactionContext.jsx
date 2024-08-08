@@ -38,6 +38,8 @@ export const TransactionProvider = ({ children }) => {
     const [TxHashBase, setTxHashBase] = useState ('');
     const { switchChain } = useSwitchChain();
     const { writeContract } = useWriteContract();
+    const [Balance, setBalance] = useState ("");
+    const [MemeDegenBalance, setMemeDegenBalance] = useState("");
     const [Network, setNetwork] = useState(() => {
         return localStorage.getItem('network') || 'Base Sepolia';
       });
@@ -443,6 +445,10 @@ export const TransactionProvider = ({ children }) => {
         <TransactionContext.Provider value={{ 
             //connectWallet,
             setTxHash,
+            Balance,
+            setBalance,
+            MemeDegenBalance,
+            setMemeDegenBalance,
             setCurrentAccount,
             setTONAddress, 
             setSOLAddress,

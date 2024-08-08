@@ -19,17 +19,22 @@ const intervals = [
   { value: '1M', label: '1 Mes' },
 ];
 
-const TradingViewChart = ({ tableName }) => {
+const TradingViewChart = ({ tableName, chainNet }) => {
   const chartContainerRef = useRef();
   const candleSeriesRef = useRef();
   const [interval, setInterval] = useState('1m');
   const [ws, setWs] = useState(null);
 
   useEffect(() => {
+    // Cleanup function for the previous WebSocket connection
+    if (ws) {
+      ws.close();
+    }
+
     const newWs = new WebSocket('ws://localhost:3003');
     newWs.onopen = () => {
       console.log('Connected to WebSocket');
-      newWs.send(JSON.stringify({ tableName }));
+      newWs.send(JSON.stringify({ tableName, chainNet }));
     };
     newWs.onclose = () => {
       console.log('WebSocket connection closed');
@@ -43,7 +48,7 @@ const TradingViewChart = ({ tableName }) => {
     return () => {
       newWs.close();
     };
-  }, [tableName]);
+  }, [tableName, chainNet]); // Escuchar cambios en `tableName` y `chainNet`
 
   useEffect(() => {
     if (!ws) return;
@@ -51,49 +56,55 @@ const TradingViewChart = ({ tableName }) => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log('Received data:', data); // Log para depuración
-
+    
       // Transformar y validar los datos
-      const transformedData = data.map(item => ({
-        time: item[0]/1000, // Convertir milisegundos a segundos
-        open: parseFloat(item[1]),
-        high: parseFloat(item[2]),
-        low: parseFloat(item[3]),
-        close: parseFloat(item[4])
-      }));
-
-      if (!candleSeriesRef.current) {
-        while (chartContainerRef.current.firstChild) {
-          chartContainerRef.current.removeChild(chartContainerRef.current.firstChild);
+      if (Array.isArray(data)) {
+        const transformedData = data.map(item => ({
+          time: item[0] / 1000, // Convertir milisegundos a segundos
+          open: parseFloat(item[1]),
+          high: parseFloat(item[2]),
+          low: parseFloat(item[3]),
+          close: parseFloat(item[4])
+        }));
+    
+        if (!candleSeriesRef.current) {
+          // Limpiar el contenedor del gráfico antes de crear uno nuevo
+          while (chartContainerRef.current.firstChild) {
+            chartContainerRef.current.removeChild(chartContainerRef.current.firstChild);
+          }
+    
+          const chart = createChart(chartContainerRef.current, {
+            width: chartContainerRef.current.clientWidth,
+            height: chartContainerRef.current.clientHeight,
+            layout: {
+              background: {
+                color: '#000000',
+              },
+              textColor: '#ffffff',
+            },
+            grid: {
+              vertLines: {
+                color: 'transparent',
+              },
+              horzLines: {
+                color: 'transparent',
+              },
+            },
+          });
+    
+          const candleSeries = chart.addCandlestickSeries();
+          candleSeries.setData(transformedData);
+          candleSeriesRef.current = candleSeries;
+    
+          window.addEventListener('resize', () => {
+            chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight);
+          });
+        } else {
+          // Reiniciar la serie de velas con los nuevos datos
+          candleSeriesRef.current.setData(transformedData);
         }
-
-        const chart = createChart(chartContainerRef.current, {
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
-          layout: {
-            background: {
-              color: '#000000',
-            },
-            textColor: '#ffffff',
-          },
-          grid: {
-            vertLines: {
-              color: 'transparent',
-            },
-            horzLines: {
-              color: 'transparent',
-            },
-          },
-        });
-
-        const candleSeries = chart.addCandlestickSeries();
-        candleSeries.setData(transformedData);
-        candleSeriesRef.current = candleSeries;
-
-        window.addEventListener('resize', () => {
-          chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight);
-        });
       } else {
-        candleSeriesRef.current.update(transformedData[transformedData.length - 1]);
+        console.error('Data received is not an array:', data);
       }
     };
 

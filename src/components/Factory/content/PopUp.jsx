@@ -126,6 +126,7 @@ function PopUp({visible, onClose}) {
                           <p className="font-bold p-2">* Symbol:</p>
                           <Input2 placeholder="GOLDENG" name_2="Symbol" type="text" handleChange_2={handleChange_2} />
                       </div>
+                      {/*/////////////334001  MIN SUPPLY ///////////////*/}
                       <div className="flex flex-col items-center p-2 ">  {/* Columna 3 */}
                           <p className="font-bold p-2">* Supply:</p>
                           <Input2 placeholder="100,000,000" name_2="Supply" type="number" handleChange_2={handleChange_2} />

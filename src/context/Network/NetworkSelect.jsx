@@ -22,7 +22,9 @@ import TON from "../../../images/TON.svg";
 import zetachain from "../../../images/zetachain.svg";
 
 const networkIcons = {
-  'Base': { icon: base, nick: 'Base' },
+  'Manta Pacific Testnet': { icon: manta, nick: 'Manta Testnet' },
+  //'Base': { icon: base, nick: 'Base' },
+  //'Manta Pacific Mainnet': { icon: manta, nick: 'Manta' },
   'Base Sepolia': { icon: base, nick: 'Base Testnet' },
   'Sepolia ETH': { icon: eth, nick: 'ETH Sepolia' },
   'TON': { icon: TON, nick: 'TON (telegram)' },

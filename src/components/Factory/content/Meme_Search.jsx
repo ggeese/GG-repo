@@ -176,6 +176,7 @@ const Meme_Search = () => {
                         <div className="flex w-full justify-between">
                             <h1 className="text-md font-semibold mb-2 px-4 text-left text-gray-700">Contract: {meme.contract.slice(0, 6)}...{meme.contract.slice(-4)}</h1>
                             <button 
+                            
                                 onClick={() => handleButtonClick(meme.contract)}
                                 className={`flex font-semibold mb-2 px-4 ${scalingButtons[meme.contract] ? 'animate-scale-down' : ''}`}>
                                 <img src={copy_logo} alt="copy_logo" className="w-5"/>

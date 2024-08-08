@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import Axios from "axios";
 import TradingViewChart from "./tvwidget2";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import no_image from "../../../../images/goldeng.png";
 import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
+import { TransactionContext } from "../../../context/TransactionContext";
+import { Wallets } from '../../../';
+import { Donate } from './';
+
+
 
 const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
   <input
@@ -28,15 +33,20 @@ const Body = () => {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const currentmemedata = location.state?.meme || {};
-  const { BuyMeme, SellMeme, handleChange_6 } = useContext(TransactionContextETH); 
-
+  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap } = useContext(TransactionContextETH); 
+  const { currentAccount, Balance } = useContext(TransactionContext); 
+  const [showMyModal, setShowMyModal] = useState(false);
+  const [showMyModalDonate, setShowMyModalDonate] = useState(false);
+  const handleOnClose = () => setShowMyModal(false);
+  const handleOnCloseDonate = () => setShowMyModalDonate(false);
+  const Navigate = useNavigate(); // Crear una instancia de useHistory
 
   useEffect(() => {
-    if (currentmemedata && Object.keys(currentmemedata).length > 0 && currentmemedata !== memedata) {
+    if (currentmemedata && Object.keys(currentmemedata).length > 0) {
       setMemeData(currentmemedata);
-      console.log("memedata", currentmemedata)
     }
-  }, [currentmemedata, memedata]);
+  }, [currentmemedata]);
+  
 
   const handleSearch = async () => {
     try {
@@ -54,6 +64,7 @@ const Body = () => {
 
   const handleSelectResult = (result) => {
     setMemeData(result);
+    Navigate(`/Degen/${result.contract}`, { state: { result } });
     setSearchResults([]);
     setSearch("");
   };
@@ -74,7 +85,6 @@ const Body = () => {
   const handleBuy = (contract) => {
     //const { contract  } = FormData_5;
     //e5.preventDefault();
-    console.log("pasas [por aqui buy memecoin ")
     //if( !contract ) return;
 
     BuyMeme(contract); 
@@ -82,11 +92,20 @@ const Body = () => {
   const handleSell = (contract) => {
     //const { contract  } = FormData_5;
     //e5.preventDefault();
-    console.log("pasas [por aqui sell memecoin ")
     //if( !contract ) return;
 
     SellMeme(contract); 
   }
+
+  const handleClickpPercent = async (value) => {
+    setPercentage(value);
+    console.log("eth value",Balance*value/100 )
+    change_input_swap(Balance*value/100)
+    
+  };
+
+
+
   const handleEditPercentage = (index, newValue) => {
     const newPercentages = [...customPercentages];
     newPercentages[index] = newValue;
@@ -94,11 +113,11 @@ const Body = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r rounded-3xl from-gray-800 via-black to-gray-900 p-4 text-gray-200 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-r rounded-3xl from-gray-800 via-black to-gray-900 p-4  max-w-7xl mx-auto">
       {/* Barra de búsqueda y título */}
       <div className="mb-4 flex flex-col lg:flex-row items-center justify-center">
       </div>
-      <div className="flex justify-center items-center h-full space-x-2 relative">
+      <div className="flex justify-center items-center h-full text-gray-200 space-x-2 relative">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -130,32 +149,46 @@ const Body = () => {
       </div>
 
       {/* Sección de descripción */}
-      <div className="bg-gray-800 rounded-lg shadow-lg p-4 mt-4 mb-4">
-      <div className="flex flex-col items-center lg:flex-row lg:items-start space-y-2 lg:space-y-0 lg:space-x-2">
-        <img
-          className="rounded-3xl p-1 w-auto h-8 lg:w-auto lg:h-8 object-cover border-2 border-gray-700 shadow-lg"
-          src={memedata.image || no_image}
-          alt={memedata.name}
-        />
-        <div className="flex flex-col justify-center items-center lg:items-start space-y-2">
-          <h3 className="text-xl font-semibold text-center lg:text-left">{memedata.name}</h3>
-          <h3 className="text-md font-medium text-gray-400 text-center lg:text-left">{memedata.contract}</h3>
-          <h3 className="text-md font-medium text-gray-400 text-center lg:text-left">Network: {memedata.network}</h3>
+      <div className="bg-gray-800 rounded-lg shadow-lg p-6 mt-6 mb-6 text-white">
+        <div className="flex flex-col lg:flex-row lg:justify-between items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-4">
+          <div className="flex flex-col items-center lg:flex-row lg:items-start space-y-4 lg:space-y-0 lg:space-x-4">
+            <img
+              className="rounded-3xl w-auto h-24 object-cover border-2 border-gray-700 shadow-lg"
+              src={memedata.image || no_image}
+              alt={memedata.name}
+            />
+            <div className="flex flex-col justify-center items-center lg:items-start space-y-2">
+              <h3 className="text-2xl font-semibold text-center lg:text-left">{memedata.name}</h3>
+              <p className="text-md font-medium text-gray-400 text-center lg:text-left">{memedata.contract}</p>
+              <p className="text-md font-medium text-gray-400 text-center lg:text-left">Network: {memedata.network}</p>
+            </div>
+          </div>
+          <div className="flex justify-center w-full lg:w-auto">
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full mt-4 lg:mt-0 lg:ml-4 transition-transform transform hover:scale-105"
+              onClick={() => setShowMyModalDonate(true)}
+            >
+              Airdrop
+            </button>
+          </div>
         </div>
+        <p className="text-gray-300 mt-4 text-center lg:text-left">
+          {memedata.description}
+        </p>
       </div>
-      <p className="text-gray-300 mt-4 text-center lg:text-left">
-        {memedata.description}
-      </p>
 
 
-      </div>
 
       {/* Contenedor principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 text-white">
         {/* Sección del gráfico */}
         <div className="bg-gray-800 rounded-lg shadow-lg p-4 lg:col-span-3">
           <div className="w-full h-96 bg-gray-700 rounded-lg flex items-center justify-center">
-            <TradingViewChart tableName={currentmemedata.contract} />
+            <TradingViewChart 
+              tableName={memedata?.contract ? memedata.contract.substring(1) : ''} 
+              chainNet={memedata?.network ? memedata.network : ''} 
+            />
+          
           </div>
         </div>
 
@@ -177,62 +210,152 @@ const Body = () => {
           </div>
 
           <div className="bg-gray-700 p-4 rounded-b-lg">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium">Quantity</label>
-                <Input 
-                  placeholder="1" 
-                  name_6="amountswap" 
-                  type="number" 
-                  handleChange_6={handleChange_6}
-                />
+            {activeTab === "buy" && (
+              <div className="space-y-4">
+                <div className="mb-4">
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-white">Balance:</label> 
+                    <p className="text-sm font-medium text-white">{Balance}</p>
+                  </div>
 
-              </div>
-
-              <div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={percentage}
-                  onChange={(e) => setPercentage(e.target.value)}
-                  className="w-full h-8"
-                />
-                <div className="flex space-x-1 mb-2">
-                  {customPercentages.map((value, index) => (
-                    <button
-                      key={index} // Agrega una key única aquí
-                      className="flex-1 px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
-                      onClick={() => setPercentage(value)}
-                    >
-                      {value}%
-                    </button>
-                  ))}
-                  <button
-                    className="px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
-                    onClick={() => setIsEditing(!isEditing)}
-                  >
-                    ✏️
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <Input 
+                      placeholder="1" 
+                      name_6="amountswap" 
+                      type="number" 
+                      value={FormData_6.amountswap}
+                      handleChange_6={handleChange_6}
+                      className="flex-1 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div className="text-white">ETH</div>
+                  </div>
                 </div>
-                <p className="text-gray-300">{percentage}%</p>
+
+
+                <div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={percentage}
+                    onChange={(e) => setPercentage(e.target.value)}
+                    className="w-full h-8"
+                  />
+                  <div className="flex space-x-1 mb-2">
+                    {customPercentages.map((value, index) => (
+                      <button
+                        key={index}
+                        className="flex-1 px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
+                        onClick={() => handleClickpPercent(value)}
+                      >
+                        {value}%
+                      </button>
+                    ))}
+                    <button
+                      className="px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
+                      onClick={() => setIsEditing(!isEditing)}
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                  <p className="text-gray-300">{percentage}%</p>
+                </div>
+
+                <div className="flex justify-center">
+                  {currentAccount ? (
+                    <button
+                      onClick={() => handleBuy(memedata.contract)}
+                      className="w-full py-2 rounded-md shadow-md bg-green-600 hover:bg-green-700"
+                    >
+                      Buy
+                    </button>
+                  ) : (
+                    <button
+                      className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]"
+                      onClick={() => setShowMyModal(true)}
+                    >
+                      <p className="text-black">Connect Wallet</p>
+                    </button>
+                  )}
+                </div>
               </div>
-              <button
-                onClick={() => (activeTab === "buy" ? handleBuy(memedata.contract) : handleSell(memedata.contract))}
-                className={`w-full py-2 rounded-md shadow-md ${activeTab === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}`}
-              >
-                {activeTab === "buy" ? "Buy" : "Sell"}
-              </button>
+            )}
 
+            {activeTab === "sell" && (
+              <div className="space-y-4">
+                <div className="mb-4">
+                  <div className="flex justify-between mb-2">
+                      <label className="text-sm font-medium text-white">Balance:</label> 
+                      <p className="text-sm font-medium text-white">{Balance}</p>
+                    </div>                  
+                  <div className="flex items-center space-x-2">
+                    <Input 
+                      placeholder="1" 
+                      name_6="amountswap" 
+                      type="number" 
+                      value={FormData_6.amountswap}
+                      handleChange_6={handleChange_6}
+                      className="flex-1 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div className="text-white">ETH</div>
+                  </div>
+                </div>
 
-            </div>
+                <div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={percentage}
+                    onChange={(e) => setPercentage(e.target.value)}
+                    className="w-full h-8"
+                  />
+                  <div className="flex space-x-1 mb-2">
+                    {customPercentages.map((value, index) => (
+                      <button
+                        key={index}
+                        className="flex-1 px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
+                        onClick={() => handleClickpPercent(value)}
+                      >
+                        {value}%
+                      </button>
+                    ))}
+                    <button
+                      className="px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
+                      onClick={() => setIsEditing(!isEditing)}
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                  <p className="text-gray-300">{percentage}%</p>
+                </div>
+
+                <div className="flex justify-center">
+                  {currentAccount ? (
+                    <button
+                      onClick={() => handleSell(memedata.contract)}
+                      className="w-full py-2 rounded-md shadow-md bg-red-600 hover:bg-red-700"
+                    >
+                      Sell
+                    </button>
+                  ) : (
+                    <button
+                      className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]"
+                      onClick={() => setShowMyModal(true)}
+                    >
+                      <p className="text-black">Connect Wallet</p>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Modal para editar los porcentajes */}
       {isEditing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10" onClick={handleOutsideClick}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white z-10" onClick={handleOutsideClick}>
           <div className="bg-gray-800 rounded-lg p-4">
             <h3 className="text-xl font-semibold mb-4">Edit Percentages</h3>
             <div className="space-y-2">
@@ -266,33 +389,62 @@ const Body = () => {
       )}
 
       {/* Sección de comentarios */}
-      <div className="mt-4">
-        <h3 className="text-xl font-semibold mb-2">Comments</h3>
-        <div className="bg-gray-800 rounded-lg shadow-lg p-4">
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                className="flex-1 rounded-md border-gray-600 bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                placeholder="Add a comment"
-              />
-              <button className="bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                Add
-              </button>
-            </div>
-            <button className="bg-red-600 text-white rounded-md px-4 py-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-              Burn
+      <div className="mt-4 text-white">
+  <div className="flex flex-col lg:flex-row lg:space-x-4">
+    {/* Sección de comentarios */}
+
+    <div className="flex-none lg:w-1/4 bg-gray-800 rounded-lg shadow-lg p-4 mt-4 lg:mt-0">
+      <h3 className="text-xl font-semibold mb-2">🎥 TWITCH</h3>
+      <div className="flex justify-center">
+        <iframe
+          src="https://player.twitch.tv/?channel=t2x2&parent=goldengcoin.github.io"
+          height="300"
+          width="100%"
+          frameBorder="0"
+          allowFullScreen={true}
+          scrolling="no"
+          className="rounded-md"
+        ></iframe>
+      </div>
+
+    </div>
+    <div className="flex-1 lg:w-1/2">
+      <h3 className="text-xl font-semibold mb-2">Comments</h3>
+      <div className="bg-gray-800 rounded-lg shadow-lg p-4">
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <input
+              type="text"
+              className="flex-1 rounded-md border-gray-600 bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="Add a comment"
+            />
+            <button className="bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              Add
             </button>
           </div>
-          {/* Aquí puedes añadir la lógica y el componente para los comentarios */}
+          <button className="bg-red-600 text-white rounded-md px-4 py-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+            Burn
+          </button>
         </div>
-
-        {/* Sección de holders */}
-        <div className="lg:col-span-1 bg-gray-800 rounded-lg shadow-lg p-4 mt-4">
-          <h3 className="text-xl font-semibold mb-2">🏆 Holders</h3>
-          {/* Aquí puedes añadir la lógica y el componente para los holders */}
-        </div>
+        {/* Aquí puedes añadir la lógica y el componente para los comentarios */}
       </div>
+    </div>
+    {/* Sección de holders */}
+    <div className="flex-none lg:w-1/4 bg-gray-800 rounded-lg shadow-lg p-4 mt-4 lg:mt-0">
+      <h3 className="text-xl font-semibold mb-2">🏆 Holders</h3>
+      {/* Aquí puedes añadir la lógica y el componente para los holders */}
+    </div>
+
+    {/* Sección de Twitch */}
+
+  </div>
+</div>
+
+
+      <Wallets onCloseWallets={handleOnClose} visibleWallets={showMyModal} />
+      <Donate onCloseWallets={handleOnCloseDonate} visibleWallets={showMyModalDonate} memecontract={memedata.contract}/>
+
+
     </div>
   );
 };

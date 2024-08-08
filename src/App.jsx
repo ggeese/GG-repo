@@ -1,11 +1,12 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TransactionContext } from './context/TransactionContext';
 import { HiMenuAlt4 } from 'react-icons/hi';
 import { AiOutlineClose } from 'react-icons/ai';
 import { Wallets } from './';
 import NetworkSelect, {NetworkSelectMini} from './context/Network/NetworkSelect';
 import logo from "../images/gg_coin_2.png";
+import meme from "./utils/goldeng.json";
 
 const App = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
@@ -13,6 +14,7 @@ const App = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showMyModal, setShowMyModal] = useState(false);
   const handleOnClose = () => setShowMyModal(false);
+  const Navigate = useNavigate(); // Crear una instancia de useHistory
   const location = useLocation();
   
   const toggleDropdown = () => {
@@ -40,6 +42,10 @@ const App = () => {
     setToggleMenu(prev => !prev); // Cambia el estado de toggleMenu
   };
 
+  const handleClick = (meme) => {
+    Navigate(`/Degen/${meme.contract}`, { state: { meme } });
+};
+
   if (location.pathname !== "/") {
     return (
       <div>
@@ -52,7 +58,14 @@ const App = () => {
               <Link to="/Factory" className="text-white text-xl px-4 py-2 hover:text-gray-300">Factory</Link>
               <Link to="/Farm" className="text-white text-xl px-4 py-2 hover:text-gray-300">Farm</Link>
               <Link to="/Hall" className="text-white text-xl px-4 py-2 hover:text-gray-300">Hall</Link>
-              <Link to="/Degen" className="text-white text-xl px-4 py-2 hover:text-gray-300"> Degen <span className="text-gray-400"></span> (BETA)</Link>
+              
+              <button
+                onClick={() => handleClick(meme)}
+
+                className="text-white text-xl px-4 py-2 hover:text-gray-300"
+              >
+                Degen <span className="text-gray-400"></span> (BETA)
+              </button>
 
               <div className="relative flex items-center justify-between mb-6 text-left">
                 <NetworkSelect />
