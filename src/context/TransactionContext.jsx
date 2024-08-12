@@ -279,7 +279,7 @@ export const TransactionProvider = ({ children }) => {
        // Llamando a la función para probarla
         
     const meme_adding = async(currentMemeContract) => {
-        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
+        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description } = FormData_2;
         let image_meme_url
         if (imageFile) {
             image_meme_url = await saveImageToServer(imageFile);
@@ -287,7 +287,7 @@ export const TransactionProvider = ({ children }) => {
             image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903";
         }
         setCurrentMemeImage(image_meme_url);
-        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Telegram, Fee, description);
+        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Twitch, Fee, description);
     }
     
     const sendTransactionBase = async (file) => {
@@ -452,6 +452,7 @@ export const TransactionProvider = ({ children }) => {
             setCurrentAccount,
             setTONAddress, 
             setSOLAddress,
+            EVMAddress,
             setEVMAddress,
             setCurrentMemeImage,
             setIsLoading, 

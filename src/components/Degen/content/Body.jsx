@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import Axios from "axios";
-import TradingViewChart from "./tvwidget2";
+import TradingViewChart from "./tvwidget";
 import { useLocation, useNavigate } from "react-router-dom";
 import no_image from "../../../../images/goldeng.png";
 import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
@@ -25,15 +25,18 @@ const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
 
 const Body = () => {
   const [activeTab, setActiveTab] = useState("buy");
+  const [buyPercentage, setBuyPercentage] = useState(0); // Nuevo estado para porcentaje de compra
+  const [sellPercentage, setSellPercentage] = useState(0); // Nuevo estado para porcentaje de venta
   const [percentage, setPercentage] = useState(0);
   const [customPercentages, setCustomPercentages] = useState([1, 2, 3, 5]);
   const [isEditing, setIsEditing] = useState(false);
   const location = useLocation();
   const [memedata, setMemeData] = useState({});
   const [search, setSearch] = useState("");
+  const [MemeBalance, setMemeBalance] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const currentmemedata = location.state?.meme || {};
-  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap } = useContext(TransactionContextETH); 
+  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, Get_Token_Balance } = useContext(TransactionContextETH); 
   const { currentAccount, Balance } = useContext(TransactionContext); 
   const [showMyModal, setShowMyModal] = useState(false);
   const [showMyModalDonate, setShowMyModalDonate] = useState(false);
@@ -44,14 +47,35 @@ const Body = () => {
   useEffect(() => {
     if (currentmemedata && Object.keys(currentmemedata).length > 0) {
       setMemeData(currentmemedata);
+      console.log(currentmemedata, "current memedata")
+      const fetchBalance = async () => {
+        try {
+          const meme_balance = await Get_Token_Balance(currentmemedata.contract, 18);
+          console.log(meme_balance,"meme balance")
+          setMemeBalance(meme_balance);
+
+        } catch (error) {
+          setMemeBalance(0);
+          console.log("error getting meme balance", error);
+        }
+      };
+      fetchBalance();
     }
+
   }, [currentmemedata]);
+  
+    // Función para cambiar entre pestañas
+    const handleTabChange = (tab) => {
+      setActiveTab(tab);
+      // Reiniciar el valor del input cuando se cambia de pestaña
+      change_input_swap(0);
+    };
   
 
   const handleSearch = async () => {
     try {
-      //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
-      const response = await Axios.get("http://localhost:3001/db_memes", {
+      const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+      //const response = await Axios.get("http://localhost:3001/db_memes", {
         params: {
           name: search,
         },
@@ -67,6 +91,17 @@ const Body = () => {
     Navigate(`/Degen/${result.contract}`, { state: { result } });
     setSearchResults([]);
     setSearch("");
+    const fetchBalance = async () => {
+      try {
+        const meme_balance = await Get_Token_Balance(result.contract, 18);
+        console.log(meme_balance,"meme balance")
+        setMemeBalance(meme_balance);
+      } catch (error) {
+        setMemeBalance(0);
+        console.log("error getting meme balance", error);
+      }
+    };
+    fetchBalance();
   };
 
   const handleKeyPress = (event) => {
@@ -97,11 +132,18 @@ const Body = () => {
     SellMeme(contract); 
   }
 
-  const handleClickpPercent = async (value) => {
-    setPercentage(value);
-    console.log("eth value",Balance*value/100 )
-    change_input_swap(Balance*value/100)
-    
+
+  const handleClickpPercent = (value) => {
+    if (activeTab === "buy") {
+      setBuyPercentage(value);
+      console.log("ETH value for buy", Balance * value / 100);
+      change_input_swap(Balance * value / 100);
+    } else if (activeTab === "sell") {
+      setSellPercentage(value);
+      console.log("ETH value for sell", MemeBalance * value / 100);
+      change_input_swap(MemeBalance * value / 100);
+
+    }
   };
 
 
@@ -136,7 +178,7 @@ const Body = () => {
           <div className="absolute top-full mt-2 w-full max-w-lg bg-gray-800 rounded-md shadow-lg z-10">
             {searchResults.map((result) => (
               <div
-                key={result.id} // Agrega una key única aquí
+                key={`${result.id}-${result.contract}`} // Combina id con otra propiedad como contract
                 onClick={() => handleSelectResult(result)}
                 className="px-4 py-2 cursor-pointer hover:bg-gray-700"
               >
@@ -194,29 +236,31 @@ const Body = () => {
 
         {/* Sección de compra y venta */}
         <div className="bg-gray-800 rounded-lg shadow-lg p-4 lg:col-span-1">
-          <div className="flex justify-around mb-4">
-            <button
-              className={`px-10 py-4 rounded-t-lg focus:outline-none ${activeTab === "buy" ? "bg-blue-600" : "bg-gray-700"}`}
-              onClick={() => setActiveTab("buy")}
-            >
-              Buy
-            </button>
-            <button
-              className={`px-10 py-4 rounded-t-lg focus:outline-none ${activeTab === "sell" ? "bg-red-600" : "bg-gray-700"}`}
-              onClick={() => setActiveTab("sell")}
-            >
-              Sell
-            </button>
-          </div>
+        <div className="flex justify-around mb-6">
+          <button
+            className={`px-10 py-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 focus:outline-none ${activeTab === "buy" ? "bg-blue-800 text-white" : "bg-gray-700 text-gray-300"}`}
+            onClick={() => handleTabChange('buy')}
+          >
+            Buy
+          </button>
+          <button
+            className={`px-10 py-4 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 focus:outline-none ${activeTab === "sell" ? "bg-red-600 text-white" : "bg-gray-700 text-gray-300"}`}
+            onClick={() => handleTabChange("sell")}
+          >
+            Sell
+          </button>
+        </div>
+
 
           <div className="bg-gray-700 p-4 rounded-b-lg">
+            
             {activeTab === "buy" && (
               <div className="space-y-4">
                 <div className="mb-4">
                   <div className="flex justify-between mb-2">
                     <label className="text-sm font-medium text-white">Balance:</label> 
-                    <p className="text-sm font-medium text-white">{Balance}</p>
-                  </div>
+                    <p className="text-sm font-medium text-white">{parseFloat(Balance).toFixed(5)}</p>
+                    </div>
 
                   <div className="flex items-center space-x-2">
                     <Input 
@@ -237,14 +281,14 @@ const Body = () => {
                     type="range"
                     min="0"
                     max="100"
-                    value={percentage}
+                    value={buyPercentage}
                     onChange={(e) => setPercentage(e.target.value)}
                     className="w-full h-8"
                   />
                   <div className="flex space-x-1 mb-2">
                     {customPercentages.map((value, index) => (
                       <button
-                        key={index}
+                        key={`percentage-${index}`} // Asegúrate de que esta key sea única
                         className="flex-1 px-2 py-1 rounded-md bg-gray-600 hover:bg-gray-700"
                         onClick={() => handleClickpPercent(value)}
                       >
@@ -258,7 +302,7 @@ const Body = () => {
                       ✏️
                     </button>
                   </div>
-                  <p className="text-gray-300">{percentage}%</p>
+                  <p className="text-gray-300">{buyPercentage}%</p>
                 </div>
 
                 <div className="flex justify-center">
@@ -286,7 +330,7 @@ const Body = () => {
                 <div className="mb-4">
                   <div className="flex justify-between mb-2">
                       <label className="text-sm font-medium text-white">Balance:</label> 
-                      <p className="text-sm font-medium text-white">{Balance}</p>
+                      <p className="text-sm font-medium text-white">{MemeBalance}</p>
                     </div>                  
                   <div className="flex items-center space-x-2">
                     <Input 
@@ -306,7 +350,7 @@ const Body = () => {
                     type="range"
                     min="0"
                     max="100"
-                    value={percentage}
+                    value={sellPercentage}
                     onChange={(e) => setPercentage(e.target.value)}
                     className="w-full h-8"
                   />
@@ -327,7 +371,7 @@ const Body = () => {
                       ✏️
                     </button>
                   </div>
-                  <p className="text-gray-300">{percentage}%</p>
+                  <p className="text-gray-300">{sellPercentage}%</p>
                 </div>
 
                 <div className="flex justify-center">
@@ -393,21 +437,24 @@ const Body = () => {
   <div className="flex flex-col lg:flex-row lg:space-x-4">
     {/* Sección de comentarios */}
 
-    <div className="flex-none lg:w-1/4 bg-gray-800 rounded-lg shadow-lg p-4 mt-4 lg:mt-0">
-      <h3 className="text-xl font-semibold mb-2">🎥 TWITCH</h3>
-      <div className="flex justify-center">
-        <iframe
-          src="https://player.twitch.tv/?channel=t2x2&parent=goldengcoin.github.io"
-          height="300"
-          width="100%"
-          frameBorder="0"
-          allowFullScreen={true}
-          scrolling="no"
-          className="rounded-md"
-        ></iframe>
+    {memedata.twitch && (
+      <div className="flex-none lg:w-1/4 bg-gray-800 rounded-lg shadow-lg p-4 mt-4 lg:mt-0">
+        <h3 className="text-xl font-semibold mb-2">🎥 TWITCH</h3>
+        <div className="flex justify-center">
+          <iframe
+            src={`https://player.twitch.tv/?channel=${memedata.twitch.split('/').pop()}&parent=goldengcoin.github.io`}
+            height="300"
+            width="100%"
+            frameBorder="0"
+            allowFullScreen={true}
+            scrolling="no"
+            className="rounded-md"
+          ></iframe>
+        </div>
       </div>
+    )}
 
-    </div>
+
     <div className="flex-1 lg:w-1/2">
       <h3 className="text-xl font-semibold mb-2">Comments</h3>
       <div className="bg-gray-800 rounded-lg shadow-lg p-4">

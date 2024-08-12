@@ -9,7 +9,7 @@ export const TransactionContextETH = React.createContext();
 
 export const TransactionProviderETH = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, Network, setIsLoading, setcurrentMemeContract, setWalletext, currentAccount, setBalance, setTxHash } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeContract, setWalletext, currentAccount, setBalance, setTxHash } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
 
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
@@ -71,7 +71,7 @@ export const TransactionProviderETH = ({ children }) => {
   };
 
   const sendTransactionETH = async (file) => {
-    const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
+    const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description } = FormData_2;
     setIsLoading(true);
     console.log(Network, "network")
 
@@ -108,7 +108,7 @@ export const TransactionProviderETH = ({ children }) => {
                 setTxHash(txHashChain);
                 const contract_meme = txHashChain.logs[0].address;
                 console.log("contract meme ",contract_meme);
-                await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, recipient, Website, Twitter, Discord, Telegram, Fee, description, Network)
+                await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, recipient, Website, Twitter, Discord, Twitch, Fee, description, Network)
                 clearTimeout(timeout);
                 setIsLoading(false);
                 setcurrentMemeContract(contract_meme)
@@ -346,7 +346,7 @@ const BuyMeme = async (tokenAddress) => {
         }
       );
       console.log(`Swapping ETH for tokens...`);
-      const receipt = await tx.wait();
+      const receipt = await transaction_1.wait();
       console.log(`Transaction hash: ${receipt.transactionHash}`);
     
 
@@ -532,19 +532,20 @@ const PoolFactoryInteract = async () => {
         if (currentAccount) {
           const getETHBalance = async () => {
             try {
-              const balance = await providereth.getBalance(currentAccount);
+              const providerbalance = new ethers.BrowserProvider(window.ethereum); 
+              const balance = await providerbalance.getBalance(currentAccount);
               const balanceInEth = ethers.formatEther(balance);
               const balanceFinal = parseFloat(balanceInEth).toFixed(5);
               console.log("balance account", balanceFinal);
               setBalance(balanceFinal);
             } catch (error) {
-              console.error("Error fetching balance:", error);
+              console.error("Error No ETH address:", error);
             }
           };
           
           getETHBalance();
         }
-      }, [currentAccount, providereth]);
+      }, [currentAccount, Network]);
 
   return (
     <TransactionContextETH.Provider value={{ 

@@ -114,8 +114,8 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
 
 
     useEffect(() => {
-        Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
-        //Axios.get("https://app-memes-golden-g-goose.onrender.com/db_pools_memes").then((response) => {
+        //Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
+        Axios.get("https://app-memes-golden-g-goose.onrender.com/db_pools_memes").then((response) => {
             setPoolsMemes(response.data);
             console.log("pools memesXD",response.data)
         }).catch(error => {
@@ -125,8 +125,8 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
     
 
     useEffect(() => {
-        Axios.get("http://localhost:3001/db_stakers", {
-        //Axios.get("https://app-users-5z99.onrender.com/db_stakers", {
+        //Axios.get("http://localhost:3001/db_stakers", {
+        Axios.get("https://app-users-5z99.onrender.com/db_stakers", {
           params: {
             address: currentAccount
           }

@@ -8,8 +8,8 @@ export const handleCreateJson = async (name, symbol, imageurl) => {
         image: imageurl
     }
     try {
-        //const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/create-json', jsonData);
-        const response = await Axios.post('http://localhost:3001/create-json', jsonData);
+        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/create-json', jsonData);
+        //const response = await Axios.post('http://localhost:3001/create-json', jsonData);
 
         console.log("json URI uploaded")
 
@@ -31,8 +31,8 @@ export const saveImageToServer = async (imageFile) => {
         formData.append('image', imageFile);
 
         // Enviar la solicitud POST al servidor
-        //const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
-        const response = await Axios.post('http://localhost:3001/api/upload', formData, {
+        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
+        //const response = await Axios.post('http://localhost:3001/api/upload', formData, {
 
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -57,12 +57,12 @@ export const saveImageToServer = async (imageFile) => {
 };
 
 
-export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url, Creator, Website, Twitter, Discord, Telegram, Fee, description, Network) => {
+export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_meme_url, Creator, Website, Twitter, Discord, Twitch, Fee, description, Network) => {
     // Extrayendo la hora y fecha
     const Creation_Date = new Date().toLocaleString();
 
-    //Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
-    Axios.post("http://localhost:3001/create", {
+    Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
+    //Axios.post("http://localhost:3001/create", {
     
         name: MemeName,
         ticker: Symbol,
@@ -76,7 +76,7 @@ export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_me
         twitter: Twitter !== undefined && Twitter.trim() !== "" ? "https://twitter.com/" + Twitter : "",
         description: description,
         discord: Discord !== undefined && Discord.trim() !== "" ? "https://www.discord.com/invite/" + Discord : "",
-        telegram: Telegram !== undefined && Telegram.trim() !== "" ? "https://t.me/" + Telegram : "",
+        twitch: Twitch !== undefined && Twitch.trim() !== "" ? "https://t.me/" + Twitch : "",
         network: Network,
     }).then(() => {
         console.log("Meme registrado");
@@ -87,8 +87,8 @@ export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_me
 export const Create_Delivery = async (firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount ) => {
     // Extrayendo la hora y fecha
     const Creation_Date = new Date().toLocaleString();
-    Axios.post("http://localhost:3001/create-order", {
-    //Axios.post("https://app-memes-golden-g-goose.onrender.com/create-order", {
+    //Axios.post("http://localhost:3001/create-order", {
+    Axios.post("https://app-memes-golden-g-goose.onrender.com/create-order", {
         
         first_name: firstname,
         last_name: lastname,

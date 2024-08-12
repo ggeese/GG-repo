@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from 'react-router-dom'; // Importar useHistory
 import { TransactionContext } from '../../../context/TransactionContext';
 import discordImage from "../../../../images/discordia.png";
-import telegram from "../../../../images/telegrama.png";
+import twitch from "../../../../images/twitch.png";
 import webpage from "../../../../images/internet.png";
 import twitter from "../../../../images/twitter.png";
 import no_image from "../../../../images/goldeng.png";
@@ -67,8 +67,8 @@ const Meme_Search = () => {
     };
     
     useEffect(() => {
-        //Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
-        Axios.get("http://localhost:3001/db_memes", {
+        Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+        //Axios.get("http://localhost:3001/db_memes", {
     
             params: {}
         }).then((response) => {
@@ -82,8 +82,8 @@ const Meme_Search = () => {
     const handleSearch = async () => {
         try {
             console.log("Enviando solicitud de búsqueda...");
-            //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
-            const response = await Axios.get("http://localhost:3001/db_memes", {
+            const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+            //const response = await Axios.get("http://localhost:3001/db_memes", {
 
                 params: {
                     name: search, // Usar el estado 'search' en lugar de 'memes'
@@ -212,9 +212,9 @@ const Meme_Search = () => {
                                     <img src={discordImage} alt="Discord" className="w-5" />
                                 </a>
                             )}
-                            {meme.telegram && (
-                                <a href={"https://" + meme.telegram} target="_blank" rel="noopener noreferrer" className="p-2">
-                                    <img src={telegram} alt="Telegram" className="w-5" />
+                            {meme.twitch && (
+                                <a href={"https://" + meme.twitch} target="_blank" rel="noopener noreferrer" className="p-2">
+                                    <img src={twitch} alt="Twitch" className="w-5" />
                                 </a>
                             )}
                             <a href={"https://sepolia.basescan.org/" + meme.contract} target="_blank" rel="noopener noreferrer" className="p-2">
