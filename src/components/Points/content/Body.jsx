@@ -66,7 +66,7 @@ const Body = () => {
                         <div className="mt-6">
                             <h3 className="text-2xl font-semibold mb-2 text-purple-700">Details</h3>
                             <p className="mb-2 text-lg">Price: 0.07 ETH</p>
-                            <p className="mb-2 text-lg">Network: BASE</p>
+                            <p className="mb-2 text-lg">Network: MANTA</p>
                             <p className="mb-2 text-lg">Currency: ETH</p>
                             <div className="mb-2 text-lg">
                                 <span>Minted Amount: {mintedAmount}</span>
@@ -119,7 +119,7 @@ const Body = () => {
                                 Mint NFT
                             </button>
                         </div>
-                        *only on BASE
+                        *only on MANTA
                     </div>
                 </div>
             </div>
