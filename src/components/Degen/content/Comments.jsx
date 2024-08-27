@@ -56,7 +56,9 @@ function Comments({ contractMeme, chainNetwork, Comments }) {
             };
 
             try {
-                const response = await axios.post("http://localhost:5000/comments", newCommentData);
+                const response = await axios.post("https://app-social-gg.onrender.com/comments", newCommentData);
+                //const response = await axios.post("http://localhost:5000/comments", newCommentData);
+
                 setDataComments([response.data, ...allcomments]); // Usar la respuesta del servidor
             } catch (error) {
                 console.error("Error adding comment:", error);
@@ -137,7 +139,15 @@ function Comments({ contractMeme, chainNetwork, Comments }) {
                                         <img src={comment.media} alt="media" className="max-w-xs rounded" />
                                     </div>
                                 )}
-                                <div className="text-xs text-gray-500">{comment.date}</div>
+                                <div className="text-xs text-gray-500">
+                                {new Date(comment.date * 1).toLocaleDateString('es-ES', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: 'numeric',
+                                })}
+                                </div>
                             </div>
                         ))
                     )}

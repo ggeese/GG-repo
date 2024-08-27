@@ -51,20 +51,18 @@ const Body = () => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await Axios.get('http://localhost:5000/comments', {
+        const response = await Axios.get('https://app-social-gg.onrender.com/comments', {
+        //const response = await Axios.get('http://localhost:5000/comments', {
+
           params: { tableName: Tablename, chainNet: ChainNet },  // Asegúrate de que estos nombres coincidan con los que espera el backend
         });
         // Convertir timestamp Unix a fecha legible
+        // Dejar la fecha tal cual, sin convertir
         const fetchedComments = response.data.map(comment => ({
           ...comment,
-          date: new Date(comment.date * 1).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-          }),
+          date: comment.date,  // No se realiza la conversión aquí
         }));
+
         setDataComments(fetchedComments);
         console.log('data useefect comments', fetchedComments);
       } catch (error) {
