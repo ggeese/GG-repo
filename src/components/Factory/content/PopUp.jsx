@@ -206,7 +206,7 @@ function PopUp({visible, onClose}) {
                           <p className="flex justify-center font-bold">Twitch</p>
                           <div className="flex justify-end">
                               <p className="flex justify-center p-2 italic">twitch.tv/</p>
-                              <Input2 placeholder="goldeng" name_2="Telegram" type="text" handleChange_2={handleChange_2} />
+                              <Input2 placeholder="goldeng" name_2="Twitch" type="text" handleChange_2={handleChange_2} />
                           </div>
                       </div>
                     </div>

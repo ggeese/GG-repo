@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import meme_video from "../../../../videos/meme_video.mp4";
+//import meme_video from "../../../../videos/meme_video.mp4";
 import frame from "../../../../images/frame_4.png";
 import g_coin from "../../../../images/gg_coin_2.png";
 import wire from "../../../../images/wire.png";
@@ -172,12 +172,22 @@ const Welcome = () => {
             )}
           <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${showVideo ? 'opacity-100 z-20' : 'opacity-0'}`}>
           <div className={`${!isSmallScreen && showFall ? 'fall-animation' : ''}`}>
-              <div className="relative w-full max-w-[850px] md:right-[-60px] md:top-[-35px] right-0 top-0 px-2 md:px-0">
+              <div className="relative w-full max-w-[850px] md:right-[-60px] md:top-[-35px] right-0 top-0 md:px-0">
                 <img src={frame} alt="Frame" className="absolute inset-0 w-full h-auto z-2 scale-150" />
-                <video ref={videoRef} muted controls className="w-full z-1 py-3">
+                {/*<video ref={videoRef} muted controls className="w-full z-1 py-3">
                   <source src={meme_video} type="video/mp4" />
                   Your browser does not support the video tag.
-                </video>
+                </video>*/}
+                {<div  >
+                  <iframe
+                  className={`${!isSmallScreen? 'w-[640px] h-[500px] pt-[2%] pb-[20%]' : 'w-full'}`}
+                  src="https://www.youtube.com/embed/K63c6pANvOM?autoplay=1&mute=1"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="GoldenG"
+              ></iframe>
+              </div>
+              }
               </div>
             </div>
           </div>
@@ -221,7 +231,7 @@ const Welcome = () => {
                 <span className="block md:inline">DEN</span>              
               </h1>
               <h1 className="md:text-7xl sm:text-5xl lg:text-9xl text-5xl font-goldeng text-center text-black transition-opacity duration-500 opacity-100">
-                GO
+                GE
                 <img src={g_coin} alt="Goose" className="inline-block  md:w-20 sm:w-10 lg:w-40 w-10 align-middle" />
                 SE
               </h1>

@@ -220,7 +220,7 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
                                         <img className="w-auto h-7" src={item.imageUrl}/>
                                     </div>
                                     <div className="font-semibold">
-                                        <h3 className="text-sm font-bold mt-1">Earn Goose</h3>
+                                        <h3 className="text-sm font-bold mt-1">Earn GG</h3>
                                         <h3 className="text-sm font-bold mt-1">{item.token_name}</h3>
                                     </div>
                                 </div>
@@ -309,7 +309,7 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
                                     <div className="flex gap-1 items-center">
                                         <div className="flex flex-items">
                                             <img src={golden_coin} className="w-auto h-6" alt="Golden coin" />
-                                            <p className="px-2">Goose Earned</p>
+                                            <p className="px-2">GG Earned</p>
                                         </div>
                                     </div>
                                     <div className="text-right">

@@ -444,3 +444,21 @@ body {
   color: #333; /* Color del texto */
   font-weight: arial;
 }
+
+/* styles.css o directamente dentro de tu archivo de Tailwind */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2d3748; /* Color del fondo del scrollbar */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4a5568; /* Color del scrollbar */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #718096; /* Color del scrollbar al pasar el mouse */
+}

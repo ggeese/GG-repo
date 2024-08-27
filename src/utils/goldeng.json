@@ -2,7 +2,7 @@
     "name": "Goldeng Goose",
     "ticker": "GG",
     "fee": null,
-    "contract": "0xD479B6592c7bA7c4595932EEC1D6a60A99511561",
+    "contract": "0xe071F673476ee59579cd5697D2349750B2C83fB6",
     "image": "",
     "creator": "0x2049E8F25972F816E187D15bEED31698f9A8d7a3",
     "creation": "1/8/2024, 2:32:33 p. m.",
@@ -11,6 +11,6 @@
     "twitter": "",
     "description": "meme made for the comunity by the comunity",
     "discord": "",
-    "twitch": "",
-    "network": "Base"
+    "twitch": "K1m6a",
+    "network": "Sepolia ETH"
 }

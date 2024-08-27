@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { saveImageToServer, Add_Meme } from "../ServerInteract/ServerInteract";
+import { saveImageToServer, Add_Meme, ProfileCheck } from "../ServerInteract/ServerInteract";
 import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractAdrress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME } from "../../utils/constants";
 import { TransactionContext } from '../TransactionContext';
 import { ethers } from "ethers";
@@ -56,6 +56,7 @@ export const TransactionProviderETH = ({ children }) => {
       setProviderState(provider);
       setCurrentAccount(accounts[0]);
       setEVMAddress(accounts[0]);
+      await ProfileCheck(accounts[0])
       //dedsconectando de las otras wallets
       const walletacc = "Metamask";
       setWalletext(walletacc);
@@ -394,6 +395,12 @@ const SellMeme = async(tokenAddress) => {
     console.log("Address pool receiver changed", transaction_1);
 };
 
+const burnMemes = async (contract, tokens) => {
+    const burnAddress = '0x000000000000000000000000000000000000dEaD';
+    const AmountToken = ethers.parseEther(tokens.toString());
+    const transactionsContract_3 = await getEthereumContract(contract, contractABI_MEME);
+    const transaction_1 = await transactionsContract_3.transfer(burnAddress, AmountToken);
+}
 
 const ChangePoolTreasury = async () => {
     const { contract, tokenPoolReciever } = FormData_5;
@@ -560,6 +567,7 @@ const PoolFactoryInteract = async () => {
         sendTransactionETH,
         BuyMeme,
         SellMeme,
+        burnMemes,
         AddFastLiquidity,
         sendTransactionStake,
         sendTransactionUnstake,

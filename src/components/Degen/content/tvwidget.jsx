@@ -31,8 +31,8 @@ const TradingViewChart = ({ tableName, chainNet }) => {
       ws.close();
     }
 
-    //const newWs = new WebSocket('ws://localhost:3003');
-    const newWs = new WebSocket('wss://app-graph-btzm.onrender.com');
+    const newWs = new WebSocket('ws://localhost:3003');
+    //const newWs = new WebSocket('wss://app-graph-btzm.onrender.com');
     newWs.onopen = () => {
       console.log('Connected to WebSocket');
       newWs.send(JSON.stringify({ tableName, chainNet }));

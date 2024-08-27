@@ -7,6 +7,8 @@ import { Home } from './components/Home';
 import { Points } from './components/Points';
 import { Admin } from './components/Admin';
 import { Degen } from './components/Degen';
+import { Profile } from './components/Profile';
+
 import "./index.css";
 import App from "./App";
 import { TransactionProvider } from './context/TransactionContext';
@@ -46,6 +48,8 @@ root.render(
                       <Route path="/Degen/:id" element={<Degen />} />
                       <Route path="/Hall" element={<Points/>} />
                       <Route path="/Admin" element={<Admin/>} />
+                      <Route path="/Profile" element={<Profile/>} />
+
 
                     </Routes>
                   </BrowserRouter>

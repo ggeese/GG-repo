@@ -86,9 +86,8 @@ export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_me
 
 export const Create_Delivery = async (firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount ) => {
     // Extrayendo la hora y fecha
-    const Creation_Date = new Date().toLocaleString();
-    //Axios.post("http://localhost:3001/create-order", {
     Axios.post("https://app-memes-golden-g-goose.onrender.com/create-order", {
+    //Axios.post("http://localhost:3001/create-order", {
         
         first_name: firstname,
         last_name: lastname,
@@ -102,9 +101,19 @@ export const Create_Delivery = async (firstname, lastname, country, city, provin
         wallet_address: currentAccount,
         item: item,
         amount: amount
-        //Date: Creation_Date,
 
     }).then(() => {
         console.log("Pedido registrado");
     });
 };
+
+
+export const ProfileCheck = async (Account) => {
+    Axios.post("http://localhost:5000/users", {
+        walletAddress: Account
+    }).then(() => {
+        console.log("Perfil creado o ya existente");
+    }).catch(error => {
+        console.error("Error al crear o obtener el perfil:", error);
+    });
+}

@@ -158,12 +158,11 @@ const Home = () => {
             className="w-40 h-auto sm:w-32 md:w-40 lg:w-52 xl:w-60 object-cover" // Ajusta el tamaño de la imagen según sea necesario
           />
           <div
-            className="flex flex-col absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-70 p-4 sm:p-2 md:p-4 rounded-full focus:outline-none items-center text-center"
+            className="flex flex-col absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-opacity-70 p-4 sm:p-2 md:p-4 rounded-full focus:outline-none items-center text-center"
           >
-            <p className="text-black text-sm font-bold mb-1 sm:text-sm md:text-base">CONTRACT</p>
             <div className="flex items-center">
-              <img src={copy_logo} alt="Copy" className="w-6 h-6 sm:w-4 sm:h-4 md:w-6 md:h-6 mr-2" />
               <span className="sm:text-sm md:text-sm lg:text-base">{contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}</span>
+              <img src={copy_logo} alt="Copy" className="w-4 h-4 sm:w-2 sm:h-4 md:w-6 md:h-6 mr-2" />
             </div>
           </div>
         </button>

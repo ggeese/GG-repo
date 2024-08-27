@@ -61,14 +61,14 @@
         "fee":0.001
       },
       {
-        "name": "Berachain Artio",
-        "chainId": 80085,
-        "rpcUrl": "https://artio.rpc.berachain.com/",
+        "name": "Berachain bArtio",
+        "chainId": 80084,
+        "rpcUrl": "https://bartio.rpc.berachain.com",
         "symbol": "BERA",
         "explorerUrl": "https://artio.beratrail.io/",
-        "poolFactory": "0x76aD7c04b7bAcc9dDFF6b4a39Da2b0C156F4e64A",
-        "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
-        "factory":"0x43b620CDCD633de6CE4EcB647aEA355910492A63",
+        "poolFactory": "0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "poolInteract": "0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
+        "factory":"0x0D09168ecF4f0589F6eFa76FdF32e388ee1664dE",
         "nick":"Bera Chain",
         "fee":0.001
       },
@@ -174,9 +174,9 @@
         "rpcUrl": "https://sepolia.base.org/",
         "symbol": "ETH",
         "explorerUrl": "https://sepolia-explorer.base.org/",
-        "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
-        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
-        "factory":"0xA22d1069fe06C33e13c0e6FacA1a305c0735A1bD",
+        "poolFactory": "0x1bAd98d82598CA1077046cDE447D81d7F0bEbCb0",
+        "poolInteract": "0x48b2C11f9b40Ca165Ab791b696165CD573B72371",
+        "factory":"0xc1d55Fb57165e874e2DBF43bc8A5fC6C9881c23A",
         "nick":"Base",
         "fee":0.0001
       },

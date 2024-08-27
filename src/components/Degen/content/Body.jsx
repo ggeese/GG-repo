@@ -7,8 +7,8 @@ import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
 import { TransactionContext } from "../../../context/TransactionContext";
 import { Wallets } from '../../../';
 import { Donate } from './';
-
-
+import { Burn } from './';
+import { Comments } from './';
 
 const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
   <input
@@ -21,7 +21,6 @@ const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
 
   />
 );  
-
 
 const Body = () => {
   const [activeTab, setActiveTab] = useState("buy");
@@ -40,13 +39,51 @@ const Body = () => {
   const { currentAccount, Balance } = useContext(TransactionContext); 
   const [showMyModal, setShowMyModal] = useState(false);
   const [showMyModalDonate, setShowMyModalDonate] = useState(false);
+  const [showMyModalBurn, setShowMyModalBurn] = useState(false);
   const handleOnClose = () => setShowMyModal(false);
   const handleOnCloseDonate = () => setShowMyModalDonate(false);
+  const handleOnCloseBurn = () => setShowMyModalBurn(false);
+  const [dataComments, setDataComments] = useState([]);
+  const [Tablename, setTableName] = useState("");
+  const [ChainNet,setChainNet] = useState("");
   const Navigate = useNavigate(); // Crear una instancia de useHistory
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const response = await Axios.get('http://localhost:5000/comments', {
+          params: { tableName: Tablename, chainNet: ChainNet },  // Asegúrate de que estos nombres coincidan con los que espera el backend
+        });
+        // Convertir timestamp Unix a fecha legible
+        const fetchedComments = response.data.map(comment => ({
+          ...comment,
+          date: new Date(comment.date * 1).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+          }),
+        }));
+        setDataComments(fetchedComments);
+        console.log('data useefect comments', fetchedComments);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+  
+    if (Tablename && ChainNet) {
+      console.log(Tablename, ChainNet,"parameter consult data one")
+      fetchComments();
+    }
+  }, [Tablename, ChainNet]); // Actualiza dependencias según sea necesario
+  
 
   useEffect(() => {
     if (currentmemedata && Object.keys(currentmemedata).length > 0) {
       setMemeData(currentmemedata);
+      setTableName(currentmemedata.contract.substring(1));
+      setChainNet(currentmemedata.network);
       console.log(currentmemedata, "current memedata")
       const fetchBalance = async () => {
         try {
@@ -61,7 +98,6 @@ const Body = () => {
       };
       fetchBalance();
     }
-
   }, [currentmemedata]);
   
     // Función para cambiar entre pestañas
@@ -71,11 +107,10 @@ const Body = () => {
       change_input_swap(0);
     };
   
-
   const handleSearch = async () => {
     try {
-      const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
-      //const response = await Axios.get("http://localhost:3001/db_memes", {
+      //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
+      const response = await Axios.get("http://localhost:3001/db_memes", {
         params: {
           name: search,
         },
@@ -94,11 +129,9 @@ const Body = () => {
     const fetchBalance = async () => {
       try {
         const meme_balance = await Get_Token_Balance(result.contract, 18);
-        console.log(meme_balance,"meme balance")
         setMemeBalance(meme_balance);
       } catch (error) {
         setMemeBalance(0);
-        console.log("error getting meme balance", error);
       }
     };
     fetchBalance();
@@ -116,7 +149,6 @@ const Body = () => {
     }
   };
 
-
   const handleBuy = (contract) => {
     //const { contract  } = FormData_5;
     //e5.preventDefault();
@@ -132,7 +164,6 @@ const Body = () => {
     SellMeme(contract); 
   }
 
-
   const handleClickpPercent = (value) => {
     if (activeTab === "buy") {
       setBuyPercentage(value);
@@ -146,13 +177,16 @@ const Body = () => {
     }
   };
 
-
-
   const handleEditPercentage = (index, newValue) => {
     const newPercentages = [...customPercentages];
     newPercentages[index] = newValue;
     setCustomPercentages(newPercentages);
   };
+
+  const isValidData = (data) => {
+    return typeof data === 'string' && data.trim() !== '';
+  };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-r rounded-3xl from-gray-800 via-black to-gray-900 p-4  max-w-7xl mx-auto">
@@ -200,7 +234,7 @@ const Body = () => {
               alt={memedata.name}
             />
             <div className="flex flex-col justify-center items-center lg:items-start space-y-2">
-              <h3 className="text-2xl font-semibold text-center lg:text-left">{memedata.name}</h3>
+              <h3 className="text-2xl font-semibold text-center lg:text-left">{memedata.name} ({memedata.ticker})</h3>
               <p className="text-md font-medium text-gray-400 text-center lg:text-left">{memedata.contract}</p>
               <p className="text-md font-medium text-gray-400 text-center lg:text-left">Network: {memedata.network}</p>
             </div>
@@ -219,18 +253,16 @@ const Body = () => {
         </p>
       </div>
 
-
-
       {/* Contenedor principal */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 text-white">
         {/* Sección del gráfico */}
         <div className="bg-gray-800 rounded-lg shadow-lg p-4 lg:col-span-3">
           <div className="w-full h-96 bg-gray-700 rounded-lg flex items-center justify-center">
+
             <TradingViewChart 
               tableName={memedata?.contract ? memedata.contract.substring(1) : ''} 
               chainNet={memedata?.network ? memedata.network : ''} 
             />
-          
           </div>
         </div>
 
@@ -250,7 +282,6 @@ const Body = () => {
             Sell
           </button>
         </div>
-
 
           <div className="bg-gray-700 p-4 rounded-b-lg">
             
@@ -274,7 +305,6 @@ const Body = () => {
                     <div className="text-white">ETH</div>
                   </div>
                 </div>
-
 
                 <div>
                   <input
@@ -330,7 +360,7 @@ const Body = () => {
                 <div className="mb-4">
                   <div className="flex justify-between mb-2">
                       <label className="text-sm font-medium text-white">Balance:</label> 
-                      <p className="text-sm font-medium text-white">{MemeBalance}</p>
+                      <p className="text-sm font-medium text-white">{parseFloat(MemeBalance).toFixed(5)}</p>
                     </div>                  
                   <div className="flex items-center space-x-2">
                     <Input 
@@ -341,7 +371,7 @@ const Body = () => {
                       handleChange_6={handleChange_6}
                       className="flex-1 py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
-                    <div className="text-white">ETH</div>
+                    <div className="text-white">{memedata.ticker}</div>
                   </div>
                 </div>
 
@@ -439,7 +469,7 @@ const Body = () => {
 
     {memedata.twitch && (
       <div className="flex-none lg:w-1/4 bg-gray-800 rounded-lg shadow-lg p-4 mt-4 lg:mt-0">
-        <h3 className="text-xl font-semibold mb-2">🎥 TWITCH</h3>
+        <h3 className="text-xl font-semibold mb-2">🎥 TWITCH (No Oficial)</h3>
         <div className="flex justify-center">
           <iframe
             src={`https://player.twitch.tv/?channel=${memedata.twitch.split('/').pop()}&parent=goldengcoin.github.io`}
@@ -456,26 +486,22 @@ const Body = () => {
 
 
     <div className="flex-1 lg:w-1/2">
-      <h3 className="text-xl font-semibold mb-2">Comments</h3>
-      <div className="bg-gray-800 rounded-lg shadow-lg p-4">
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              className="flex-1 rounded-md border-gray-600 bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Add a comment"
-            />
-            <button className="bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              Add
-            </button>
-          </div>
-          <button className="bg-red-600 text-white rounded-md px-4 py-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-            Burn
-          </button>
-        </div>
-        {/* Aquí puedes añadir la lógica y el componente para los comentarios */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold text-white">Comments (beta)</h3>
+        <button 
+          onClick={() => setShowMyModalBurn(true)}
+          className="bg-red-600 text-white rounded-md px-4 py-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+          Burn
+        </button>
       </div>
+      <Comments
+        contractMeme={memedata?.contract ? memedata.contract.substring(1) : ''} 
+        chainNetwork={memedata?.network ? memedata.network : ''} 
+        Comments={dataComments || []} 
+      />
     </div>
+
+    
     {/* Sección de holders */}
     <div className="flex-none lg:w-1/4 bg-gray-800 rounded-lg shadow-lg p-4 mt-4 lg:mt-0">
       <h3 className="text-xl font-semibold mb-2">🏆 Holders</h3>
@@ -490,6 +516,7 @@ const Body = () => {
 
       <Wallets onCloseWallets={handleOnClose} visibleWallets={showMyModal} />
       <Donate onCloseWallets={handleOnCloseDonate} visibleWallets={showMyModalDonate} memecontract={memedata.contract}/>
+      <Burn onCloseWallets={handleOnCloseBurn} visibleWallets={showMyModalBurn} memecontract={memedata.contract} memeticker={memedata.ticker}/>
 
 
     </div>
