@@ -9,7 +9,7 @@ export const TransactionContextETH = React.createContext();
 
 export const TransactionProviderETH = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeContract, setWalletext, currentAccount, setBalance, setTxHash } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, WETH } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
 
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
@@ -70,9 +70,10 @@ export const TransactionProviderETH = ({ children }) => {
       console.error("No ethereum object or user denied request:", error);
     }
   };
+  
 
   const sendTransactionETH = async (file) => {
-    const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description } = FormData_2;
+    const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description, ProtectHorus } = FormData_2;
     setIsLoading(true);
     console.log(Network, "network")
 
@@ -80,6 +81,7 @@ export const TransactionProviderETH = ({ children }) => {
             if (!ethereum) return alert("Please install metamask");
             //fee tx fixed contract
             let Fee_tx = Fee !== undefined ? Fee : 0;
+            let protection_days = ProtectHorus !== undefined ? ProtectHorus * 24 : 1 * 24;
             const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0];
@@ -87,9 +89,11 @@ export const TransactionProviderETH = ({ children }) => {
             const transactionsContract_2 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY)
             //const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory_2, contractABI_MEME_FACTORY, signer);
             console.log ("previo a la interaccion con el contrato")
-                const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed,                 {   
+                const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_days,                 
+                    {   
                     gasLimit: 9999999, 
-                });
+                    }
+                );
                 console.log ("luego a la interaccion con el contrato")
 
                 //con comision en moneda on chain
@@ -112,7 +116,7 @@ export const TransactionProviderETH = ({ children }) => {
                 await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, recipient, Website, Twitter, Discord, Twitch, Fee, description, Network)
                 clearTimeout(timeout);
                 setIsLoading(false);
-                setcurrentMemeContract(contract_meme)
+                setcurrentMemeData(contract_meme)
             //console.log(`Success - ${transactionHash.hash}`);
 
         }   catch (error) {
@@ -209,10 +213,22 @@ const Get_ETH_Balance = async () => {
     return balance_final;
 }
 
-//obtenemos el balance del usuario para ver la cantidad de tokens stakeados
-const Get_Token_Balance = async(contract_meme, decimals) => {
+const GetProtectHours = async (contract_meme) => {
     const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
-    const balance = await tokenContract.balanceOf(currentAccount);
+    const [startTrade, protectHours] = await tokenContract.getProtectDetails();
+    console.log("started trade and protect hours",startTrade, "and, ", protectHours)
+    return [startTrade, protectHours];
+}
+
+const GetMemeFee = async (contract_meme) => {
+    const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
+    const CurrentFee = await tokenContract.getCurrentFee();
+    return CurrentFee.toString();
+}
+//obtenemos el balance del usuario para ver la cantidad de tokens stakeados
+const Get_Token_Balance = async(contract_meme, AccountAddress, decimals) => {
+    const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
+    const balance = await tokenContract.balanceOf(AccountAddress);
     console.log("balance token", balance)
     return ethers.formatUnits(balance.toString(), parseInt(decimals, 10));
 }
@@ -322,16 +338,8 @@ const CreatePool = async () => {
 const BuyMeme = async (tokenAddress) => {
     const { amountswap } = FormData_6;
     const ETHAmount = ethers.parseEther(amountswap); // 0.1 ETH
-    const gasPrice = ethers.parseUnits('10', 'gwei');
-    const gas = {
-        gasPrice: gasPrice,
-        gasLimit: 900000
-    }
+
     const transactionsContract_3 = await getEthereumContract(interactFactoryContract, contractABI_POOLINTERACT);
-    const amountOutMin = ethers.parseUnits("1", 'wei'); // 2 wei
-    console.log("amount meme ",amountOutMin)
-    const WETH = '0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9'; // dirección del contrato WETH
-    //const tokenAddress = '0xD479B6592c7bA7c4595932EEC1D6a60A99511561'; // dirección del contrato del token ABC
     const path = [WETH, tokenAddress];
     const to = currentAccount;
     const deadline = Math.floor(Date.now()) + 60 * 20000; // 20 minutos desde ahora
@@ -342,7 +350,6 @@ const BuyMeme = async (tokenAddress) => {
         to,
         deadline,
         {
-            ...gas,
             value: ETHAmount
         }
       );
@@ -358,7 +365,6 @@ const SellMeme = async(tokenAddress) => {
     const { amountswap } = FormData_6;
     const decimals = 18;
     //const tokenAddress = "0xD479B6592c7bA7c4595932EEC1D6a60A99511561";
-    const WETH = '0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9'; // Dirección del contrato WETH
     const tokenAmount = ethers.parseUnits(amountswap, parseInt(decimals, 10));
 
     const erc20Contract = await getEthereumContract(tokenAddress, contractABI_MEME)
@@ -383,9 +389,7 @@ const SellMeme = async(tokenAddress) => {
         path,
         to,
         deadline,
-        {
-            ...gas
-        }
+
     );
 
     console.log(`Swapping tokens for ETH...`);
@@ -407,39 +411,30 @@ const ChangePoolTreasury = async () => {
     const transactionsContract_3 = await getEthereumContract(contract, contractABI_MEME_FACTORY);
     const transaction_1 = await transactionsContract_3.updateRecipientTokensPool(tokenPoolReciever);
     console.log("address pool reciever changed", transaction_1 )
-
 }
-
 
 const AddFastLiquidity = async (contract, eth) => {
-    const gasPrice = ethers.parseUnits('10', 'gwei');
-    const gas = {
-        gasPrice: gasPrice,
-        gasLimit: 900000
+    try {
+        setIsLoading(true); // Inicia el estado de carga
+        const ethtopool = ethers.parseEther(eth.toString());
+        const transactionsContract_3 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY);
+        const transaction_1 = await transactionsContract_3.fastAddLiquidity(
+            contract,
+            { value: ethtopool }
+        );
+        await transaction_1.wait();
+
+    } catch (error) {
+        console.error('Error during liquidity addition:', error);
+    } finally {
+        setIsLoading(false); // Finaliza el estado de carga
     }
-    const ethtopool = ethers.parseEther(eth.toString());
-    const transactionsContract_3 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY);
-    const transaction_1 = await transactionsContract_3.fastAddLiquidity(
-        contract,
-         {
-            value:ethtopool, ...gas
-        }
-    );
-}
+};
+
 
 
 ////////////////////test//////////////////
 
-const sendTransaction_3_test = async () => {
-    //ponemos los datos del contrato de staking
-    const transactionsContract_3 = await getEthereumContract(contractAdrress_golden_exp, contractABI_GOLDEN_EXP)
-    //const unstake_amount = ethers.parseEther(unstake)
-    console.log ("llamada al contrato del token");
-    //interaccion con el contrato de staking
-    const transactionHash = await transactionsContract_3.setMinter(["0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b", "0x7dA9De9c0009a94F817Ca85B7c248f335a718D59"], [true, true]);
-
-    console.log(transactionHash, "earned")
-}
 
 const PoolFactoryInteract = async () => {
 
@@ -576,6 +571,8 @@ const PoolFactoryInteract = async () => {
         Get_Token_Balance,
         Get_Balance_Staked,
         Get_ETH_Balance,
+        GetMemeFee,
+        GetProtectHours,
         Points_Earned,
         EmergWithdraw,
         notifyRewards,

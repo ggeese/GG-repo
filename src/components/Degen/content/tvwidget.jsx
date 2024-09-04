@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
+import tradingview from '../../../../images/tradingview.png';
+import { WSconnect } from '../../../utils/axiossonfig';
 
 const intervals = [
   { value: '1m', label: '1 Minuto' },
@@ -8,118 +10,109 @@ const intervals = [
   { value: '15m', label: '15 Minutos' },
   { value: '30m', label: '30 Minutos' },
   { value: '1h', label: '1 Hora' },
-  { value: '2h', label: '2 Horas' },
-  { value: '4h', label: '4 Horas' },
-  { value: '6h', label: '6 Horas' },
-  { value: '8h', label: '8 Horas' },
-  { value: '12h', label: '12 Horas' },
-  { value: '1d', label: '1 Día' },
-  { value: '3d', label: '3 Días' },
-  { value: '1w', label: '1 Semana' },
-  { value: '1M', label: '1 Mes' },
+
 ];
 
-const TradingViewChart = ({ tableName, chainNet }) => {
+const backgroundStyle = {
+  backgroundImage: `url(${tradingview})`,
+  backgroundPosition: 'center',
+  backgroundSize: 'cover', // Asegura que la imagen cubra todo el contenedor sin distorsión
+  backgroundRepeat: 'no-repeat', // Evita que la imagen se repita
+  filter: 'blur(20px)', // Aplica el filtro de desenfoque directamente a la imagen
+};
+
+const TradingViewChart = ({ tableName, chainNet, SetOpenDonate }) => {
   const chartContainerRef = useRef();
   const candleSeriesRef = useRef();
   const [interval, setInterval] = useState('1m');
   const [ws, setWs] = useState(null);
+  const [dataMsg, setDataMsg] = useState([]);
 
   useEffect(() => {
-    // Cleanup function for the previous WebSocket connection
-    if (ws) {
-      ws.close();
+    if (tableName && chainNet && tableName.trim() !== '' && chainNet.trim() !== '') {
+      const newWs = new WebSocket(WSconnect);
+      //const newWs = new WebSocket('wss://app-graph-btzm.onrender.com');
+
+      newWs.onopen = () => {
+        console.log('Connected to WebSocket');
+        newWs.send(JSON.stringify({ tableName, chainNet, interval }));
+      };
+  
+      newWs.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setDataMsg(data);
+  
+        if (Array.isArray(data)) {
+          const transformedData = data.map(item => ({
+            time: item[0] / 1000,
+            open: parseFloat(item[1]),
+            high: parseFloat(item[2]),
+            low: parseFloat(item[3]),
+            close: parseFloat(item[4])
+          }));
+
+          if (dataMsg) {
+            const width = chartContainerRef.current.clientWidth;
+            const height = chartContainerRef.current.clientHeight;
+            console.log("inside char container")
+            if (!candleSeriesRef.current) {
+              console.log("inside candle series ref");
+              const chart = createChart(chartContainerRef.current, {
+                width: width,
+                height: height,
+                layout: { background: { color: '#000000' }, textColor: '#ffffff' },
+                grid: { vertLines: { color: 'transparent' }, horzLines: { color: 'transparent' } },
+              });
+  
+              const candleSeries = chart.addCandlestickSeries();
+              candleSeries.setData(transformedData);
+              candleSeriesRef.current = candleSeries;
+    
+              window.addEventListener('resize', () => {
+                chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight);
+              });
+            } else {
+            candleSeriesRef.current.setData(transformedData);
+            }
+          } else {
+            console.error('Chart container is not available.');
+            if (candleSeriesRef.current) {
+              candleSeriesRef.current.setData([]);
+            }
+          };
+        };
+      };
+  
+      newWs.onclose = () => console.log('WebSocket connection closed');
+      newWs.onerror = (error) => console.error('WebSocket error:', error);
+  
+      setWs(newWs);
+  
+      return () => {
+        if (candleSeriesRef.current && candleSeriesRef.current.chart) {
+          candleSeriesRef.current.chart.remove();
+          candleSeriesRef.current = null;
+        }
+        newWs.close();
+      };
     }
-
-    //const newWs = new WebSocket('ws://localhost:3003');
-    const newWs = new WebSocket('wss://app-graph-btzm.onrender.com');
-    newWs.onopen = () => {
-      console.log('Connected to WebSocket');
-      newWs.send(JSON.stringify({ tableName, chainNet }));
-    };
-    newWs.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-    newWs.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    setWs(newWs);
-
-    return () => {
-      newWs.close();
-    };
-  }, [tableName, chainNet]); // Escuchar cambios en `tableName` y `chainNet`
-
+  }, [tableName, chainNet, interval, chartContainerRef.current]);
+  
   useEffect(() => {
-    if (!ws) return;
+    if (chartContainerRef.current) {
+      console.log('Chart container is available');
+    } else {
+      console.error('Chart container is not available');
+    }
+  }, [chartContainerRef.current]);
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('Received data:', data); // Log para depuración
-    
-      // Transformar y validar los datos
-      if (Array.isArray(data)) {
-        const transformedData = data.map(item => ({
-          time: item[0] / 1000, // Convertir milisegundos a segundos
-          open: parseFloat(item[1]),
-          high: parseFloat(item[2]),
-          low: parseFloat(item[3]),
-          close: parseFloat(item[4])
-        }));
-    
-        if (!candleSeriesRef.current) {
-          // Limpiar el contenedor del gráfico antes de crear uno nuevo
-          while (chartContainerRef.current.firstChild) {
-            chartContainerRef.current.removeChild(chartContainerRef.current.firstChild);
-          }
-    
-          const chart = createChart(chartContainerRef.current, {
-            width: chartContainerRef.current.clientWidth,
-            height: chartContainerRef.current.clientHeight,
-            layout: {
-              background: {
-                color: '#000000',
-              },
-              textColor: '#ffffff',
-            },
-            grid: {
-              vertLines: {
-                color: 'transparent',
-              },
-              horzLines: {
-                color: 'transparent',
-              },
-            },
-          });
-    
-          const candleSeries = chart.addCandlestickSeries();
-          candleSeries.setData(transformedData);
-          candleSeriesRef.current = candleSeries;
-    
-          window.addEventListener('resize', () => {
-            chart.resize(chartContainerRef.current.clientWidth, chartContainerRef.current.clientHeight);
-          });
-        } else {
-          // Reiniciar la serie de velas con los nuevos datos
-          candleSeriesRef.current.setData(transformedData);
-
-        }
-      } else {
-        console.error('Data received is not an array:', data);
-        if (candleSeriesRef.current) {
-          candleSeriesRef.current.setData([]); // Limpiar la serie de velas
-        }
-      }
-    };
-
-    return () => {
-      ws.onmessage = null;
-    };
-  }, [ws, tableName]);
+  
+  const handleDonateClick = () => {
+    SetOpenDonate(true);
+  };
 
   return (
-    <div className="h-full w-full bg-black">
+    <div className="h-full w-full bg-black relative">
       <select
         value={interval}
         onChange={(e) => setInterval(e.target.value)}
@@ -131,13 +124,32 @@ const TradingViewChart = ({ tableName, chainNet }) => {
           </option>
         ))}
       </select>
-
-      <div
-        ref={chartContainerRef}
-        className="h-[calc(100%-30px)] w-full"
-      />
+  
+      <div className="h-[calc(100%-30px)] w-full relative">
+        {dataMsg.length !== 0 ? (
+          <div ref={chartContainerRef} className="h-full w-full" />
+        ) : (
+          <div className="flex items-center justify-center relative h-2/3 w-auto mx-auto">
+            <div className="absolute inset-0 z-10" style={backgroundStyle}></div>
+            <div className="absolute z-10 text-center">
+              <p className="text-white text-lg mb-3 font-bold">
+                This memecoin has no trades yet! 🚀
+                <br />
+                Be the first One and get an Airdrop!
+              </p>
+              <button
+                onClick={handleDonateClick}
+                className="bg-yellow-500 text-black py-3 px-8 rounded-full text-xl font-semibold shadow-md hover:bg-yellow-600 transform hover:scale-105 transition-all duration-300"
+              >
+                Airdrop
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
+  
 };
 
 export default TradingViewChart;

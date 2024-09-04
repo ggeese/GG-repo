@@ -14,7 +14,7 @@ const Info = () => {
           <div className= "flex px-10"style={{backgroundImage: `url(${plank_1})`, backgroundSize: 'auto 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
             <div className="hidden md:block flex flex-fil text-sm px-16">
             </div>
-              <div className="flex flex-col text-black text-5xl font-bold mt-10 mb-10" >
+              <div className="flex flex-col text-black text-5xl font-goldeng mt-10 mb-10" >
                 <p className="flex flex-col justtify-center items-center">Staking</p>
                 <p className="flex flex-col justtify-center items-center">Pools</p>
             </div>
@@ -30,10 +30,10 @@ const Info = () => {
           <div className="hidden md:block flex flex-col px-10" style={{backgroundImage: `url(${sign_wood})`, backgroundSize: 'auto 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'}}>
             <p className="flex text-xl flex-col">
             </p >
-            <p className="flex text-xl flex-col mt-8">
+            <p className="flex text-xl font-goldeng flex-col mt-8">
                 Stake Memes
             </p >
-            <p className="flex text-xl flex-col mt-7">
+            <p className="flex text-xl font-goldeng flex-col mt-7">
                 Earn $GG
             </p >
 

@@ -162,12 +162,12 @@ const Welcome = () => {
             {!isSmallScreen && (
 
           <div className={`absolute inset-0 flex z-1 top-1/5 scale-50`}>
-            <div className={`${showBird ? 'move-diagonal-animation' : 'opacity-0'}`}>
+           {<div className={`${showBird ? 'move-diagonal-animation' : 'opacity-0'}`}>
               <div className="">
                 <div className="animatedBird">
                 </div>
               </div>
-            </div>
+            </div>}
           </div>
             )}
           <div className={`absolute inset-0 flex items-center justify-center overflow-hidden ${showVideo ? 'opacity-100 z-20' : 'opacity-0'}`}>
@@ -198,7 +198,7 @@ const Welcome = () => {
         <div>
   <div className="fixed right-0 flex flex-col p-2 gap-2 sm:flex-row sm:p-4">
     <a
-      href="https://discord.com/invite/FfeHwrqdAX"
+      href="https://discord.gg/EU4zbgS8cU"
       target="_blank"
       rel="noopener noreferrer"
       className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
@@ -207,7 +207,7 @@ const Welcome = () => {
     </a>
 
     <a
-      href="https://t.me/goldeng"
+      href="https://t.me/+ChPfId2jYWMyNzVh"
       target="_blank"
       rel="noopener noreferrer"
       className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
@@ -216,7 +216,7 @@ const Welcome = () => {
     </a>
 
     <a
-      href="https://x.com/GoldenG"
+      href="https://x.com/GeesesGolden"
       target="_blank"
       rel="noopener noreferrer"
       className="bg-white hover:bg-yellow-200 font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"

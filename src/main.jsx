@@ -1,14 +1,6 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Factory } from './components/Factory';
-import { Farm } from './components/Farm';
-import { Home } from './components/Home';
-import { Points } from './components/Points';
-import { Admin } from './components/Admin';
-import { Degen } from './components/Degen';
-import { Profile } from './components/Profile';
-
 import "./index.css";
 import App from "./App";
 import { TransactionProvider } from './context/TransactionContext';
@@ -18,12 +10,21 @@ import { TransactionProviderETH } from './context/ContextETH/ContextETH';
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
-
+import { Loading } from './components/Loading';
 import { config } from './wagmi.ts';
 
-globalThis.Buffer = Buffer
+globalThis.Buffer = Buffer;
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
+
+// Lazy loading de los componentes
+const Home = React.lazy(() => import('./components/Home/Home.jsx'));
+const Factory = React.lazy(() => import('./components/Factory/Factory.jsx'));
+const Farm = React.lazy(() => import('./components/Farm/Farm.jsx'));
+const Points = React.lazy(() => import('./components/Points/Points.jsx'));
+const Admin = React.lazy(() => import('./components/Admin/Admin.jsx'));
+const Degen = React.lazy(() => import('./components/Degen/Degen.jsx'));
+const Profile = React.lazy(() => import('./components/Profile/Profile.jsx'));
 
 // Usar createRoot en lugar de ReactDOM.render
 const root = createRoot(document.getElementById("root"));
@@ -38,20 +39,19 @@ root.render(
               <TransactionProviderETH>
                 <React.StrictMode>
                   <BrowserRouter>
+                    <Suspense fallback={<Loading/>}>
                     <App/>
-                    <Routes>
-
-                      <Route path="/" element={<Home/>} />
-                      <Route path="/Factory" element={<Factory/>} />
-                      <Route path="/Farm" element={<Farm/>} />
-                      <Route path="/Degen/" element={<Degen/>} />
-                      <Route path="/Degen/:id" element={<Degen />} />
-                      <Route path="/Hall" element={<Points/>} />
-                      <Route path="/Admin" element={<Admin/>} />
-                      <Route path="/Profile" element={<Profile/>} />
-
-
-                    </Routes>
+                      <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/Factory" element={<Factory />} />
+                        <Route path="/Farm" element={<Farm />} />
+                        <Route path="/Degen" element={<Degen />} />
+                        <Route path="/Degen/:id" element={<Degen />} />
+                        <Route path="/Hall" element={<Points />} />
+                        <Route path="/Admin" element={<Admin />} />
+                        <Route path="/Profile" element={<Profile />} />
+                      </Routes>
+                    </Suspense>
                   </BrowserRouter>
                 </React.StrictMode>
               </TransactionProviderETH>
@@ -61,5 +61,4 @@ root.render(
       </QueryClientProvider>
     </WagmiProvider>
   </TonConnectUIProvider>
-
 );

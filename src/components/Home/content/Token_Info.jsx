@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import copy_logo from "../../../../images/copy.svg";
+//import copy_logo from "../../../../images/copy.svg";
 import golden_egg from "../../../../images/golden_egg.png"; // Suponiendo que tienes una imagen de un huevo dorado
 import story_icon from "../../../../images/story_icon.png"; // Suponiendo que tienes un icono para la historia
 import lesson_icon from "../../../../images/lesson_icon.png"; // Suponiendo que tienes un icono para la lección
@@ -19,7 +19,7 @@ const Token_Info = () => {
       <div className="flex flex-col items-center">
         <img src={golden_egg} alt="Golden Egg" className="w-24 h-24 mb-4" />
         <h1 className="text-5xl text-center font-goldeng text-white font-extrabold">An Immortal Meme</h1>
-        <h2 className="text-3xl font-goldeng text-white">(GOOSE)</h2>
+        <h2 className="text-3xl font-goldeng text-white">(GG)</h2>
       </div>
 
       {/* Cards Section */}
@@ -61,7 +61,7 @@ const Token_Info = () => {
     target="_blank"
     rel="noopener noreferrer"
   >
-    Buy GOLDENG
+    Buy GG
   </a>
 </div>
 

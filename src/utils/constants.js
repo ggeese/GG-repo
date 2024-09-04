@@ -19,8 +19,6 @@ export const contractABI_STAKING_REWARDS = abi_staking_rewards.abi;
 export const contractABI_GOLDEN_EXP = abi_golden_exp.abi;
 export const contractABI_GOLDENGNFT = GoldengNFT.abi;
 
-
-
 //export const contractAddress = '0xF86D8C06d6B33ef54e09902302eD8e863B46A97A' ;
 export const contractAddress_meme_factory = '0xB5a6cb9a5e046FF284D58a526f5E443c48125cdD' ;
 export const contractAddress_staking = '0x0910404A59c2afb780B5843BA5Eb0805F217b3E4' ;

@@ -18,7 +18,7 @@ export const TransactionContextSOL = React.createContext();
 
 export const TransactionProviderSOL = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setSOLAddress, setIsLoading, setcurrentMemeContract, currentAccount, setTxHash, Network } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setSOLAddress, setIsLoading, setcurrentMemeData, currentAccount, setTxHash, Network } = useContext(TransactionContext); 
   const [connectionSol, setConnectionSol] = useState('');
   const [program, setProgram] = useState(null);
 
@@ -350,7 +350,7 @@ export const TransactionProviderSOL = ({ children }) => {
                 }
                 clearTimeout(timeout);
                 setIsLoading(false);
-                setcurrentMemeContract(contract_meme.toBase58());
+                setcurrentMemeData(contract_meme.toBase58());
             }
         //console.log("token created");  
         }   catch (error) {

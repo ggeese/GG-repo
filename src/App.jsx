@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { TransactionContext } from './context/TransactionContext';
 import { HiMenuAlt4 } from 'react-icons/hi';
@@ -43,28 +43,29 @@ const App = () => {
   };
 
   const handleClick = (meme) => {
-    Navigate(`/Degen/${meme.contract}`, { state: { meme } });
+    Navigate(`/Degen/${meme.contract}-${meme.network}`, { state: { meme } });
 };
 
   if (location.pathname !== "/") {
     return (
       <div>
-        <header className="relative w-full bg-black flex md:justify-center justify-between items-center">
-          <div className="relative z-10 flex items-center justify-between w-full max-w-screen-xl mx-auto px-4">
-            <Link to="/" className="flex text-2xl px-4 py-2 hover:text-gray-300">
-              <img src={logo} alt="logo" className="w-20 cursor-pointer" />
-            </Link>
-            <nav className="hidden md:flex list-none gap-20 items-center flex-initial">
-              <Link to="/Factory" className="text-white text-xl px-4 py-2 hover:text-gray-300">Factory</Link>
-              <Link to="/Farm" className="text-white text-xl px-4 py-2 hover:text-gray-300">Farm</Link>
-              <Link to="/Hall" className="text-white text-xl px-4 py-2 hover:text-gray-300">Hall</Link>
+        <header className="relative w-full bg-black flex md:justify-center justify-between items-center z-20">
+          <div className="relative z-10 flex items-center w-auto max-w-screen-xl mx-auto px-4">
+            <nav className="hidden md:flex list-none text-xl sm:text-lg md:text-2lg lg:text-3lg xl:text-xl sm:gap-5 md:gap-10 xl:gap-15 gap-20 items-center">
+              <Link to="/" className="flex px-4 py-2 hover:text-gray-300">
+                <img src={logo} alt="logo" className="w-20 cursor-pointer" />
+              </Link>
+              <Link to="/Factory" className="text-white px-2 py-2 hover:text-gray-300">Factory</Link>
+              <Link to="/Farm" className="text-white px-3 py-2 hover:text-gray-300">Farm</Link>
+              <Link to="/Hall" className="text-white px-3 py-2 hover:text-gray-300">Hall</Link>
               
               <button
                 onClick={() => handleClick(meme)}
 
-                className="text-white text-xl px-4 py-2 hover:text-gray-300"
+                className="flex flex-col text-white text-xl px-4 py-2 hover:text-gray-300"
               >
-                Degen <span className="text-gray-400"></span> (BETA)
+                <span className="text-white">Degen</span>
+                <span className="text-white">(BETA)</span>
               </button>
 
               <div className="relative flex items-center justify-between mb-6 text-left">
@@ -90,17 +91,29 @@ const App = () => {
                 ) : (
                   <button className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]" onClick={() => setShowMyModal(true)}>
                     <p className="text-xl text-black">Connect Wallet</p>
+                    
                   </button>
                 )}
               </div>
             </nav>
-            <div className="flex md:hidden ml-auto py-4 px-6 toggle-button">
-              {toggleMenu
-                ? <AiOutlineClose fontSize={28} className="text-white cursor-pointer" onClick={handleToggleClick} />
-                : <HiMenuAlt4 fontSize={28} className="text-white cursor-pointer" onClick={handleToggleClick} />}
+            <div className="flex md:hidden items-center ml-auto py-4 px-3">
+              {/* Logo */}
+              <Link to="/" className="flex items-center mr-4 hover:text-gray-300">
+                <img src={logo} alt="logo" className="w-10 h-auto cursor-pointer" />
+              </Link>
+              
+              {/* Botón de menú */}
+              <button onClick={handleToggleClick} className="text-white cursor-pointer">
+                {toggleMenu ? (
+                  <AiOutlineClose fontSize={28} />
+                ) : (
+                  <HiMenuAlt4 fontSize={28} />
+                )}
+              </button>
             </div>
+
             {toggleMenu && (
-              <ul className="fixed z-20 top-0 -right-2 p-3 w-[40vw] h-screen shadow-2xl md:hidden list-none flex flex-col justify-start items-center rounded-md bg-black text-white animate-slide-in toggle-menu">
+              <ul className="fixed z-20 top-0 -right-2 p-3 w-[50vw] h-screen shadow-2xl md:hidden list-none flex flex-col justify-start items-center rounded-md bg-black text-white animate-slide-in toggle-menu">
                   <li className="text-xl w-full my-2">
                     <AiOutlineClose onClick={() => setToggleMenu(false)} />
                   </li>
@@ -116,6 +129,13 @@ const App = () => {
                   <li className="my-2 text-xl py-3">
                     <Link to="/Hall" className="text-white hover:text-gray-300">Hall</Link>
                   </li>
+                  <button
+                    onClick={() => handleClick(meme)}
+
+                    className="text-white text-xl px-4 py-2 hover:text-gray-300"
+                  >
+                    Degen <span className="text-gray-400"></span> (BETA)
+                  </button>
                   <li className="my-2 text-xl py-3">
                   {currentAccount ? (
                     <div className="relative inline-block">

@@ -10,6 +10,7 @@
         "poolInteract": "0xd30AD690f1fF1aC69f99C8F372DcBa3f56A60B9B",
         "factory":"0x33E8fB88adD6891976618F46204E9603c9A4F417",
         "nick":"Sepolia ETH",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.0001
       },      
       {
@@ -22,6 +23,7 @@
         "poolInteract": "0x9C607cd07e458aB463b2c0815FD7E24956Ae69F4",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Ethereum",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -34,6 +36,7 @@
         "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"",
         "nick":"Ethereum",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -46,6 +49,7 @@
         "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x6033a173c92170e7Ee1F1fDE11fA8458B5A62283",
         "nick":"BNB Chain",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -58,6 +62,7 @@
         "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
         "nick":"BNB Chain",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.001
       },
       {
@@ -70,6 +75,7 @@
         "poolInteract": "0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
         "factory":"0x0D09168ecF4f0589F6eFa76FdF32e388ee1664dE",
         "nick":"Bera Chain",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.001
       },
       {
@@ -82,6 +88,7 @@
         "poolInteract": "0x2D748E3353196D863d96733739EeA2BB00a40E5E",
         "factory":"0x457c0B0430b16BF9bd57FfF2c9C1980c632910e2",
         "nick":"Polygon",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -94,6 +101,7 @@
         "poolInteract": "0x6600b714Be5b4E7656aeA572c6a4857Bf708a850",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Avalanche",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -106,6 +114,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
         "nick":"Avalanche Testnet",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.02
       },
       {
@@ -118,6 +127,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Arbitrum One",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -130,6 +140,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Fantom",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -142,6 +153,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Optimism",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -154,6 +166,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Base",
+        "WETHaddress": "0x43b620CDCD633de6CE4EcB647aEA355910492A63",
         "fee":0.00001
       },
       {
@@ -166,6 +179,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
         "nick":"Base",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.0001
       },
       {
@@ -176,8 +190,9 @@
         "explorerUrl": "https://sepolia-explorer.base.org/",
         "poolFactory": "0x1bAd98d82598CA1077046cDE447D81d7F0bEbCb0",
         "poolInteract": "0x48b2C11f9b40Ca165Ab791b696165CD573B72371",
-        "factory":"0xc1d55Fb57165e874e2DBF43bc8A5fC6C9881c23A",
+        "factory":"0xac823aFbbaf20EE87010BE8629e60Bc567900cE0",
         "nick":"Base",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.0001
       },
       {
@@ -190,6 +205,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Manta",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -202,6 +218,7 @@
         "poolInteract": "0x43b620CDCD633de6CE4EcB647aEA355910492A63",
         "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
         "nick":"Manta",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -214,6 +231,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Blast",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       } ,
       {
@@ -226,6 +244,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Merlin Mainnet",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       } ,
       {
@@ -238,6 +257,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x33a88274f6e782Fe2b028F75cDB6543B1E78A74f",
         "nick":"Merlin Testnet",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       } ,
       {
@@ -250,6 +270,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x6033a173c92170e7Ee1F1fDE11fA8458B5A62283",
         "nick":"OKB Mainnet",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -262,6 +283,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x0D09168ecF4f0589F6eFa76FdF32e388ee1664dE",
         "nick":"OKB Mainnet",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.02
       },
       {
@@ -274,6 +296,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Linea",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -286,6 +309,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"klay",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -298,6 +322,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0xce5c61f3fd7A2659ed0adbBcaC0b0865841b309e",
         "nick":"Zeta testnet",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":1
       },
       {
@@ -310,6 +335,7 @@
         "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
         "factory":"0x20B24C9b61D51F553675F4a2819C77959e982E67",
         "nick":"Zeta",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":1
       }
     ]

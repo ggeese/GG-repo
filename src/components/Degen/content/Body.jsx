@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
-import Axios from "axios";
+import { dbMemesPoint, AppSocialPoint } from '../../../utils/axiossonfig';
 import TradingViewChart from "./tvwidget";
-import { useLocation, useNavigate } from "react-router-dom";
-import no_image from "../../../../images/goldeng.png";
 import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
 import { TransactionContext } from "../../../context/TransactionContext";
 import { Wallets } from '../../../';
-import { Donate } from './';
+import { Donate, Searcher } from './';
 import { Burn } from './';
 import { Comments } from './';
+import { Description } from "./";
+import { useParams } from "react-router-dom";
+
 
 const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
   <input
@@ -29,117 +30,121 @@ const Body = () => {
   const [percentage, setPercentage] = useState(0);
   const [customPercentages, setCustomPercentages] = useState([1, 2, 3, 5]);
   const [isEditing, setIsEditing] = useState(false);
-  const location = useLocation();
   const [memedata, setMemeData] = useState({});
-  const [search, setSearch] = useState("");
   const [MemeBalance, setMemeBalance] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const currentmemedata = location.state?.meme || {};
-  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, Get_Token_Balance } = useContext(TransactionContextETH); 
-  const { currentAccount, Balance } = useContext(TransactionContext); 
+  const [MemeTreasury, setMemeTreasury] = useState("");
+  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, GetMemeFee, GetProtectHours, Get_Token_Balance } = useContext(TransactionContextETH); 
+  const { currentAccount, Balance, factoryContract } = useContext(TransactionContext); 
   const [showMyModal, setShowMyModal] = useState(false);
   const [showMyModalDonate, setShowMyModalDonate] = useState(false);
   const [showMyModalBurn, setShowMyModalBurn] = useState(false);
+  const [ProtectTime, setProtectTime] = useState(null);
+  const [Tradestarted, setTradestarted] = useState(null);
+        // Extraer el 'id' de la URL que contiene tanto el contract como el network
+  const { id } = useParams();
+
+
   const handleOnClose = () => setShowMyModal(false);
   const handleOnCloseDonate = () => setShowMyModalDonate(false);
   const handleOnCloseBurn = () => setShowMyModalBurn(false);
   const [dataComments, setDataComments] = useState([]);
   const [Tablename, setTableName] = useState("");
   const [ChainNet,setChainNet] = useState("");
-  const Navigate = useNavigate(); // Crear una instancia de useHistory
+  const [MemeFee, setMemeFee] = useState(null);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const meme_balance = await Get_Token_Balance(memedata.contract, currentAccount, 18);
+        setMemeBalance(meme_balance);
+        const meme_balance_treasury = await Get_Token_Balance(memedata.contract, factoryContract, 18);
+        setMemeTreasury(meme_balance_treasury);
+      } catch (error) {
+        setMemeBalance(0);
+      }
+    };
+    fetchBalance();
+  },[id, currentAccount])
+
 
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await Axios.get('https://app-social-gg.onrender.com/comments', {
-        //const response = await Axios.get('http://localhost:5000/comments', {
+        const response = await AppSocialPoint.get('/comments', {
+        //const response = await Axios.get('https://app-social-gg.onrender.com/comments', {
 
-          params: { tableName: Tablename, chainNet: ChainNet },  // Asegúrate de que estos nombres coincidan con los que espera el backend
+          params: { tableName: Tablename, chainNet: ChainNet },
         });
-        // Convertir timestamp Unix a fecha legible
-        // Dejar la fecha tal cual, sin convertir
+
         const fetchedComments = response.data.map(comment => ({
           ...comment,
           date: comment.date,  // No se realiza la conversión aquí
         }));
 
         setDataComments(fetchedComments);
-        console.log('data useefect comments', fetchedComments);
+        console.log('data useEffect comments', fetchedComments);
       } catch (error) {
         console.error('Error fetching comments:', error);
       }
     };
-  
+
     if (Tablename && ChainNet) {
-      console.log(Tablename, ChainNet,"parameter consult data one")
       fetchComments();
     }
-  }, [Tablename, ChainNet]); // Actualiza dependencias según sea necesario
-  
+  }, [Tablename, ChainNet]); // Dependencias específicas para comentarios
+
 
   useEffect(() => {
-    if (currentmemedata && Object.keys(currentmemedata).length > 0) {
-      setMemeData(currentmemedata);
-      setTableName(currentmemedata.contract.substring(1));
-      setChainNet(currentmemedata.network);
-      console.log(currentmemedata, "current memedata")
-      const fetchBalance = async () => {
-        try {
-          const meme_balance = await Get_Token_Balance(currentmemedata.contract, 18);
-          console.log(meme_balance,"meme balance")
-          setMemeBalance(meme_balance);
+    const allMemeData = async () => {
+      try {
+        console.log("Enviando solicitud de búsqueda por contrato...");
 
-        } catch (error) {
-          setMemeBalance(0);
-          console.log("error getting meme balance", error);
-        }
-      };
-      fetchBalance();
+        const [searchContract, searchNetwork] = id.split('-');
+
+        const response = await dbMemesPoint.get('/meme_by_contract', {
+        //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/meme_by_contract", {
+
+          params: {
+            contract: searchContract,
+            network: searchNetwork,
+          }
+        });
+
+        setMemeData(response.data);
+      } catch (error) {
+        console.error('Error fetching meme data:', error);
+      }
+    };
+
+    if (id) {
+      allMemeData();
     }
-  }, [currentmemedata]);
-  
+  }, [id]); // Dependencia específica para meme data
+
+
+  useEffect(() => {
+    const fetchMemeFee = async () => {
+      if (memedata && memedata.contract) {
+        try {
+          const fee = await GetMemeFee(memedata.contract);
+          setMemeFee(fee);
+          const [Tstarted, protex] = await GetProtectHours(memedata.contract);
+          setProtectTime(protex.toString());
+          setTradestarted(Tstarted.toString());
+        } catch (error) {
+          console.error("Error Meme Fee:", error);
+        }
+      }
+    };
+    fetchMemeFee();
+  }, [memedata, currentAccount]);
+
     // Función para cambiar entre pestañas
     const handleTabChange = (tab) => {
       setActiveTab(tab);
       // Reiniciar el valor del input cuando se cambia de pestaña
       change_input_swap(0);
     };
-  
-  const handleSearch = async () => {
-    try {
-      //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/db_memes", {
-      const response = await Axios.get("http://localhost:3001/db_memes", {
-        params: {
-          name: search,
-        },
-      });
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error('Error fetching memes:', error);
-    }
-  };
-
-  const handleSelectResult = (result) => {
-    setMemeData(result);
-    Navigate(`/Degen/${result.contract}`, { state: { result } });
-    setSearchResults([]);
-    setSearch("");
-    const fetchBalance = async () => {
-      try {
-        const meme_balance = await Get_Token_Balance(result.contract, 18);
-        setMemeBalance(meme_balance);
-      } catch (error) {
-        setMemeBalance(0);
-      }
-    };
-    fetchBalance();
-  };
-
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  };
 
   const handleOutsideClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -148,17 +153,9 @@ const Body = () => {
   };
 
   const handleBuy = (contract) => {
-    //const { contract  } = FormData_5;
-    //e5.preventDefault();
-    //if( !contract ) return;
-
     BuyMeme(contract); 
   }
   const handleSell = (contract) => {
-    //const { contract  } = FormData_5;
-    //e5.preventDefault();
-    //if( !contract ) return;
-
     SellMeme(contract); 
   }
 
@@ -181,75 +178,24 @@ const Body = () => {
     setCustomPercentages(newPercentages);
   };
 
-  const isValidData = (data) => {
-    return typeof data === 'string' && data.trim() !== '';
-  };
-  
-
   return (
     <div className="min-h-screen bg-gradient-to-r rounded-3xl from-gray-800 via-black to-gray-900 p-4  max-w-7xl mx-auto">
       {/* Barra de búsqueda y título */}
       <div className="mb-4 flex flex-col lg:flex-row items-center justify-center">
       </div>
-      <div className="flex justify-center items-center h-full text-gray-200 space-x-2 relative">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={handleKeyPress}
-          type="text"
-          className="w-full max-w-lg rounded-md border-gray-700 bg-gray-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          placeholder="🔍 Search by token contract address"
-        />
-        <button
-          onClick={handleSearch}
-          className="bg-indigo-500 text-white rounded-md px-4 py-2 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          Search
-        </button>
-        {searchResults.length > 0 && (
-          <div className="absolute top-full mt-2 w-full max-w-lg bg-gray-800 rounded-md shadow-lg z-10">
-            {searchResults.map((result) => (
-              <div
-                key={`${result.id}-${result.contract}`} // Combina id con otra propiedad como contract
-                onClick={() => handleSelectResult(result)}
-                className="px-4 py-2 cursor-pointer hover:bg-gray-700"
-              >
-                {result.name}   {result.contract}
 
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Sección de descripción */}
-      <div className="bg-gray-800 rounded-lg shadow-lg p-6 mt-6 mb-6 text-white">
-        <div className="flex flex-col lg:flex-row lg:justify-between items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-4">
-          <div className="flex flex-col items-center lg:flex-row lg:items-start space-y-4 lg:space-y-0 lg:space-x-4">
-            <img
-              className="rounded-3xl w-auto h-24 object-cover border-2 border-gray-700 shadow-lg"
-              src={memedata.image || no_image}
-              alt={memedata.name}
-            />
-            <div className="flex flex-col justify-center items-center lg:items-start space-y-2">
-              <h3 className="text-2xl font-semibold text-center lg:text-left">{memedata.name} ({memedata.ticker})</h3>
-              <p className="text-md font-medium text-gray-400 text-center lg:text-left">{memedata.contract}</p>
-              <p className="text-md font-medium text-gray-400 text-center lg:text-left">Network: {memedata.network}</p>
-            </div>
-          </div>
-          <div className="flex justify-center w-full lg:w-auto">
-            <button
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full mt-4 lg:mt-0 lg:ml-4 transition-transform transform hover:scale-105"
-              onClick={() => setShowMyModalDonate(true)}
-            >
-              Airdrop
-            </button>
-          </div>
-        </div>
-        <p className="text-gray-300 mt-4 text-center lg:text-left">
-          {memedata.description}
-        </p>
-      </div>
+      <Searcher
+        setMemeData={setMemeData} 
+        setTableName={setTableName}
+        setChainNet ={setChainNet}
+      />
+      <Description
+        memedata={memedata}
+        MemeFee={MemeFee}
+        Tradestarted={Tradestarted}
+        ProtectTime={ProtectTime}
+        setShowMyModalDonate={setShowMyModalDonate}
+      />
 
       {/* Contenedor principal */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 text-white">
@@ -260,6 +206,7 @@ const Body = () => {
             <TradingViewChart 
               tableName={memedata?.contract ? memedata.contract.substring(1) : ''} 
               chainNet={memedata?.network ? memedata.network : ''} 
+              SetOpenDonate={setShowMyModalDonate}
             />
           </div>
         </div>
@@ -513,7 +460,7 @@ const Body = () => {
 
 
       <Wallets onCloseWallets={handleOnClose} visibleWallets={showMyModal} />
-      <Donate onCloseWallets={handleOnCloseDonate} visibleWallets={showMyModalDonate} memecontract={memedata.contract}/>
+      <Donate onCloseWallets={handleOnCloseDonate} visibleWallets={showMyModalDonate} memedata={memedata} TreasuryBalance={MemeTreasury}/>
       <Burn onCloseWallets={handleOnCloseBurn} visibleWallets={showMyModalBurn} memecontract={memedata.contract} memeticker={memedata.ticker}/>
 
 

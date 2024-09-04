@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Axios from "axios";
+import { AppSocialPoint } from '../../utils/axiossonfig'
 import farm2 from "../../../images/farm2.jpeg";
 import { TransactionContext } from "../../context/TransactionContext";
 
@@ -12,8 +13,8 @@ const Profile = () => {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const response = await Axios.get(`https://app-social-gg.onrender.com/users/${currentAccount}`);
-        //const response = await Axios.get(`http://localhost:5000/users/${currentAccount}`);
+        //const response = await Axios.get(`https://app-social-gg.onrender.com/users/${currentAccount}`);
+        const response = await AppSocialPoint.get(`/users/${currentAccount}`);
 
         setUserProfile(response.data);
         setMemes(response.data.memes || []);

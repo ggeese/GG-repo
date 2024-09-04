@@ -1,4 +1,4 @@
-import Axios from "axios";
+import { dbMemesPoint, AppSocialPoint } from '../../utils/axiossonfig'
 
 export const handleCreateJson = async (name, symbol, imageurl) => {
     const jsonData = {
@@ -8,8 +8,8 @@ export const handleCreateJson = async (name, symbol, imageurl) => {
         image: imageurl
     }
     try {
-        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/create-json', jsonData);
-        //const response = await Axios.post('http://localhost:3001/create-json', jsonData);
+        //const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/create-json', jsonData);
+        const response = await dbMemesPoint.post('http://localhost:3001/create-json', jsonData);
 
         console.log("json URI uploaded")
 
@@ -31,8 +31,8 @@ export const saveImageToServer = async (imageFile) => {
         formData.append('image', imageFile);
 
         // Enviar la solicitud POST al servidor
-        const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
-        //const response = await Axios.post('http://localhost:3001/api/upload', formData, {
+        //const response = await Axios.post('https://app-memes-golden-g-goose.onrender.com/api/upload', formData, {
+        const response = await dbMemesPoint.post('/api/upload', formData, {
 
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -61,8 +61,8 @@ export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_me
     // Extrayendo la hora y fecha
     const Creation_Date = new Date().toLocaleString();
 
-    Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
-    //Axios.post("http://localhost:3001/create", {
+    //Axios.post("https://app-memes-golden-g-goose.onrender.com/create", {
+        dbMemesPoint.post('/create', {
     
         name: MemeName,
         ticker: Symbol,
@@ -86,8 +86,8 @@ export const Add_Meme = async (MemeName, Symbol, Supply, contract_meme, image_me
 
 export const Create_Delivery = async (firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount ) => {
     // Extrayendo la hora y fecha
-    Axios.post("https://app-memes-golden-g-goose.onrender.com/create-order", {
-    //Axios.post("http://localhost:3001/create-order", {
+    //Axios.post("https://app-memes-golden-g-goose.onrender.com/create-order", {
+        dbMemesPoint.post('/create-order', {
         
         first_name: firstname,
         last_name: lastname,
@@ -109,7 +109,7 @@ export const Create_Delivery = async (firstname, lastname, country, city, provin
 
 
 export const ProfileCheck = async (Account) => {
-    Axios.post("http://localhost:5000/users", {
+    AppSocialPoint.post('/users', {
         walletAddress: Account
     }).then(() => {
         console.log("Perfil creado o ya existente");

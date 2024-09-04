@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import profile from "../../../../images/goldeng.png";
 import ArrowIcon from "../../../../images/arrow.svg";
 import memeicon from "../../../../images/memeicon.png";
+import { AppSocialPoint } from '../../../utils/axiossonfig';
 import { TransactionContext } from '../../../context/TransactionContext';
 
 function Comments({ contractMeme, chainNetwork, Comments }) {
@@ -56,8 +56,8 @@ function Comments({ contractMeme, chainNetwork, Comments }) {
             };
 
             try {
-                const response = await axios.post("https://app-social-gg.onrender.com/comments", newCommentData);
-                //const response = await axios.post("http://localhost:5000/comments", newCommentData);
+                //const response = await axios.post("https://app-social-gg.onrender.com/comments", newCommentData);
+                const response = await AppSocialPoint.post('/comments', newCommentData);
 
                 setDataComments([response.data, ...allcomments]); // Usar la respuesta del servidor
             } catch (error) {

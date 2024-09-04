@@ -15,7 +15,7 @@ const Factory = () => {
   };
 
   return (
-    <div className="relative min-h-screen"> {/* Establece la posición relativa para el contenedor principal */}
+    <div className="relative min-h-screen  overflow-hidden "> {/* Establece la posición relativa para el contenedor principal */}
       <div className="absolute overflow-hidden inset-0" style={backgroundStyle}></div> {/* Capa de fondo con desenfoque */}
       <div className="absolute overflow-hidden inset-0 bg-black bg-opacity-50"></div> {/* Capa de opacidad */}
       <div className="relative">

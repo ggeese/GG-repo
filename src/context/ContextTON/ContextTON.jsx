@@ -10,7 +10,7 @@ export const TransactionContextTON = React.createContext();
 
 export const TransactionProviderTON = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setTONAddress, setIsLoading, setcurrentMemeContract, currentAccount, Network } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setTONAddress, setIsLoading, setcurrentMemeData, currentAccount, Network } = useContext(TransactionContext); 
 
     
       //capturamos la direccion de la wallet
@@ -38,7 +38,7 @@ export const TransactionProviderTON = ({ children }) => {
 
     const contractmeme= result.contractAddr.toFriendly();
 
-    setcurrentMemeContract(contractmeme)
+    setcurrentMemeData(contractmeme)
     //subimos la imagen al server
     const image_meme_url = await saveImageToServer(file); 
     

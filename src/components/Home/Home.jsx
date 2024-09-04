@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Welcome from './content/Welcome';
 import Info from './content/Info';
 import Token_Info from './content/Token_Info';
-import Hatching from './content/Hatching';
+import Airdrop from './content/Airdrop';
 import FAQ from './content/FAQ';
-import goose_static from "../../../images/goose_static.png"; 
+import goose_static from "../../../images/bearfly.png"; 
 import piece from "../../../images/piece.png";
 import bg_1 from "../../../images/bg_1.jpg"; 
 import bg_1_1 from "../../../images/bg_1_1.png"; 
@@ -63,7 +63,7 @@ const Home = () => {
   }, [currentSection]);
 
   return (
-    <div>
+    <div className=' overflow-hidden '>
       {/* Sección Welcome con fondo bg_1 */}
       <div className="min-h-screen bg-black relative">
         {/* Primer fondo */}
@@ -71,34 +71,34 @@ const Home = () => {
         <div className="absolute inset-0 z-10 bg-cover bg-center" style={{ backgroundImage: `url(${bg_1_1})` }}></div>
 
         <div className="absolute left-10 top-1/4 hidden md:block">
-  <div className="move-right-animation inline-block">
-    <div className="">
-      <div className="animatedSprite"></div>
-    </div>
-  </div>
-</div>
-<div className="absolute right-20 top-1/3 z-2 scale-90">
-  <div className="move-left-animation inline-block">
-    <div className="scale-90">
-      <div className="animatedSprite"></div>
-    </div>
-  </div>
-</div>
-<div className="absolute top-1/2 right-0 z-2">
-  <div className="move-left-animation inline-block">
-    <div className="scale-50">
-      <div className="animatedSprite"></div>
-    </div>
-  </div>
-</div>
+          <div className="move-right-animation inline-block">
+            <div className="">
+              <div className="animatedSprite"></div>
+            </div>
+          </div>
+        </div>
+        <div className="absolute right-20 top-1/3 z-2 scale-90">
+          <div className="move-left-animation inline-block">
+            <div className="scale-90">
+              <div className="animatedSprite"></div>
+            </div>
+          </div>
+        </div>
+        <div className="absolute top-1/2 right-0 z-2">
+          <div className="move-left-animation inline-block">
+            <div className="scale-50">
+              <div className="animatedSprite"></div>
+            </div>
+          </div>
+        </div>
 
-<div className="absolute top-1/2 mt-20 left-5 z-2 hidden md:block">
-  <div className="move-right-animation inline-block">
-    <div className="scale-75">
-      <div className="animatedSprite"></div>
-    </div>
-  </div>
-</div>
+        <div className="absolute top-1/2 mt-20 left-5 z-2 hidden md:block">
+          <div className="move-right-animation inline-block">
+            <div className="scale-75">
+              <div className="animatedSprite"></div>
+            </div>
+          </div>
+        </div>
 
         <div className="absolute inset-0 flex items-center justify-center z-20">
           <Welcome />
@@ -112,16 +112,18 @@ const Home = () => {
 
       {/* Sección Info con fondo bg_3 */}
       <div className="min-h-screen" style={{ backgroundImage: `url(${bg_3})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-      <Info/>
+        <Airdrop/>
+
       </div>
 
       {/* Sección Hatching con fondo bg_4 */}
       <div  className="min-h-screen" style={{ backgroundImage: `url(${bg_4})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-      <FAQ/>
+        <Info/>
       </div>
 
       {/* Sección FAQ con fondo bg_5 */}
       <div className="min-h-screen" style={{ backgroundImage: `url(${bg_5})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <FAQ/>
       </div>
 
       {/* Imagen fija en la esquina inferior derecha */}
@@ -141,7 +143,7 @@ const Home = () => {
         <img
           src={goose_static}
           alt="Goose"
-          className="transform transition-all hover:scale-110 w-20 h-auto sm:w-44 md:w-52 lg:w-50 xl:w-72 object-cover cursor-pointer" // Ajusta el tamaño de la imagen según sea necesario
+          className="transform transition-all hover:scale-110 w-20 h-auto sm:w-44 md:w-52 lg:w-50 xl:w-72 object-cover cursor-pointer animate-float" // Ajusta el tamaño de la imagen según sea necesario
           onClick={togglePiece} // Agregar evento onClick
         />
       </div>

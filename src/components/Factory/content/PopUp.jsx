@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
+import { FaInfoCircle } from 'react-icons/fa';
 import { Loader } from './'
 import { PopUp_2 } from "./"
 import { TransactionContext } from '../../../context/TransactionContext';
@@ -12,14 +13,15 @@ import Wallets from '../../../Wallets';
 import { FileUpload } from './'
 
 
-const Input2 = ({ placeholder, name_2, type, value, handleChange_2 }) => (
+const Input2 = ({ placeholder, name_2, type, value, handleChange_2, disabled }) => (
     <input
         placeholder={placeholder}
         type={type}
         step="1"
         value={value}
         onChange={(e2) => handleChange_2(e2, name_2)}
-        className={`placeholder:italic ${type === 'number' ? 'font-normal px-2' : ''}`}
+        className={`placeholder:italic w-auto p-2 border ${type === 'number' ? 'font-normal px-2' : ''} ${disabled ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+
         // Aplicar padding solo al input de tipo 'number'
     />
 );
@@ -47,6 +49,11 @@ function PopUp({visible, onClose}) {
     const [showMyModal_2, setShowMyModal_2] = useState(false);
     const [lastTxHash, setlastTxHash] = useState(""); // Nuevo estado para prevLoadingState
     const [switchState, setSwitchState] = useState("meme"); // Estado para el interruptor
+    const [isChecked, setIsChecked] = useState(true);
+
+    const handleCheckboxChange = () => {
+      setIsChecked(!isChecked);
+    };
 
     const handleOnClose = (event) => {
         if (event.target.id === 'container_meme') onClose()
@@ -113,8 +120,8 @@ function PopUp({visible, onClose}) {
             </button>
             
               <div className="flex flex-col p-3 items-center max-h-screen sm:max-h-screen lg:max-h-screen md:max-h-screen">
-              <TransportMethod switchState={switchState} setSwitchState={setSwitchState}/>
-              {switchState === "meme" ? (
+                <TransportMethod switchState={switchState} setSwitchState={setSwitchState}/>
+                {switchState === "meme" ? (
                 <div>
                   <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center">
 
@@ -191,6 +198,15 @@ function PopUp({visible, onClose}) {
                               <Input2 placeholder="GoldenGoosememe" name_2="Twitter" type="text" handleChange_2={handleChange_2} className="border-none outline-none" />
                           </div>
                       </div>
+                      {Network !== "Solana" && (
+                        <div className="flex flex-col">
+                          <p className="flex justify-center font-bold p-2">Fee (0 - 2) %</p>
+                            <div className="flex justify-end">
+                              <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} />
+                            </div>
+                        </div>
+                      )}
+
                     </div>
 
                     <div className="flex flex-col">
@@ -209,18 +225,29 @@ function PopUp({visible, onClose}) {
                               <Input2 placeholder="goldeng" name_2="Twitch" type="text" handleChange_2={handleChange_2} />
                           </div>
                       </div>
+                      {Network !== "Solana" && (
+                      <div className="flex flex-col">
+                        <div className="flex flex-fil justify-center items-center">
+                          <input 
+                            type="checkbox" 
+                            checked={isChecked} 
+                            onChange={handleCheckboxChange} 
+                            className="mr-2"
+                          />
+                          <p className="flex font-bold p-2 ">Smart Launch</p>
+                          <span className="flex italic py-2">(days)</span>
+                        </div>
+
+                          <div className="flex justify-end items-center">
+                            <button>
+                              <FaInfoCircle className="text-blue-500 mr-2" /> {/* Este es el ícono de información */}
+                            </button>
+                            <Input2 placeholder="1" name_2="ProtectHorus" type="number" handleChange_2={handleChange_2} disabled={!isChecked} />
+                          </div>
+                      </div>
+                    )}
                     </div>
                   </div>
-                    {Network != "Solana" && (
-                        <>
-                          <p className="flex justify-center justify-center font-bold p-2">Fee (0 - 5) %</p>
-                          <p className="flex justify-center justify-center text-sm italic">(Transaction Fee)</p>
-                          <div className="flex justify-center">
-                            <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} />
-                            <p className="flex justify-center font-bold p-2">% </p>
-                          </div>
-                        </>
-                      )}
 
                   </div>
                     )}
@@ -262,7 +289,7 @@ function PopUp({visible, onClose}) {
             
           <PopUp_2 onClose_2 = {handleOnClose_2} visible_2 = {showMyModal_2}/>
           <Wallets onCloseWallets={handleOnCloseWallets} visibleWallets={showMyModalWallets} />
-          </div>
+        </div>
 
     )
 }

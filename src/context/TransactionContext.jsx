@@ -28,7 +28,8 @@ export const TransactionProvider = ({ children }) => {
     const [factoryContract, setFactoryContract] = useState ('');
     const [poolFactoryContract, setpoolFactoryContract] = useState('');
     const [interactFactoryContract, setinteractFactoryContract] = useState('');
-    const [currentMemeContract, setcurrentMemeContract] = useState ('');
+    const [currentMemeContract, setcurrentMemeData] = useState ('');
+    const [WETH, setWETH] = useState('');
     const [feeIntContract, setfeeIntContract] = useState ("");
     const [walletext, setWalletext] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +102,7 @@ export const TransactionProvider = ({ children }) => {
     const { connectors, connect } = useConnect()
 
     //obteniendo datos del wagmi a partir del hash para el contrato
-  const { data: BaseDataHash } = useTransactionReceipt ({
+    const { data: BaseDataHash } = useTransactionReceipt ({
         hash: TxHashBase,
     })  
 
@@ -163,12 +164,13 @@ export const TransactionProvider = ({ children }) => {
                 throw new Error(`No se encontró información para la red ${network}.`);
             }
     
-            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, factory, fee } = networkData;
+            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, factory, fee, WETHaddress } = networkData;
 
             setFactoryContract(factory);
             setfeeIntContract(fee);
             setpoolFactoryContract(poolFactory);
             setinteractFactoryContract(poolInteract);
+            setWETH(WETHaddress);
 
             //base switch network
                 try{
@@ -249,7 +251,7 @@ export const TransactionProvider = ({ children }) => {
 
     //boton 2 para creacion de meme, a partir de aqui es mi codigo
 
-    const [FormData_2, setFormData_2] = useState({ MemeName: '', Symbol: '', Supply: '' });
+    const [FormData_2, setFormData_2] = useState({ MemeName: '', Symbol: '', Supply: '', ProtectHorus: ''});
     const handleChange_2 = (e2, name_2) => {
         setFormData_2((prevState) => ({ ...prevState, [name_2]: e2.target.value }));
     }
@@ -291,7 +293,9 @@ export const TransactionProvider = ({ children }) => {
     }
     
     const sendTransactionBase = async (file) => {
-        const { MemeName, Symbol, Supply, Fee } = FormData_2;
+
+        const { MemeName, Symbol, Supply, Fee, ProtectHorus } = FormData_2;
+        let protection_days = ProtectHorus !== undefined ? ProtectHorus * 24 : 1 * 24;
         let Fee_tx = Fee !== undefined ? Fee : 0;
         const recipient = currentAccount;
         setImageFile(file);
@@ -303,7 +307,7 @@ export const TransactionProvider = ({ children }) => {
             abi: contractABI_MEME_FACTORY,
             address: factoryContract,
             functionName: 'createMeme',
-            args: [MemeName, Symbol, Suply_total, recipient, "https://raw.githubusercontent.com/main/meme.json", Fee_tx_fixed],
+            args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_days],
           },
           {onSuccess: async (data) => {
             console.log("Transacción enviada con éxito:", data);
@@ -359,7 +363,7 @@ export const TransactionProvider = ({ children }) => {
             });
 
         if (wasAdded) {
-            console.log("Thanks for your interest!");
+            console.log("Thanks!");
         } else {
             console.log("Your loss!");
         }
@@ -420,7 +424,7 @@ export const TransactionProvider = ({ children }) => {
     useEffect(() => {
         if (BaseDataHash) {
             const contract_meme = BaseDataHash.logs[1].address;
-            setcurrentMemeContract(contract_meme);
+            setcurrentMemeData(contract_meme);
             console.log("meme contract",contract_meme)
             // Aquí puedes continuar con la lógica que necesitas
             meme_adding(contract_meme);
@@ -457,7 +461,7 @@ export const TransactionProvider = ({ children }) => {
             setCurrentMemeImage,
             setIsLoading, 
             setWalletext,
-            setcurrentMemeContract,
+            setcurrentMemeData,
             connectSmartWallet,
             currentAccount, 
             isLoading,
@@ -466,6 +470,7 @@ export const TransactionProvider = ({ children }) => {
             factoryContract,
             poolFactoryContract,
             interactFactoryContract,
+            WETH,
             walletext,
             FormData, 
             FormData_2, 

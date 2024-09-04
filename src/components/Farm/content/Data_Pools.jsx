@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Collapse } from 'react-collapse';
+import { dbMemesPoint } from '../../../utils/axiossonfig';
 import golden_coin from "../../../../images/gg_coin.png";
 import { TransactionContext } from '../../../context/TransactionContext';
 import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 
-import Axios from "axios";
-
 const LoadingBox = () => (
-    <div className="border border-gray-300 rounded-3xl shadow-sm overflow-hidden bg-gray-300" style={{ width: '350px', height:'300px' }}>
+    <div className="border border-gray-300 rounded-3xl shadow-sm bg-gray-300" style={{ width: '350px', height:'300px' }}>
         <div className="flex flex-col items-center animate-pulse p-5 ">
             {/* Inserta aquí el contenido de tu caja de carga */}
             <p className="text-lg font-semibold text-center mt-auto mb-auto p-4">There is no POOL with this name...</p>
@@ -114,8 +113,8 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
 
 
     useEffect(() => {
-        //Axios.get("http://localhost:3001/db_pools_memes").then((response) => {
-        Axios.get("https://app-memes-golden-g-goose.onrender.com/db_pools_memes").then((response) => {
+        dbMemesPoint.get('/db_pools_memes').then((response) => {
+        //Axios.get("https://app-memes-golden-g-goose.onrender.com/db_pools_memes").then((response) => {
             setPoolsMemes(response.data);
             console.log("pools memesXD",response.data)
         }).catch(error => {
@@ -125,8 +124,8 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
     
 
     useEffect(() => {
-        //Axios.get("http://localhost:3001/db_stakers", {
-        Axios.get("https://app-users-5z99.onrender.com/db_stakers", {
+        dbMemesPoint.get('/db_stakers', {
+        //Axios.get("https://app-users-5z99.onrender.com/db_stakers", {
           params: {
             address: currentAccount
           }
@@ -182,13 +181,13 @@ const Data_Pools = ({ handleStakeClick, handleUnStakeClick, handleClaimClick, to
 
             <div className="flex flex-col">
             <div className="flex flex-wrap justify-center md:justify-around rounded-3xl p-5">
-                <div className="flex flex-1 items-center w-full md:w-2/3 lg:w-1/2 px-10 md:p-5">
+                <div className="flex flex-1 items-center justify-center w-full md:w-2/3 lg:w-1/2 px-10 md:p-5">
                     <input 
                         value={search} 
                         onChange={searcher}
                         type="text" 
                         placeholder="Type here to Search all memes!!" 
-                        className="form-control block w-full px-3 py-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                        className="form-control block w-1/2 px-3 py-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                     />
                     <div className="ml-2">
                         <button 
