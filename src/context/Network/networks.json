@@ -68,14 +68,14 @@
       {
         "name": "Berachain bArtio",
         "chainId": 80084,
-        "rpcUrl": "https://bartio.rpc.berachain.com",
+        "rpcUrl": "https://bartio.drpc.org",
         "symbol": "BERA",
         "explorerUrl": "https://artio.beratrail.io/",
         "poolFactory": "0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
         "poolInteract": "0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
-        "factory":"0x0D09168ecF4f0589F6eFa76FdF32e388ee1664dE",
+        "factory":"0xCfD8F158Be09CF7949eb68833f6395989c068d46",
         "nick":"Bera Chain",
-        "WETHaddress": "0x4200000000000000000000000000000000000006",
+        "WETHaddress": "0x43b620CDCD633de6CE4EcB647aEA355910492A63",
         "fee":0.001
       },
       {
@@ -219,6 +219,32 @@
         "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
         "nick":"Manta",
         "WETHaddress": "0x4200000000000000000000000000000000000006",
+        "fee":0.00001
+      },
+      {
+        "name": "Moonbeam",
+        "chainId": 1284,
+        "rpcUrl": "https://rpc.api.moonbeam.network",
+        "symbol": "GLMR",
+        "explorerUrl": "https://moonbeam.moonscan.io",
+        "poolFactory": "0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "poolInteract": "0x43b620CDCD633de6CE4EcB647aEA355910492A63",
+        "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
+        "nick":"Moonbase",
+        "WETHaddress": "0xD909178CC99d318e4D46e7E66a972955859670E1",
+        "fee":0.00001
+      },
+      {
+        "name": "Moonbase Alpha",
+        "chainId": 1287,
+        "rpcUrl": "https://moonbase-alpha.drpc.org",
+        "symbol": "DEV",
+        "explorerUrl": "https://moonbase.moonscan.io",
+        "poolFactory": "0x70922A0A727efDF45E9Ef1D4151e8E3B7fb64941",
+        "poolInteract": "0x43b620CDCD633de6CE4EcB647aEA355910492A63",
+        "factory":"0x60EcDf4DBD94a8ec42B7Bf2E6541401e492Eff41",
+        "nick":"Moonbase",
+        "WETHaddress": "0xD909178CC99d318e4D46e7E66a972955859670E1",
         "fee":0.00001
       },
       {

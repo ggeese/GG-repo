@@ -30,7 +30,8 @@ const TradingViewChart = ({ tableName, chainNet, SetOpenDonate }) => {
 
   useEffect(() => {
     if (tableName && chainNet && tableName.trim() !== '' && chainNet.trim() !== '') {
-      const newWs = new WebSocket(WSconnect);
+      //const newWs = new WebSocket(WSconnect);
+      const newWs = new WebSocket('ws://localhost:3003');
       //const newWs = new WebSocket('wss://app-graph-btzm.onrender.com');
 
       newWs.onopen = () => {
@@ -50,6 +51,7 @@ const TradingViewChart = ({ tableName, chainNet, SetOpenDonate }) => {
             low: parseFloat(item[3]),
             close: parseFloat(item[4])
           }));
+          console.log("data is array", data)
 
           if (dataMsg) {
             const width = chartContainerRef.current.clientWidth;

@@ -15,7 +15,7 @@ const Input3 = ({ placeholder, name_3, type, value, handleChange_3 }) => (
 
   
 
-function Unstake({visible, onClose, stake_contract, token_stake_contract, decimals, token_name, balance_Staked_wallet }) {
+function Unstake({visible, onClose, stake_contract, token_stake_contract, decimals, token_name, token_network, balance_Staked_wallet }) {
         
     //const { FormData_3, handleChange_3, change_input_staking, sendTransaction_3_Unstake } = useContext(TransactionContext); 
     const { FormData_3, handleChange_3, change_input_staking, sendTransactionUnstake } = useContext(TransactionContextETH); 
@@ -59,7 +59,7 @@ function Unstake({visible, onClose, stake_contract, token_stake_contract, decima
               <div className="fixed bg-gray-300 left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border-2 border-black bg-background p-6 duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg max-w-[95vw] md:max-w-lg">
 
             
-                <div className="flex flex-col space-y-1.5 text-center sm:text-left text-lg font-semibold">Unstake {token_name}</div>
+                <div className="flex flex-col space-y-1.5 text-center sm:text-left text-lg font-semibold">Unstake {token_name} {token_network}</div>
                 <div className="px-2 max-h-[calc(90vh_-_100px)] overflow-auto">
                   <div className="flex items-center font-medium justify-between gap-2">
                     <div className="">

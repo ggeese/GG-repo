@@ -16,8 +16,8 @@ function PopUp_2({visible_2, onClose_2 }) {
         if (event.target.id === 'container_meme_created') onClose_2()
     };
     
-    const handleClick = (contract) => {
-        Navigate(`/Degen/${contract}`, { state: {  } });
+    const handleClick = (contract, Network) => {
+        Navigate(`/Degen/${contract}-${Network}`);
     };
 
     if (!visible_2) return null;
@@ -39,7 +39,7 @@ function PopUp_2({visible_2, onClose_2 }) {
                     <div className="flex flex-col items-center justify-center p-4">
                         <div className="w-auto h-96 bg-center bg-cover rounded-xl justify-center items-center p-4" style={{backgroundImage: `url(${farm})`}}>
                             <img 
-                                onClick={() => handleClick(currentMemeContract)}
+                                onClick={() => handleClick(currentMemeContract, Network)}
 
                                 src={currentMemeImage || no_image} 
                                 alt="Meme" 

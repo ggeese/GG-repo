@@ -1,12 +1,46 @@
-import React, { useState, useContext } from 'react';
-import { contractAdrress_goldengnft } from "../../../utils/constants";
+import React, { useState, useContext, useEffect } from 'react';
+import { contractAddress_goldengnft } from "../../../utils/constants";
 import { TransactionContext } from "../../../context/TransactionContext";
 import meme from "../../../../images/meme.jpeg";
 import factory from "../../../../images/factory_2.jpeg";
+import copy_logo from "../../../../images/copy.svg";
+import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
+import { Loader } from './'
+import Wallets from '../../../Wallets';
 
 const Body = () => {
-    const { currentAccount, MintNft } = useContext(TransactionContext);
+    const { MintNft, walletext, isLoading, Network, currentAccount } = useContext(TransactionContext);
+    const { MetaMintNFT, Get_NFT_Minted } = useContext(TransactionContextETH);
     const [receivePhysical, setReceivePhysical] = useState(false);
+    const [showMyModalWallets, setShowMyModalWallets] = useState(false);
+    const [counterNFT, setcounterNFT] = useState("");
+    const [clicked, setClicked] = useState(false);
+
+
+    useEffect(() => {
+        const fetchCounter = async () => {
+            try {
+                const counter = await Get_NFT_Minted();
+                    setcounterNFT(counter);
+            } catch (error) {
+                console.error("Error fetching token balance:", error);
+                    setcounterNFT(0);
+            }
+        
+        };
+    
+        if ( currentAccount ) {
+            fetchCounter();
+        }
+
+    }, [ currentAccount, isLoading ]);
+    
+    const copyContractAddress = (Address) => {
+        navigator.clipboard.writeText(Address);
+        setClicked(true);
+        setTimeout(() => setClicked(false), 200); // Duración del efecto de clic
+      };
+
     const [address, setAddress] = useState({
         firstname: '',
         lastname: '',
@@ -31,8 +65,17 @@ const Body = () => {
         'Email': 'email'
     };
 
+    const handleOnCloseWallets = () => setShowMyModalWallets(false);
+
+
     const handleSubmit = () => {
-        MintNft(address.firstname, address.lastname, address.country, address.city, address.province, address.company, address.address, address.postalCode,  address.email);
+        if (Network != "Base Sepolia") return;
+
+        if (walletext === "Base Wallet") {
+            MintNft(address.firstname, address.lastname, address.country, address.city, address.province, address.company, address.address, address.postalCode,  address.email);
+        } else{
+            MetaMintNFT()
+        };
     };
 
     const handleInputChange = (e) => {
@@ -41,13 +84,12 @@ const Body = () => {
         setAddress({ ...address, [stateField]: value });
     };
 
-    const mintedAmount = 1;
-    const totalAmount = 1000;
-    const progress = (mintedAmount / totalAmount) * 100;
-    const shortenedAddress = `${contractAdrress_goldengnft.slice(0, 6)}...${contractAdrress_goldengnft.slice(-4)}`;
+    const totalAmount = 10;
+    const progress = (counterNFT / totalAmount) * 100;
+    const shortenedAddress = `${contractAddress_goldengnft.slice(0, 6)}...${contractAddress_goldengnft.slice(-4)}`;
 
     return (
-        <div className="min-h-screen relative flex flex-col font-goldeng items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-white p-4 sm:p-6">
+        <div className="min-h-screen relative flex flex-col font-goldeng items-center justify-center bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-4 sm:p-6">
             <div className="absolute inset-0 z-0" style={{ backgroundImage: `url(${factory})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(8px)' }}></div>
             
             <div className="flex text-4xl sm:text-6xl md:text-8xl text-white font-extrabold mb-4 sm:mb-6 z-2 relative">
@@ -66,15 +108,33 @@ const Body = () => {
                         <div className="mt-4 sm:mt-6">
                             <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-purple-700">Details</h3>
                             <p className="mb-2 text-base sm:text-lg">Price: 0.07 ETH</p>
-                            <p className="mb-2 text-base sm:text-lg">Network: MANTA</p>
+                            <p className="mb-2 text-base sm:text-lg">Network: BASE</p>
                             <p className="mb-2 text-base sm:text-lg">Currency: ETH</p>
                             <div className="mb-2 text-base sm:text-lg">
-                                <span>Minted Amount: {mintedAmount}</span>
+                                <span>Minted: {counterNFT ? counterNFT : null}</span>
                                 <div className="w-full bg-gray-300 rounded-full h-3 sm:h-4 mt-1 sm:mt-2">
                                     <div className="bg-purple-700 h-3 sm:h-4 rounded-full" style={{ width: `${progress}%` }}></div>
                                 </div>
+                                <span className='flex justify-end'>{totalAmount}</span>
                             </div>
-                            <p className="mb-2 text-base sm:text-lg">Contract Address: {shortenedAddress}</p>
+                            <div className="flex items-center space-x-3"> 
+                                <p className="text-base sm:text-lg mb-2">
+                                    Contract Address: <span className="font-medium">{shortenedAddress}</span>
+                                </p>
+                                
+                                <button
+                                    className={`relative transform transition-all duration-200 ${clicked ? 'scale-120' : 'hover:scale-110'}`}
+                                    onClick={() => copyContractAddress(contractAddress_goldengnft)}
+                                >
+                                    <img
+                                    src={copy_logo}
+                                    alt="Copy"
+                                    className="w-3 h-3 sm:w-2 sm:h-3 md:w-6 md:h-6"
+                                    />
+                                </button>
+                            </div>
+
+
                         </div>
                     </div>
                     <div className="md:w-1/2 w-full p-4 sm:p-8 bg-gray-900 text-white flex flex-col justify-between">
@@ -94,7 +154,7 @@ const Body = () => {
                                 />
                                 <span className="text-base sm:text-lg">I want to receive the meme in physical format too</span>
                             </label>
-                            {receivePhysical && (
+                            {/*receivePhysical === true && (
                                 <div className="bg-gray-800 p-4 rounded-lg">
                                     <h3 className="text-lg sm:text-xl font-semibold mb-2 text-purple-300">Physical Address</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -111,18 +171,40 @@ const Body = () => {
                                         ))}
                                     </div>
                                 </div>
+                            )*/}
+                            {!currentAccount ? (
+                                <button
+                                    onClick={() => setShowMyModalWallets(true)}
+                                    className="w-full bg-white hover:bg-purple-800 text-black font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4"
+                                >
+                                    Connect Wallet
+                                </button>
+                            ) : (
+                                <div>
+                                    {isLoading ? (
+                                        <div>
+                                            <Loader />
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={handleSubmit}
+                                            className="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4"
+                                        >
+                                            Mint NFT
+                                        </button>
+                                    )}
+                                </div>
                             )}
-                            <button
-                                onClick={handleSubmit}
-                                className="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4"
-                            >
-                                Mint NFT
-                            </button>
+
+
                         </div>
-                        <p className="text-xs sm:text-sm">*only on MANTA</p>
+                        <p className="text-xs sm:text-sm">*only on Base</p>
                     </div>
                 </div>
             </div>
+
+            <Wallets onCloseWallets={handleOnCloseWallets} visibleWallets={showMyModalWallets} />
+
         </div>
     );
 };

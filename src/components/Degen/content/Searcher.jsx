@@ -52,7 +52,7 @@ const Searcher = ({ setMemeData, setTableName, setChainNet}) => {
   };
 
   return (
-    <div className="flex justify-center items-center h-full text-gray-200 space-x-2 z-30 relative">
+    <div className="flex justify-center items-center h-full text-gray-200 space-x-2 z-10 relative">
       <input
         value={search}
         onChange={(e) => setSearch(e.target.value)}

@@ -1,6 +1,7 @@
 import { http, createConfig } from 'wagmi'
-import { baseSepolia, base, xLayer, bsc, blast, linea, polygon, zetachain, berachainTestnet } from 'wagmi/chains'
+import { baseSepolia, base, xLayer, bsc, blast, linea, polygon } from 'wagmi/chains'
 import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
+import { berachainTestnet } from './context/Network/wagmi/NewNetworks'
 
 export const config = createConfig({
   chains: [
@@ -11,12 +12,12 @@ export const config = createConfig({
     blast,
     linea,
     polygon,
-    zetachain,
-    berachainTestnet],
+    berachainTestnet, // Agregar Berachain Testnet aquí
+    ],
     connectors: [
     injected(),
     coinbaseWallet(),
-    walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
+    //walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
     [base.id]: http(),
@@ -26,9 +27,7 @@ export const config = createConfig({
     [blast.id]: http(),
     [linea.id]: http(),
     [polygon.id]: http(),
-    [zetachain.id]: http(),
-    [berachainTestnet.id]: http(),
-
+    [berachainTestnet.id]: http(), // Añadir transporte HTTP para Berachain
   },
 })
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Info, Pools, Footer } from './content';
+import { Info, Pools } from './content';
 import farm2 from "../../../images/farm2.jpeg"; 
 import bear from "../../../images/bg_footer.png"; 
 
@@ -20,7 +20,6 @@ const Farm = () => {
       <div className="relative z-10 bg-black bg-opacity-50"> {/* Capa de contenido con un z-index más alto para estar sobre el fondo */}
         <Info />
         <Pools />
-        <Footer />
       </div>
       
       {/* Imagen del oso sobre todo el contenido */}

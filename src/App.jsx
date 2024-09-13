@@ -4,13 +4,12 @@ import { TransactionContext } from './context/TransactionContext';
 import { HiMenuAlt4 } from 'react-icons/hi';
 import { AiOutlineClose } from 'react-icons/ai';
 import { Wallets } from './';
-import NetworkSelect, {NetworkSelectMini} from './context/Network/NetworkSelect';
 import logo from "../images/gg_coin_2.png";
 import meme from "./utils/goldeng.json";
 
 const App = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
-  const { currentAccount, disconnectWallet } = useContext(TransactionContext);
+  const { currentAccount, disconnectWallet, NetworkSelectMini, Network, changeNetwork} = useContext(TransactionContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showMyModal, setShowMyModal] = useState(false);
   const handleOnClose = () => setShowMyModal(false);
@@ -69,7 +68,7 @@ const App = () => {
               </button>
 
               <div className="relative flex items-center justify-between mb-6 text-left">
-                <NetworkSelect />
+                <NetworkSelectMini isMini={false}  changeNetwork={changeNetwork} Network={Network}/>
               </div>
               <div>
                 {currentAccount ? (

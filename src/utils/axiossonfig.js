@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const useTestnet = false; 
+const useTestnet = true; 
 
 const appMemes = useTestnet 
   ? 'http://localhost:3001' //testnet
@@ -11,18 +11,17 @@ const dbMemesPoint = Axios.create({
   
 });
 
-const appSoial = useTestnet 
+const appSocial = useTestnet 
   ? 'http://localhost:5000' //testnet
   : 'https://app-social-gg.onrender.com'; //production
 
 const AppSocialPoint = Axios.create({
-  baseURL: appSoial,
+  baseURL: appSocial,
   
 });
 
 const WSconnect = useTestnet 
   ? 'ws://localhost:3003' //testnet
   : 'wss://app-graph-btzm.onrender.com'; //production
-
 
 export { dbMemesPoint, AppSocialPoint, WSconnect };

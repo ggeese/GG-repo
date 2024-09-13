@@ -6,7 +6,6 @@ import { TransactionContext } from '../../../context/TransactionContext';
 import { TransactionContextTON } from '../../../context/ContextTON/ContextTON';
 import { TransactionContextSOL } from '../../../context/ContextSOL/ContextSOL';
 import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
-import { NetworkSelectMini } from '../../../context/Network/NetworkSelect';
 import TransportMethod from './switch';
 import AddLiquidity from './AddLiquidity';
 import Wallets from '../../../Wallets';
@@ -40,7 +39,7 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
 
 function PopUp({visible, onClose}) {
     const { sendTransactionTON } = useContext(TransactionContextTON);
-    const { FormData_2, sendTransactionBase, walletext, handleChange_2, currentAccount, isLoading, TxHash, Network } = useContext(TransactionContext); 
+    const { FormData_2, sendTransactionBase, walletext, handleChange_2, currentAccount, isLoading, TxHash, Network, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
     const { sendTransactionSOL } = useContext(TransactionContextSOL); 
     const { sendTransactionETH } = useContext(TransactionContextETH); 
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
@@ -140,8 +139,10 @@ function PopUp({visible, onClose}) {
                       </div>
                   </div>
 
-                  <div className="relative flex items-center justify-around mb-6 text-left mt-6">
+                  <div className="relative flex items-center text-sm justify-around mb-3 text-left mt-3">
                     <NetworkSelectMini
+                    isMini={true}
+                    changeNetwork={changeNetwork} Network={Network}
                     />
                   </div>
                   <div className="flex justify-center font-goldeng">

@@ -23,5 +23,5 @@ export const contractABI_GOLDENGNFT = GoldengNFT.abi;
 export const contractAddress_meme_factory = '0xB5a6cb9a5e046FF284D58a526f5E443c48125cdD' ;
 export const contractAddress_staking = '0x0910404A59c2afb780B5843BA5Eb0805F217b3E4' ;
 export const contractAddress_staking_rewards = '0xD3Dd1854b25CD38477dEbBbA5097Ed3B49eEe133';
-export const contractAdrress_golden_exp = '0xBe8ea351f47049083136c76D1472D5bdEd892A31';
-export const contractAdrress_goldengnft = '0x56e1270B9Aac44a86889FE4BA8E03b6D93aAeB81';
+export const contractAddress_golden_exp = '0xBE724ba8AB6a5D8AEF835049dE12307d9c930935';
+export const contractAddress_goldengnft = '0xb01f262Dd3239AfAEA5b52cb015A4d658a20B703';

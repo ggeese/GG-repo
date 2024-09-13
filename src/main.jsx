@@ -21,13 +21,14 @@ const queryClient = new QueryClient();
 const Home = React.lazy(() => import('./components/Home/Home.jsx'));
 const Factory = React.lazy(() => import('./components/Factory/Factory.jsx'));
 const Farm = React.lazy(() => import('./components/Farm/Farm.jsx'));
-const Points = React.lazy(() => import('./components/Points/Points.jsx'));
+const Hall = React.lazy(() => import('./components/Hall/Hall.jsx'));
 const Admin = React.lazy(() => import('./components/Admin/Admin.jsx'));
 const Degen = React.lazy(() => import('./components/Degen/Degen.jsx'));
 const Profile = React.lazy(() => import('./components/Profile/Profile.jsx'));
 
 // Usar createRoot en lugar de ReactDOM.render
-const root = createRoot(document.getElementById("root"));
+const rootElement = document.getElementById("root");
+let root = rootElement._reactRootContainer || createRoot(rootElement);
 
 root.render(
   <TonConnectUIProvider manifestUrl="https://raw.githubusercontent.com/goldengcoin/goldengcoin.github.io/main/tonconnect-manifest.json">
@@ -47,7 +48,7 @@ root.render(
                         <Route path="/Farm" element={<Farm />} />
                         <Route path="/Degen" element={<Degen />} />
                         <Route path="/Degen/:id" element={<Degen />} />
-                        <Route path="/Hall" element={<Points />} />
+                        <Route path="/Hall" element={<Hall />} />
                         <Route path="/Admin" element={<Admin />} />
                         <Route path="/Profile" element={<Profile />} />
                       </Routes>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Body from './content/Body';
 
-const Points = () => {
+const Hall = () => {
     return (
         <div className="relative min-h-screen">
             <Body className="h-4/5" /> {/* Establece la altura del 80% del contenedor */}
@@ -9,4 +9,4 @@ const Points = () => {
     );
 }
 
-export default Points;
+export default Hall;

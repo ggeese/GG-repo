@@ -1,7 +1,6 @@
 // NetworkSelect.jsx
 import React, { useState, useContext } from 'react';
 import Select, { components } from 'react-select';
-import { TransactionContext } from '../TransactionContext';
 import eth from "../../../images/ethereum.svg";
 import bnb from "../../../images/bnb.svg";
 import berachain from "../../../images/berachain.svg";
@@ -13,6 +12,7 @@ import fantom from "../../../images/fantom.svg";
 import optimism from "../../../images/optimism.svg";
 import base from "../../../images/base.svg";
 import manta from "../../../images/manta.svg";
+import moonbeam from "../../../images/moonbeam.svg";
 import blast from "../../../images/blast.svg";
 import linea from "../../../images/linea_name.svg";
 import klaytn from "../../../images/klaytn.svg";
@@ -22,6 +22,7 @@ import TON from "../../../images/TON.svg";
 import zetachain from "../../../images/zetachain.svg";
 
 const networkIcons = {
+  'Moonbase Alpha': { icon: moonbeam, nick: 'Moonbase' },
   'Berachain bArtio': { icon: berachain, nick: 'Berachain Testnet' },
   //'Base': { icon: base, nick: 'Base' },
   //'Manta Pacific Mainnet': { icon: manta, nick: 'Manta' },
@@ -60,25 +61,34 @@ const customSingleValue = ({ data }) => (
   </div>
 );
 
-const NetworkSelect = ({ isMini = false }) => {
+const NetworkSelect = ({ isMini = false, className = '', changeNetwork, Network }) => {
   const [selectedNetwork, setSelectedNetwork] = useState(null);
-  const { changeNetwork, Network } = useContext(TransactionContext);
   const defaultNetwork = networks.find(network => network.value === Network);
 
-  const handleNetworkChange = (selectedOption) => {
+  const handleNetworkChange = async (selectedOption) => {
+    const previousNetwork = selectedNetwork; // Guarda la red seleccionada antes de intentar cambiarla
     setSelectedNetwork(selectedOption.value);
-    changeNetwork(selectedOption.value);
-    console.log("network name", selectedOption.value)
+  
+    try {
+      await changeNetwork(selectedOption.value); // Intenta cambiar la red
+      console.log("network name", selectedOption.value);
+    } catch (error) {
+      console.error("Error changing network", error);
+      setSelectedNetwork(previousNetwork); // Restaura la red anterior si falla
+    }
   };
+  
 
   const handleClick = (e) => {
     e.stopPropagation(); // Detiene la propagación del evento
   };
 
-  const sizeClass = isMini ? 'w-auto text-2sm mini-menu-select' : 'w-48 text-xl custom-react-select';
+  const sizeClass = isMini ? 'w-40 mini-menu-select' : 'w-48 text-xl custom-react-select';
 
   return (
-    <div onClick={handleClick}>
+    <div 
+    onClick={handleClick} 
+    className={className}> {/* Agrega el className aquí */}
       <Select
         options={networks}
         components={{ Option: customOption, SingleValue: customSingleValue }}
@@ -88,11 +98,26 @@ const NetworkSelect = ({ isMini = false }) => {
         isSearchable={false}
         className={`${sizeClass}`}
         classNamePrefix="react-select"
+        styles={{
+          container: (provided) => ({
+            ...provided,
+            backgroundColor: 'transparent' // Asegura que el contenedor sea transparente
+          }),
+          control: (provided) => ({
+            ...provided,
+            backgroundColor: isMini ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.5)', // Ajusta el fondo del control
+            borderRadius: '0.375rem', // Bordes redondeados
+            color: isMini ? 'black' : 'white' // Ajusta el color del texto
+          }),
+          menuList: (provided) => ({
+            ...provided,
+            backgroundColor: isMini ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.5)' // Ajusta el fondo de la lista del menú
+          })
+        }}
       />
     </div>
 
   );
 };
 
-export const NetworkSelectMini = (props) => <NetworkSelect {...props} isMini={true} />;
-export default NetworkSelect;
+export const NetworkSelectMini = (props) => <NetworkSelect {...props} />;

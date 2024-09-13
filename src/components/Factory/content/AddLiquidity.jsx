@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { TransactionContext } from '../../../context/TransactionContext';
-import { NetworkSelectMini } from '../../../context/Network/NetworkSelect';
 import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import Wallets from '../../../Wallets';
 
@@ -17,7 +16,7 @@ const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
 );  
 
 const AddLiquidity = () => {
-  const { currentAccount, Network } = useContext(TransactionContext); 
+  const { currentAccount, Network, NetworkSelectMini, changeNetwork } = useContext(TransactionContext); 
   const { Get_ETH_Balance, PoolFactoryInteract2, handleChange_6 } = useContext(TransactionContextETH); 
   const [showMyModalWallets, setShowMyModalWallets] = useState(false);
   const [memeAmount, setMemeAmount] = useState(0);
@@ -55,7 +54,10 @@ const AddLiquidity = () => {
   return (
     <div className="add-liquidity-container p-4 space-y-4 bg-gray-100 rounded-lg shadow-md">
       <div className='flex w-auto justify-center'>
-        <NetworkSelectMini/>
+        <NetworkSelectMini
+          isMini={true}
+          changeNetwork={changeNetwork} Network={Network}
+        />
       </div>
       <div className="flex flex-col space-y-4">
 

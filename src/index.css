@@ -362,6 +362,13 @@ body {
   max-height: 500px; /* Ajusta según el contenido */
 }
 
+/* styles.css o tu archivo de estilos */
+.mini-menu-select {
+  background-color: rgba(255, 255, 255, 0.3); /* Fondo blanco con 30% de opacidad */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* Borde gris claro con 10% de opacidad */
+  border-radius: 0.375rem; /* Bordes redondeados */
+  color: black; /* Texto negro para mejor visibilidad en fondo claro */
+}
 
 .custom-react-select .react-select__control {
   background-color: #000000; /* bg-black */
@@ -404,7 +411,7 @@ body {
 /* src/components/Factory/content/switch.css */
 .switch-container {
   position: relative;
-  background-color: #dbe5e5; /* Color de fondo del switch */
+  background-color: #ffffff; /* Color de fondo del switch */
   height: 40px; /* Aumenta la altura del switch */
   width: 120px; /* Ajusta el ancho del switch */
   border-radius: 100px;

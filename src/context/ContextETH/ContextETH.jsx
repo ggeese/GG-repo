@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { saveImageToServer, Add_Meme, ProfileCheck } from "../ServerInteract/ServerInteract";
-import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractAdrress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME } from "../../utils/constants";
+import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractABI_GOLDENGNFT, contractABI_GOLDEN_EXP, contractAddress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME, contractAddress_goldengnft } from "../../utils/constants";
 import { TransactionContext } from '../TransactionContext';
 import { ethers } from "ethers";
 
@@ -16,9 +16,13 @@ export const TransactionProviderETH = ({ children }) => {
   const handleChange_3 = (e3, name_3) => {
       setFormData_3((prevState) => ({ ...prevState, [name_3]: e3.target.value }));
   }
-  const [FormData_5, setFormData_5] = useState({ contract: '', ewithdraw: '', notify: '', ureward: '', uboost: '', poolcontract: '', poolstate:'', tokenPoolReciever: ''});
+  const [FormData_5, setFormData_5] = useState({ contract: '', ewithdraw: '', notify: '', ureward: '', uboost: '', uboosttime: '', poolcontract: '', NFTcontract: '', expcontract: '', mefactcontract: '',  poolstate: true, tokenPoolReciever: ''});
   const handleChange_5 = (e5, name_5) => {
-      setFormData_5((prevState) => ({ ...prevState, [name_5]: e5.target.value }));
+    let value = e5.target.value;
+    if (name_5 === "poolstate") {
+        value = value === "true"; // Convertir la cadena "true"/"false" a booleano
+      }
+      setFormData_5((prevState) => ({ ...prevState, [name_5]: value }));
   }
 
   const [FormData_6, setFormData_6] = useState({ amountswap: '', lpmeme: '', lpeth: '', tokenaddress: ''});
@@ -29,7 +33,13 @@ export const TransactionProviderETH = ({ children }) => {
   const timeout = setTimeout(() => {
     setIsLoading(false);
   }, 80000); // 1 minuto de tiempo máximo
-  
+
+  const getEthSign = async (message) => {
+    const signer = await providereth.getSigner();
+    const signature = await signer.signMessage(message);
+    
+    return signature;
+}
 
   const getEthereumContract = async (contractAddress_meme_factory, contractABI) => {
     //const provider = sdk.makeWeb3Provider();
@@ -81,7 +91,7 @@ export const TransactionProviderETH = ({ children }) => {
             if (!ethereum) return alert("Please install metamask");
             //fee tx fixed contract
             let Fee_tx = Fee !== undefined ? Fee : 0;
-            let protection_days = ProtectHorus !== undefined ? ProtectHorus * 24 : 1 * 24;
+            let protection_days = ProtectHorus ? ProtectHorus * 24 : 1;
             const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0];
@@ -127,6 +137,28 @@ export const TransactionProviderETH = ({ children }) => {
             throw new Error("No ethereum object.")
         }
     //}   
+}
+
+const MetaMintNFT = async () => {
+    try{
+    const commissionAmount = ethers.parseEther(0.001.toString());
+    //ponemos los datos del contrato de staking
+    setIsLoading(true)
+    const message = "Sign to check account";
+    const signature = await getEthSign(message);
+    const recoveredAddress = ethers.verifyMessage(message, signature);
+    // Asegúrate de que la dirección recuperada sea la esperada
+    if (recoveredAddress.toLowerCase() !== currentAccount.toLowerCase()) {
+        throw new Error("Signature verification failed");
+    }   
+    console.log(signature, "this is signature")
+    const transactionsContract = await getEthereumContract(contractAddress_goldengnft, contractABI_GOLDENGNFT)
+    const mintNFT = await transactionsContract.mintTo(currentAccount, signature, {value: commissionAmount} );
+    const txHashChain = await mintNFT.wait();
+    setIsLoading(false)
+    }catch{
+        setIsLoading(false)
+    }
 }
 
 const sendTransactionStake = async (stake_contract, token_stake_contract, decimals) => {
@@ -182,14 +214,26 @@ const change_input_staking = (percent) => {
             throw new Error("El valor de percent no puede ser null");
         }
         
+        // Convertir percent a número si no lo es
+        const percentNumber = parseFloat(percent);
+
+        // Verificar si el valor es un número válido
+        if (isNaN(percentNumber)) {
+            throw new Error("El valor de percent debe ser un número válido");
+        }
+
+        // Redondear a 3 decimales
+        const roundedPercent = percentNumber.toFixed(3);
+        
         setFormData_3((prevFormData) => ({
             ...prevFormData,
-            stake: percent.toString()
+            stake: roundedPercent
         }));
     } catch (error) {
         console.error("Error al cambiar el input de staking:", error);
     }
 };
+
 
 const change_input_swap = (percent) => {
     try {
@@ -229,12 +273,19 @@ const GetMemeFee = async (contract_meme) => {
 const Get_Token_Balance = async(contract_meme, AccountAddress, decimals) => {
     const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
     const balance = await tokenContract.balanceOf(AccountAddress);
-    console.log("balance token", balance)
     return ethers.formatUnits(balance.toString(), parseInt(decimals, 10));
+}
+
+//obtenemos el balance del usuario para ver la cantidad de tokens stakeados
+const Get_NFT_Minted = async() => {
+    const tokenContract = await getEthereumContract(contractAddress_goldengnft, contractABI_GOLDENGNFT);
+    const balance = await tokenContract.getMintCount();
+    return balance.toString();
 }
 
 //obtenemos el balance del contrato estakeado para ver la cantidad de tokens stakeados
 const Get_Balance_Staked = async(contract_staking, decimals) => {
+    console.log("contract token Staked", contract_staking)
     const tokenContract = await getEthereumContract(contract_staking, contractABI_STAKING_REWARDS)
     const balance = await tokenContract.balanceOf(currentAccount);
     console.log("balance token Staked", balance)
@@ -248,6 +299,14 @@ const Points_Earned = async (stake_contract) => {
     const PointsEarned = await transactionsContract_3.earned(currentAccount)
     console.log(PointsEarned, "earned!!!!!!!!!!!!!!!!")
     return PointsEarned
+}
+
+const ClaimRewardsEggs = async (stake_contract) => {
+        //ponemos los datos del contrato de staking
+        const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
+        //interaccion con el contrato de staking
+        const EggsEarned = await transactionsContract_3.claim()
+        return EggsEarned
 }
     ///////////ADMIN FUNCTIONS////////////
 
@@ -270,14 +329,25 @@ const notifyRewards = async () => {
     console.log(transactionHash, "passed")
 }
 
-const updateRewDur = async () => {
-    const { contract, ureward } = FormData_5;
+const updateRewDur = async (period_time) => {
+    console.log(period_time, "period time in secs")
+    const { contract } = FormData_5;
     //ponemos los datos del contrato de staking
     const transactionsContract_3 = await getEthereumContract(contract, contractABI_STAKING_REWARDS);
     //interaccion con el contrato de staking
-    const transactionHash = await transactionsContract_3.updateRewardDuration(ureward);
+    const transactionHash = await transactionsContract_3.updateRewardDuration(period_time);
     console.log(transactionHash, "passed")
 }
+
+const UpdateBoostTime = async (booster) => {
+    console.log(booster, "booster in secs")
+    const { contract } = FormData_5;
+    //ponemos los datos del contrato de staking
+    const transactionsContract_3 = await getEthereumContract(contract, contractABI_STAKING_REWARDS);
+    //interaccion con el contrato de staking
+    const transactionHash = await transactionsContract_3.updateBoostedTimePeriod(booster);
+    console.log(transactionHash, "passed")
+};
 
 const UpdateBoostContract = async () => {
     const { contract, uboost } = FormData_5;
@@ -305,26 +375,65 @@ const UnpauseContract = async () => {
 };
 
 const setExpMinter = async () => {
-    const { poolcontract, poolstate }= FormData_5;
+    const { expcontract, poolcontract, poolstate }= FormData_5;
     //ponemos los datos del contrato de staking
-    const transactionsContract_3 = await getEthereumContract(contract, contractABI_STAKING_REWARDS);
+    console.log("exp contract",expcontract, "pool contract", poolcontract, "poolstate", poolstate)
+    const transactionsContract_3 = await getEthereumContract(contractAddress_golden_exp, contractABI_GOLDEN_EXP);
     //interaccion con el contrato de staking
-    console.log("exp setminter contract ", contractAdrress_golden_exp, "pool contract", poolcontract)
+    console.log("exp setminter contract ", contractAddress_golden_exp, "pool contract", expcontract)
     const transactionHash = await transactionsContract_3.setMinter([poolcontract], [poolstate]);
 };
+
+const ChangePoolTreasury = async () => {
+    const { mefactcontract, tokenPoolReciever } = FormData_5;
+    const transactionsContract_3 = await getEthereumContract(mefactcontract, contractABI_MEME_FACTORY);
+    const transaction_1 = await transactionsContract_3.updateRecipientTokensPool(tokenPoolReciever);
+    console.log("address pool reciever changed", transaction_1 )
+}
 
 const StatusContract = async () => {
     const { contract }= FormData_5;
     //ponemos los datos del contrato de staking
     const transactionsContract_3 = await getEthereumContract(contract, contractABI_STAKING_REWARDS);
     //interaccion con el contrato de staking
-    const transaction_1 = await transactionsContract_3.lastTimeRewardApplicable();
+    console.log("antes de last time reward")
+    const transaction_1 = await transactionsContract_3.getPeriodFinishTime();
     const transaction_2 = await transactionsContract_3.rewardPerToken();
+    const transaction_3 = await transactionsContract_3.totalSupply();
+    const transaction_4 = await transactionsContract_3.getTokenDecimals();
+    const transaction_5 = await transactionsContract_3.getBoostedFinishTime();
+
+    const raterew = transaction_2.toString()/transaction_4.toString()
+    const supply =  transaction_3.toString()/transaction_4.toString()
     console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
-    return (transaction_1, transaction_2)
+    return [transaction_1.toString(), raterew, supply, transaction_4.toString(), transaction_5.toString() ];  // Retorno como array
 };
 
-const CreatePool = async () => {
+const GetlistmintersNFT = async() => {
+    try{
+        const { NFTcontract } = FormData_5;
+        const transactionsContract = await getEthereumContract(NFTcontract, contractABI_GOLDENGNFT);
+        const list = await transactionsContract.getAllNFTInfos();
+        
+        // Creamos arrays separados para wallets y publicKeys
+        const wallets = [];
+        const publicKeys = [];
+        
+        // Recorremos la respuesta y separamos los campos
+        list.forEach(nftInfo => {
+            wallets.push(nftInfo.minter);          // Guardar la wallet (dirección del minter)
+            publicKeys.push(nftInfo.publicKey);    // Guardar la publicKey
+        });
+
+        console.log("Wallets:", wallets);
+        console.log("Public Keys:", publicKeys);
+        
+        return { wallets, publicKeys }; // Retornar ambas listas}
+    }catch{
+        console.error("Error al obtener la información de los NFTs:", error);
+    }
+}
+/*const CreatePool = async () => {
     const { contract }= FormData_5;
     //ponemos los datos del contrato de staking
     const transactionsContract_3 = await getEthereumContract(contract, contractABI_STAKING_REWARDS);
@@ -333,7 +442,7 @@ const CreatePool = async () => {
     const transaction_2 = await transactionsContract_3.rewardPerToken();
     console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
     return (transaction_1,transaction_2)
-};
+};*/
 
 const BuyMeme = async (tokenAddress) => {
     const { amountswap } = FormData_6;
@@ -406,12 +515,6 @@ const burnMemes = async (contract, tokens) => {
     const transaction_1 = await transactionsContract_3.transfer(burnAddress, AmountToken);
 }
 
-const ChangePoolTreasury = async () => {
-    const { contract, tokenPoolReciever } = FormData_5;
-    const transactionsContract_3 = await getEthereumContract(contract, contractABI_MEME_FACTORY);
-    const transaction_1 = await transactionsContract_3.updateRecipientTokensPool(tokenPoolReciever);
-    console.log("address pool reciever changed", transaction_1 )
-}
 
 const AddFastLiquidity = async (contract, eth) => {
     try {
@@ -560,6 +663,7 @@ const PoolFactoryInteract = async () => {
         handleChange_6,
         connectWallet,
         sendTransactionETH,
+        MetaMintNFT,
         BuyMeme,
         SellMeme,
         burnMemes,
@@ -570,22 +674,26 @@ const PoolFactoryInteract = async () => {
         change_input_swap,
         Get_Token_Balance,
         Get_Balance_Staked,
+        Get_NFT_Minted,
         Get_ETH_Balance,
         GetMemeFee,
         GetProtectHours,
         Points_Earned,
+        ClaimRewardsEggs,
         EmergWithdraw,
         notifyRewards,
         updateRewDur,
         UpdateBoostContract,
+        UpdateBoostTime,
         PauseContract,
         UnpauseContract,
         setExpMinter,
         StatusContract,
-        CreatePool,
+        //CreatePool,
         ChangePoolTreasury,
         PoolFactoryInteract,
-        PoolFactoryInteract2
+        PoolFactoryInteract2,
+        GetlistmintersNFT
     }}>
         {children}
     </TransactionContextETH.Provider>

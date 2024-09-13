@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { contractABI_GOLDENGNFT, contractAdrress_goldengnft } from "../utils/constants";
+import { contractABI_GOLDENGNFT, contractAddress_goldengnft } from "../utils/constants";
 import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
 import networksData from './Network/networks.json'; // Importa el archivo JSON
 import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransactionReceipt  } from 'wagmi';
 import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/ServerInteract";
+import { NetworkSelectMini } from "./Network/NetworkSelect";
 
 // Configurar el entorno para usar `buffer` y `process`
 
@@ -378,14 +379,14 @@ export const TransactionProvider = ({ children }) => {
         console.log(walletext,Network)
         const amount = 1;
         const item= 1;
-
+        setIsLoading(true)
         if (Network === "Base Sepolia") {
             if (walletext==="Base Wallet") {
             writeContract({
                 abi: contractABI_GOLDENGNFT,
-                address: contractAdrress_goldengnft,
+                address: contractAddress_goldengnft,
                 functionName: 'mintTo',
-                args: [currentAccount, "https://raw.githubusercontent.com/goldengcoin/NFT-goldeng/main/URI.json"],
+                args: [currentAccount],
                 value: ethers.parseEther('0.0001'),
             },
             {    onSuccess: (transaction) => {
@@ -400,16 +401,11 @@ export const TransactionProvider = ({ children }) => {
                 onError: (err) => {
                     console.error("Error al mintear:", err);
                     // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                    setIsLoading(false)
+
                 },
             });
         }
-            else if (walletext==="metamask") {
-                const commissionAmount = ethers.parseEther(0.0001.toString());
-                //ponemos los datos del contrato de staking
-                const transactionsContract = await getEthereumContract(contractAdrress_goldengnft, contractABI_GOLDENGNFT)
-                const mintNFT = await transactionsContract.mintTo(currentAccount, "https://raw.githubusercontent.com/goldengcoin/NFT-goldeng/main/URI.json", {value: commissionAmount} );
-
-            };   
         };
     }
 
@@ -489,9 +485,8 @@ export const TransactionProvider = ({ children }) => {
             currentMemeContract,
             change_input_staking,
             Points_Earned,
-
+            NetworkSelectMini
             }}>
-
             {children}
         </TransactionContext.Provider>
     );
