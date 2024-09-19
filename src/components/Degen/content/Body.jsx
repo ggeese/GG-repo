@@ -33,7 +33,7 @@ const Body = () => {
   const [memedata, setMemeData] = useState({});
   const [MemeBalance, setMemeBalance] = useState("");
   const [MemeTreasury, setMemeTreasury] = useState("");
-  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, GetMemeFee, GetProtectHours, Get_Token_Balance } = useContext(TransactionContextETH); 
+  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, GetMemeFee, GetProtectMinutes, Get_Token_Balance } = useContext(TransactionContextETH); 
   const { currentAccount, Balance, factoryContract } = useContext(TransactionContext); 
   const [showMyModal, setShowMyModal] = useState(false);
   const [showMyModalDonate, setShowMyModalDonate] = useState(false);
@@ -128,7 +128,7 @@ const Body = () => {
         try {
           const fee = await GetMemeFee(memedata.contract);
           setMemeFee(fee);
-          const [Tstarted, protex] = await GetProtectHours(memedata.contract);
+          const [Tstarted, protex] = await GetProtectMinutes(memedata.contract);
           setProtectTime(protex.toString());
           setTradestarted(Tstarted.toString());
         } catch (error) {

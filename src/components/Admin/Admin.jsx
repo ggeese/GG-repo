@@ -2,14 +2,16 @@ import React, { useContext, useState } from "react";
 //import { TransactionContext } from '../../context/TransactionContext';
 import { TransactionContextETH } from '../../context/ContextETH/ContextETH';
 import info from "../../../images/info.svg";
+import { saveAs } from 'file-saver';
 
-const Input = ({ placeholder, name_5, type, value, handleChange_5 }) => (
+const Input = ({ placeholder, name_5, type, value, handleChange_5, className }) => (
   <input
       placeholder={placeholder}
       type={type}
       step="1"
       value={value}
       onChange={(e5) => handleChange_5(e5, name_5)}
+      className={className}
   />
 );
 
@@ -31,7 +33,7 @@ const Tooltip = ({ message, space }) => (
 
 const Admin = () => {
   //const { handleChange_5, FormData_5, EmergWithdraw, notifyRewards, updateRewDur, UpdateBoostContract, PauseContract, UnpauseContract, setExpMinter, StatusContract } = useContext(TransactionContext); 
-  const { handleChange_5, FormData_5, GetlistmintersNFT, EmergWithdraw, notifyRewards, updateRewDur, UpdateBoostContract, UpdateBoostTime, PauseContract, UnpauseContract, setExpMinter, StatusContract, ChangePoolTreasury } = useContext(TransactionContextETH); 
+  const { handleChange_5, FormData_5, GetlistmintersNFT, EmergWithdraw, notifyRewards, updateRewDur, UpdateBoostContract, UpdateBoostTime, PauseContract, UnpauseContract, setExpMinter, StatusContract, ChangePoolTreasury, UpdateVaultAdmins, SetVaultTokens, DeleteTokenVault, CheckVaultTokens, CheckRouterWhitelist, AddWhiteList, DeleteWhiteList } = useContext(TransactionContextETH); 
 
   const [rewardRate, setRewardRate] = useState ('');
   const [lastReward, setLastReward] = useState ('');
@@ -44,7 +46,9 @@ const Admin = () => {
   const [boostUnit, setBoostUnit] = useState('seconds'); // Unidad por defecto
   const [firstminters, setFirstminters] = useState([]);
   const [firstpkeys, setFirstpkeys] = useState([]);
-
+  const [ tokensvault ,setTokensVault] =useState([]);
+  const [ amountpertokenvault ,setAmountperTokenVault] =useState([]);
+  const [ whitelist, setWhitelist ] = useState([])
 
   // Función para manejar el cambio en el valor del input
   const handleValueChange = (e) => {
@@ -104,6 +108,41 @@ const Admin = () => {
     }
   };
 
+  const downloadCSV = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+  
+    // Encabezado del archivo
+    csvContent += "Minters,Public Keys\n";
+  
+    // Iterar sobre los datos y agregarlos al CSV
+    firstminters.forEach((minter, index) => {
+      const publicKey = firstpkeys[index];
+      csvContent += `${minter},${publicKey}\n`;
+    });
+  
+    // Crear un archivo y disparar la descarga
+    const encodedUri = encodeURI(csvContent);
+    saveAs(new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }), 'minters_data.csv');
+  };
+  
+  const formatBigIntExponential = (bigInt) => {
+    // Convierte BigInt a cadena para manejar grandes números
+    const str = bigInt.toString();
+    const length = str.length;
+  
+    // Exponente es la longitud menos 1
+    const exponent = length - 1;
+    
+    // Mantisa es el primer dígito seguido por el resto
+    let mantissa = str[0] + '.' + str.slice(1);
+    
+    // Eliminar ceros innecesarios en la mantisa
+    mantissa = mantissa.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+  
+    return `${mantissa} × 10^${exponent}`;
+  };
+  
+
   const handleSubmit_EmergWithdraw = (e5) => {
     const { contract, ewithdraw } = FormData_5;
     e5.preventDefault();
@@ -121,13 +160,38 @@ const Admin = () => {
 
     notifyRewards(); 
   }
-  
-  const update_Reward_Duration = (period_time) => {
-    const { contract } = FormData_5;
 
-    if( !contract | !period_time) return;
+  const Set_Vault_Tokens = () => {
+    const { vaultaddress, decimalsvault, AmountToken, vaulttokencontract } = FormData_5;
+    if( !vaultaddress | !decimalsvault | !AmountToken | !vaulttokencontract ) return;
 
-    updateRewDur(period_time); 
+    SetVaultTokens(); 
+  }
+
+  const Delete_Vault_Tokens = () => {
+    const { vaultaddress, vaulttokencontract } = FormData_5;
+    if( !vaultaddress | !vaulttokencontract ) return;
+
+    DeleteTokenVault(); 
+  }
+
+  const List_Vault_Tokens = async() => {
+    const { vaultaddress } = FormData_5;
+    if( !vaultaddress ) return;
+
+    const { tokensvault: vaulttokens, amountpermint: tokenspermint } = await CheckVaultTokens();
+
+    setTokensVault(vaulttokens) 
+    setAmountperTokenVault(tokenspermint) 
+
+  }
+
+  const Auth_Vault = (auth) => {
+    const { vaultaddress } = FormData_5;
+
+    if( !vaultaddress ) return;
+
+    UpdateVaultAdmins(auth); 
   }
   
   const Update_Boost = (e5) => {
@@ -166,12 +230,20 @@ const Admin = () => {
   }
   
   const set_Exp_Minter = (e5) => {
-    const { expcontract, poolcontract, poolstate } = FormData_5;
+    const { expcontract, poolcontract } = FormData_5;
     e5.preventDefault();
 
     if( !expcontract | !poolcontract ) return;
 
     setExpMinter(); 
+  }
+
+  const update_Reward_Duration = (period_time) => {
+    const { contract } = FormData_5;
+
+    if( !contract | !period_time) return;
+
+    updateRewDur(period_time); 
   }
 
   const check_Minter = async(e5) => {
@@ -194,6 +266,30 @@ const Admin = () => {
     if( !mefactcontract| !tokenPoolReciever ) return;
 
     ChangePoolTreasury(tokenPoolReciever); 
+  }
+
+  const Check_Whitelist = async() => {
+    const { whitelistcontract } = FormData_5;
+    if( !whitelistcontract ) return;
+
+    const allwhitelist = await CheckRouterWhitelist();
+    console.log(allwhitelist, "all white list")
+    setWhitelist(allwhitelist) 
+
+  }
+
+  const Add_Whitelist = async() => {
+    const { whitelistcontract, addresswhitelist } = FormData_5;
+    if( !whitelistcontract |!addresswhitelist ) return;
+    const allwhitelist = await AddWhiteList();
+
+  }
+
+  const Delete_Whitelist = async() => {
+    const { whitelistcontract, addresswhitelist } = FormData_5;
+    if( !whitelistcontract | !addresswhitelist ) return;
+    const allwhitelist = await DeleteWhiteList();
+
   }
 
   const Status_Contract = async (e5) => {
@@ -448,7 +544,7 @@ const Admin = () => {
 
       {/* Pause and Unpause Buttons */}
       <div className="flex flex-fil">
-        <div className="mr-2">Pause or Unpause Pool </div>
+        <div className="mr-2 font-semibold">Pause or Unpause Pool </div>
         <Tooltip 
           message="This function pauses and unpauses a staking contract, prevents further staking and rewards from being claimed but does not affect unstaking."
           space={2}
@@ -469,7 +565,7 @@ const Admin = () => {
         <div className="flex flex-fil">
           <div className="text-2xl p-3">EXP Setting</div>
           <Tooltip 
-            message="Aquí puedes establecer los parámetros de las pools de staking."
+            message="Here you can modify the minters of this exp token, which are the staking rewards of the staking pools."
             space={3}
           />
         </div>
@@ -483,20 +579,19 @@ const Admin = () => {
 
               <div className="flex flex-col items-center ">
                 <div className="flex flex-fil items-center">
-                  <div className="mr-2">Set Minter </div>
+                  <div className="mr-2 font-semibold">Set Minter </div>
                   <Tooltip 
-                    message="Aquí puedes establecer los parámetros de las pools de staking."
+                    message="the pool contract that will have permissions to mint the Exp token."
                     space={1}
                   />
                 </div>
-                <div className="text-sm italic">(Pool Address) </div>
                 <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="poolcontract" type="text" handleChange_5={handleChange_5} />
                 <div className="flex flex-fil mr-2 ">State:</div>
                 <div className="flex flex-fil px-8 py-2 border border-gray-300 rounded">
                 <select
-                  name="poolstate"
-                  value={FormData_5.poolstate}
-                  onChange={(e5) => handleChange_5(e5, "poolstate")}
+                  name="booladmin"
+                  value={FormData_5.booladmin}
+                  onChange={(e5) => handleChange_5(e5, "booladmin")}
                   className="flex flex-fil px-8 py-2 border border-gray-300 rounded"
                 >
                   <option value="true">True</option>
@@ -515,9 +610,9 @@ const Admin = () => {
                 <div className="flex flex-fil mr-2 ">State:</div>
                   <div className="flex flex-fil px-8 py-2 border border-gray-300 rounded">
                     <select
-                      name="poolstate"
-                      value={FormData_5.poolstate}
-                      onChange={(e) => handleChange_5(e, "poolstate")}
+                      name="booladmin"
+                      value={FormData_5.booladmin}
+                      onChange={(e) => handleChange_5(e, "booladmin")}
                       className="flex flex-fil px-8 py-2 border border-gray-300 rounded"
                     >
                       <option value="true">True</option>
@@ -537,39 +632,6 @@ const Admin = () => {
       <div className="border-t-8 border-dashed border-[#9c9c9c] w-full"></div>
       <div className="flex flex-col items-center">
         <div className="flex flex-fil">
-          <div className="text-2xl p-3 ">Meme Factory Settings</div>
-          <Tooltip 
-              message="Aquí puedes establecer los parámetros de las pools de staking."
-              space={2}
-            />
-        </div>
-      <div className="flex flex-fil gap-7">
-        <div className="flex flex-fil mb-3 items-center">
-          <div className=" p-3">MemeFactory contract:</div>
-          <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="mefactcontract" type="text" handleChange_5={handleChange_5} />
-        </div>
-
-        <div className="flex flex-col space-y-2 items-center ">
-          <div className="flex flex-fil">
-            <div className="mr-2">token pool reciever</div>
-            <Tooltip 
-              message="Aquí puedes establecer los parámetros de las pools de staking."
-              space={2}
-            />
-          </div>
-
-          <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="tokenPoolReciever" type="text" handleChange_5={handleChange_5} />
-            <div className="flex flex-fil px-8 py-2 border border-gray-300 rounded">
-          <button className="flex flex-fil ml-2 px-4 py-2 bg-black text-white rounded" onClick={(e5)=>{setTokenFactorySettings(e5)}}>
-            Update
-          </button>
-          </div>
-        </div>
-      </div>
-      </div>
-      <div className="border-t-8 border-dashed border-[#9c9c9c] w-full"></div>
-      <div className="flex flex-col items-center">
-        <div className="flex flex-fil">
           <div className="text-2xl p-3 ">NFT Collections Data</div>
           <Tooltip 
               message="Aquí puedes establecer los parámetros de las pools de staking."
@@ -577,42 +639,294 @@ const Admin = () => {
             />
         </div>
       <div className="flex flex-fil gap-7">
-        <div className="flex flex-fil mb-3 items-center">
-          <div className=" p-3">NFT contract:</div>
-          <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="NFTcontract" type="text" handleChange_5={handleChange_5} />
-        </div>
-
-        <div className="flex flex-col items-center space-y-2">
-          <div className="flex items-center">
-            <span className="mr-1 text-sm">First Minters</span>
+        <div className="flex flex-col items-center bg-gray-100 rounded-xl p-2">
+          <div className="flex flex-fil">
+            <div className=" p-3 font-semibold">Vault</div>
             <Tooltip 
-              message="Aquí puedes ver los minters."
-              space={1}
+              message="Aquí puedes establecer los parámetros de las pools de staking."
+              space={2}
             />
           </div>
-          
-          <button 
-            className="px-3 py-1 bg-black text-white text-sm rounded" 
-            onClick={(e5) => { check_Minter(e5) }}
-          >
-            Check
-          </button>
+          <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="vaultaddress" type="text" handleChange_5={handleChange_5} />
 
-          <div className="grid grid-cols-2 bg-black text-xs text-white p-2 mt-2 rounded w-full max-w-lg max-h-60 overflow-y-auto">
-            <div className="font-bold">Minters</div>
-            <div className="font-bold">Public Keys</div>
+          <div className="flex flex-fil gap-3">
+          <div className="flex flex-col items-center bg-gray-200 p-1 rounded-xl mt-3">
+              <div className="flex flex-fil">
+                <div className="p-3 font-semibold">Tokens List</div>
+                <Tooltip 
+                  message="This is the list of tokens that will be distributed for each mint of the NFT collection. If the address does not have a balance in any of the tokens, the mint will not be executed. (This is not the vault balance)"
+                  space={2}
+                />
+              </div>
+
+
+              <button className="flex flex-fil w-auto ml-2 px-4 py-2 bg-red-500 text-white rounded" onClick={(e5)=>{List_Vault_Tokens(e5)}}>
+                Check
+              </button>
+              <div className="flex justify-center items-center">
+              <div className="grid grid-cols-2 bg-black text-xs text-white p-2 mt-2 rounded w-auto h-min max-w-sm max-h-60 overflow-y-auto">
+                <div className="font-bold">Tokens</div>
+                <div className="font-bold">Amount</div>
+
+                {tokensvault.map((tokensaddress, index) => (
+                  <React.Fragment key={index}>
+                    <div className="break-all text-xs">{tokensaddress}</div>
+                    <div className="break-all">{formatBigIntExponential(amountpertokenvault[index])}</div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+
+
+
+            </div>
+
+            <div className="flex flex-col items-center bg-gray-200 p-1 rounded-xl mt-3">
+              <div className="flex flex-fil">
+                <div className=" p-3 font-semibold">Add Token to List</div>
+                <Tooltip 
+                  message="Here you can add a token to the list of tokens that will be distributed for each mint. You must add the token address and its decimals."
+                  space={2}
+                />
+              </div>
+              <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="vaulttokencontract" type="text" handleChange_5={handleChange_5} />
+              <div className="flex flex-fil gap-3 items-center justify-center">
+                <div className="flex flex-col items-center">
+                  <div className="p-3">Amount</div>
+                  <Input className="w-32" placeholder="30000" name_5="AmountToken" type="number" handleChange_5={handleChange_5} />
+
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className="p-3">Decimals</div>
+
+                  <select
+                    className="text-2xs w-20 py-2 text-xs border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    name="decimalsvault"
+                    value={FormData_5.decimalsvault}
+                    onChange={(e5) => handleChange_5(e5, "decimalsvault")}
+                  >
+                    {[...Array(19).keys()].map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="flex flex-fil mt-3">
+                <button className="flex flex-fil w-auto ml-2 px-4 py-2 bg-green-700 text-white rounded" onClick={(e5)=>{Set_Vault_Tokens(e5)}}>
+                  + Token
+                </button>
+                <button className="flex flex-fil w-auto ml-2 px-4 py-2 bg-red-500 text-white rounded" onClick={(e5)=>{Delete_Vault_Tokens(e5)}}>
+                  - Token
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col items-center bg-gray-200 p-1 rounded-xl mt-3">
+              <div className="flex flex-col mb-3 items-center">
+
+              </div>
+              <div className="flex flex-col mb-3 items-center">
+                <div className="flex flex-fil font-semibold">
+                  <div className=" p-3">NFTs Contract</div>
+                  <Tooltip 
+                    message="Here you can set which addresses will have permissions to transfer ERC20 tokens from the vault."
+                    space={2}
+                  />
+                </div>
+
+                <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="adminvault" type="text" handleChange_5={handleChange_5} />
+              </div>
+              <div className="flex flex-fil gap-3">
+                <select
+                  name="booladmin"
+                  value={FormData_5.booladmin}
+                  onChange={(e5) => handleChange_5(e5, "booladmin")}
+                  className="flex flex-fil px-8 py-2 border border-gray-300 rounded"
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+                <button className="flex flex-fil w-auto ml-2 px-4 py-2 bg-black text-white rounded" onClick={(e5)=>{Auth_Vault(e5)}}>
+                  Update
+                </button>
+              </div>
+
+            </div>
+
+
+
+        </div>
+        
+        </div>
+
+        <div className="flex flex-col items-center bg-gray-100 p-3 rounded-xl">
+          <div className="flex flex-fil">
             
-            {firstminters.map((minter, index) => (
-              <React.Fragment key={index}>
-                <div className="break-all">{minter.slice(0, 20)}...</div>
-                <div className="break-all">{firstpkeys[index].slice(0, 30)}...</div>
-              </React.Fragment>
-            ))}
+            <div className=" p-3 font-semibold">NFT contract:</div>
+            <Tooltip 
+              message="Here you can see the addresses of the first minted NFTs and their signatures."
+              space={2}
+            />
+          </div>
+          <div className="flex flex-col gap-3 items-center">
+            <div className="flex flex-fil items-center gap-3">
+
+
+                <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="NFTcontract" type="text" handleChange_5={handleChange_5} />
+                
+
+                <div className="flex flex-col gap-3">
+
+                <button 
+                  className="px-3 py-1 bg-black text-white text-sm rounded" 
+                  onClick={(e5) => { check_Minter(e5) }}
+                >
+                  Check
+                </button>
+
+
+
+                </div>
+
+            </div>
+            <button 
+              className="px-3 py-1 bg-green-600 text-white text-sm rounded" 
+              onClick={downloadCSV}
+            >
+              Download CSV
+            </button>
+            <div className="grid grid-cols-2 bg-black text-xs text-white p-2 mt-2 rounded w-auto h-min max-w-lg max-h-60 overflow-y-auto">
+              <div className="font-bold">Minters</div>
+              <div className="font-bold">Public Keys</div>
+              
+              {firstminters.map((minter, index) => (
+                <React.Fragment key={index}>
+                  <div className="break-all">{minter.slice(0, 20)}...</div>
+                  <div className="break-all">{firstpkeys[index].slice(0, 30)}...</div>
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </div>
 
 
       </div>
+      </div>
+      <div className="border-t-8 border-dashed border-[#9c9c9c] w-full"></div>
+
+      <div className="flex flex-col items-center">
+        <div className="flex flex-fil">
+          <div className="text-2xl p-3 ">Meme Factory Settings</div>
+          <Tooltip 
+              message="Aquí puedes establecer los parámetros de las pools de staking."
+              space={2}
+            />
+        </div>
+        <div className="flex flex-fil gap-7">
+          <div className="flex flex-col gap-7 items-center bg-gray-200 rounded-xl p-3">
+            <div className="flex flex-col items-center">
+              <div className=" p-3 font-semibold">Whitelist Contract</div>
+              <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="whitelistcontract" type="text" handleChange_5={handleChange_5} />
+
+            </div>
+            <div className="flex flex-fil items-center gap-7 p-3 bg-gray-100 rounded-lg shadow-lg">
+              {/* Router List Section */}
+              <div className="flex flex-col items-center">
+                <div className="flex flex-fil mb-3">
+                  <div className="mr-2 font-semibold">Routers List</div>
+                  <Tooltip 
+                      message="Aquí puedes establecer los parámetros de las pools de staking."
+                      space={2}
+                  />
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <button
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                    onClick={(e5) => { Check_Whitelist(e5) }}
+                  >
+                    Check
+                  </button>
+                  <div className="text-white bg-black p-2 mt-2 text-xs rounded-lg shadow-lg max-h-32 w-64 overflow-y-auto">
+                    <p className="font-bold">Whitelist routers:</p>
+                    <ul className="list-disc list-inside">
+                      {whitelist.length > 0 ? (
+                        whitelist.map((item, index) => (
+                          <li key={index} className="text-white truncate">{item}</li>
+                        ))
+                      ) : (
+                        <p>No routers in the whitelist.</p>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Add or Delete Router Section */}
+              <div className="flex flex-col items-center  w-auto">
+                <div className="flex items-center justify-center mb-3">
+                  <div className="mr-2 font-semibold">Add or Delete Router</div>
+                  <Tooltip 
+                    message="Aquí puedes establecer los parámetros de las pools de staking."
+                    space={2}
+                  />
+                </div>
+                
+                <Input 
+                  placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b"
+                  name_5="addresswhitelist"
+                  type="text"
+                  handleChange_5={handleChange_5}
+                />
+                
+                <div className="flex flex-fil mt-3 gap-3">
+                  <button 
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-500"
+                    onClick={(e5) => { Add_Whitelist(e5) }}
+                  >
+                    Add
+                  </button>
+                  <button 
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500"
+                    onClick={(e5) => { Delete_Whitelist(e5) }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          <div className="flex flex-col gap-7">
+            <div className="flex flex-col mb-3 items-center">
+              <div className=" p-3">MemeFactory</div>
+              <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="mefactcontract" type="text" handleChange_5={handleChange_5} />
+            </div>
+
+            <div className="flex flex-col space-y-2 items-center ">
+              <div className="flex flex-fil">
+                <div className="mr-2 font-semibold">token pool reciever</div>
+                <Tooltip 
+                  message="Aquí puedes establecer los parámetros de las pools de staking."
+                  space={2}
+                />
+              </div>
+
+              <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="tokenPoolReciever" type="text" handleChange_5={handleChange_5} />
+                <div className="flex flex-fil px-8 py-2 border border-gray-300 rounded">
+              <button className="flex flex-fil ml-2 px-4 py-2 bg-black text-white rounded" onClick={(e5)=>{setTokenFactorySettings(e5)}}>
+                Update
+              </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      
       </div>
     </div>
   );

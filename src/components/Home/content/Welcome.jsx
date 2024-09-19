@@ -6,6 +6,7 @@ import g_coin from "../../../../images/gg_coin_2.png";
 import wire from "../../../../images/wire.png";
 import wire_broken from "../../../../images/wire_broken.png";
 import wire_broken_2 from "../../../../images/wire_broken_2.png";
+import youtube from "../../../../images/youtube-icon.svg";
 import telegram from "../../../../images/telegram.svg";
 import discord from "../../../../images/discord.svg";
 import twitter from "../../../../images/twitter.svg";
@@ -30,6 +31,20 @@ const Welcome = () => {
       setIsSmallScreen(false);
     }
   };
+
+  // Bloquear y desbloquear el scroll según isClicked
+  useEffect(() => {
+    if (!isClicked) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto'; // Cleanup
+    };
+  }, [isClicked]);
+
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
@@ -77,9 +92,12 @@ const Welcome = () => {
       document.removeEventListener('click', handleClick);
     };
   }, []);
-  const handleClick = () => {
-    setIsClicked(true);
-  };
+
+const handleClick = () => {
+
+  setIsClicked(true);
+};
+
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -196,33 +214,41 @@ const Welcome = () => {
       )}
       {isClicked && (
         <div>
-  <div className="fixed right-0 flex flex-col p-2 gap-2 sm:flex-row sm:p-4">
-    <a
-      href="https://discord.gg/EU4zbgS8cU"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
-    >
-      <img src={discord} alt="Discord" className="w-6 sm:w-8" />
-    </a>
+          <div className="fixed right-0 flex flex-col p-2 gap-2 sm:flex-row sm:p-4">
+            <a
+              href="https://www.youtube.com/watch?v=K63c6pANvOM"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+            >
+              <img src={youtube} alt="Youtube" className="w-6 sm:w-8" />
+            </a>
+            <a
+              href="https://discord.gg/EU4zbgS8cU"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+            >
+              <img src={discord} alt="Discord" className="w-6 sm:w-8" />
+            </a>
 
-    <a
-      href="https://t.me/+ChPfId2jYWMyNzVh"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
-    >
-      <img src={telegram} alt="Telegram" className="w-6 sm:w-8" />
-    </a>
+            <a
+              href="https://t.me/+ChPfId2jYWMyNzVh"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white hover:bg-yellow-200 text-white font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+            >
+              <img src={telegram} alt="Telegram" className="w-6 sm:w-8" />
+            </a>
 
-    <a
-      href="https://x.com/GeesesGolden"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="bg-white hover:bg-yellow-200 font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
-    >
-      <img src={twitter} alt="Twitter" className="w-6 sm:w-8" />
-    </a>
+            <a
+              href="https://x.com/GeesesGolden"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white hover:bg-yellow-200 font-bold p-3 sm:p-4 rounded sm:rounded-full focus:outline-none focus:shadow-outline transform transition-all duration-500 hover:scale-105"
+            >
+              <img src={twitter} alt="Twitter" className="w-6 sm:w-8" />
+            </a>
           </div>
           <div className="flex flex-col items-center justify-around min-h-screen p-5">
             <div className="w-full text-center mt-10 sm:mt-10 md:mt-0 lg:mt-0">

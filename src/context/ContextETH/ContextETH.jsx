@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { saveImageToServer, Add_Meme, ProfileCheck } from "../ServerInteract/ServerInteract";
-import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractABI_GOLDENGNFT, contractABI_GOLDEN_EXP, contractAddress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME, contractAddress_goldengnft } from "../../utils/constants";
+import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractABI_GOLDENGNFT, contractABI_GOLDEN_EXP, contractABI_VAULT, contractAddress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME, contractABI_WHITELISTROUTER, contractAddress_goldengnft } from "../../utils/constants";
 import { TransactionContext } from '../TransactionContext';
 import { ethers } from "ethers";
 
@@ -9,17 +9,17 @@ export const TransactionContextETH = React.createContext();
 
 export const TransactionProviderETH = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, WETH } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, WETH, NFTcontract } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
 
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
   const handleChange_3 = (e3, name_3) => {
       setFormData_3((prevState) => ({ ...prevState, [name_3]: e3.target.value }));
   }
-  const [FormData_5, setFormData_5] = useState({ contract: '', ewithdraw: '', notify: '', ureward: '', uboost: '', uboosttime: '', poolcontract: '', NFTcontract: '', expcontract: '', mefactcontract: '',  poolstate: true, tokenPoolReciever: ''});
+  const [FormData_5, setFormData_5] = useState({ contract: '', ewithdraw: '', notify: '', ureward: '', uboost: '', uboosttime: '', poolcontract: '', NFTcontract: '', expcontract: '', mefactcontract: '',  booladmin: true, tokenPoolReciever: '', vaultaddress:'', adminvault: '', AmountToken: '', decimalsvault: 18, vaulttokencontract: '', whitelistcontract: '', addresswhitelist: ''});
   const handleChange_5 = (e5, name_5) => {
     let value = e5.target.value;
-    if (name_5 === "poolstate") {
+    if (name_5 === "booladmin") {
         value = value === "true"; // Convertir la cadena "true"/"false" a booleano
       }
       setFormData_5((prevState) => ({ ...prevState, [name_5]: value }));
@@ -91,7 +91,7 @@ export const TransactionProviderETH = ({ children }) => {
             if (!ethereum) return alert("Please install metamask");
             //fee tx fixed contract
             let Fee_tx = Fee !== undefined ? Fee : 0;
-            let protection_days = ProtectHorus ? ProtectHorus * 24 : 1;
+            let protection_days = ProtectHorus ? ProtectHorus * 24 * 60 : 60;
             const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0];
@@ -144,7 +144,7 @@ const MetaMintNFT = async () => {
     const commissionAmount = ethers.parseEther(0.001.toString());
     //ponemos los datos del contrato de staking
     setIsLoading(true)
-    const message = "Sign to check account";
+    const message = "Sign to check accounts";
     const signature = await getEthSign(message);
     const recoveredAddress = ethers.verifyMessage(message, signature);
     // Asegúrate de que la dirección recuperada sea la esperada
@@ -152,7 +152,7 @@ const MetaMintNFT = async () => {
         throw new Error("Signature verification failed");
     }   
     console.log(signature, "this is signature")
-    const transactionsContract = await getEthereumContract(contractAddress_goldengnft, contractABI_GOLDENGNFT)
+    const transactionsContract = await getEthereumContract(NFTcontract, contractABI_GOLDENGNFT);
     const mintNFT = await transactionsContract.mintTo(currentAccount, signature, {value: commissionAmount} );
     const txHashChain = await mintNFT.wait();
     setIsLoading(false)
@@ -257,28 +257,33 @@ const Get_ETH_Balance = async () => {
     return balance_final;
 }
 
-const GetProtectHours = async (contract_meme) => {
-    const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
-    const [startTrade, protectHours] = await tokenContract.getProtectDetails();
-    console.log("started trade and protect hours",startTrade, "and, ", protectHours)
-    return [startTrade, protectHours];
-}
+const GetProtectMinutes = async (contract_meme) => {
+    try {
+        const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
+        const [startTrade, protectminutes] = await tokenContract.getProtectDetails();
+        return [startTrade, protectminutes];
+    } catch (error) {
+        console.error("Error fetching protect hours:", error);
+        throw error; // Lanza el error si algo sale mal para que pueda ser manejado en otro lugar
+    }
+};
 
 const GetMemeFee = async (contract_meme) => {
     const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
     const CurrentFee = await tokenContract.getCurrentFee();
     return CurrentFee.toString();
 }
-//obtenemos el balance del usuario para ver la cantidad de tokens stakeados
+//obtenemos el balance del usuario para ver la cantidad de tokens stakeados 
 const Get_Token_Balance = async(contract_meme, AccountAddress, decimals) => {
     const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
     const balance = await tokenContract.balanceOf(AccountAddress);
     return ethers.formatUnits(balance.toString(), parseInt(decimals, 10));
 }
 
+
 //obtenemos el balance del usuario para ver la cantidad de tokens stakeados
 const Get_NFT_Minted = async() => {
-    const tokenContract = await getEthereumContract(contractAddress_goldengnft, contractABI_GOLDENGNFT);
+    const tokenContract = await getEthereumContract(NFTcontract, contractABI_GOLDENGNFT);
     const balance = await tokenContract.getMintCount();
     return balance.toString();
 }
@@ -302,11 +307,11 @@ const Points_Earned = async (stake_contract) => {
 }
 
 const ClaimRewardsEggs = async (stake_contract) => {
-        //ponemos los datos del contrato de staking
-        const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
-        //interaccion con el contrato de staking
-        const EggsEarned = await transactionsContract_3.claim()
-        return EggsEarned
+    //ponemos los datos del contrato de staking
+    const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
+    //interaccion con el contrato de staking
+    const EggsEarned = await transactionsContract_3.claim()
+    return EggsEarned
 }
     ///////////ADMIN FUNCTIONS////////////
 
@@ -375,13 +380,13 @@ const UnpauseContract = async () => {
 };
 
 const setExpMinter = async () => {
-    const { expcontract, poolcontract, poolstate }= FormData_5;
+    const { expcontract, poolcontract, booladmin }= FormData_5;
     //ponemos los datos del contrato de staking
-    console.log("exp contract",expcontract, "pool contract", poolcontract, "poolstate", poolstate)
+    console.log("exp contract",expcontract, "pool contract", poolcontract, "booladmin", booladmin)
     const transactionsContract_3 = await getEthereumContract(contractAddress_golden_exp, contractABI_GOLDEN_EXP);
     //interaccion con el contrato de staking
     console.log("exp setminter contract ", contractAddress_golden_exp, "pool contract", expcontract)
-    const transactionHash = await transactionsContract_3.setMinter([poolcontract], [poolstate]);
+    const transactionHash = await transactionsContract_3.setMinter([poolcontract], [booladmin]);
 };
 
 const ChangePoolTreasury = async () => {
@@ -408,6 +413,38 @@ const StatusContract = async () => {
     console.log("last time reward aplicable", transaction_1, "rewardpertoken", transaction_2)
     return [transaction_1.toString(), raterew, supply, transaction_4.toString(), transaction_5.toString() ];  // Retorno como array
 };
+
+//obtenemos el balance del usuario para ver la cantidad de tokens stakeados addToken
+const UpdateVaultAdmins = async() => {
+    const { vaultaddress, adminvault, booladmin } = FormData_5;
+    const tokenContract = await getEthereumContract(vaultaddress, contractABI_VAULT);
+    const authorize = await tokenContract.setAdminAuthorization(adminvault, booladmin);
+}
+
+const SetVaultTokens = async() => {
+    const { vaultaddress, AmountToken, decimalsvault, vaulttokencontract } = FormData_5;
+    const tokenAmount = ethers.parseUnits(AmountToken, parseInt(decimalsvault, 10));
+    const tokenContract = await getEthereumContract(vaultaddress, contractABI_VAULT);
+    const authorize = await tokenContract.addToken(vaulttokencontract, tokenAmount);
+}
+
+const DeleteTokenVault = async() => {
+    const { vaultaddress, vaulttokencontract } = FormData_5;
+    const tokenContract = await getEthereumContract(vaultaddress, contractABI_VAULT);
+    const delete_token = await tokenContract.removeToken(vaulttokencontract);
+}
+
+const CheckVaultTokens = async () => {
+    const { vaultaddress } = FormData_5;
+    const tokenContract = await getEthereumContract(vaultaddress, contractABI_VAULT);
+    
+    // Llamada a la función del contrato
+    const [tokensvault, amountpermint] = await tokenContract.getTokensDetails();
+    console.log( tokensvault,"tokens vault" ,amountpermint, "amount per mint")
+    // Retorna ambos valores como un objeto
+    return { tokensvault, amountpermint };
+}
+
 
 const GetlistmintersNFT = async() => {
     try{
@@ -444,6 +481,32 @@ const GetlistmintersNFT = async() => {
     return (transaction_1,transaction_2)
 };*/
 
+
+const CheckRouterWhitelist = async () => {
+    const { whitelistcontract } = FormData_5;
+    const tokenContract = await getEthereumContract(whitelistcontract, contractABI_WHITELISTROUTER);
+    const whitelist = await tokenContract.getPoolRouters();
+    return whitelist;
+}
+
+const AddWhiteList = async () => {
+    const { whitelistcontract, addresswhitelist } = FormData_5;
+    const tokenContract = await getEthereumContract(whitelistcontract, contractABI_WHITELISTROUTER);
+    const addtoken = await tokenContract.addPoolRouter(addresswhitelist);
+    // Retorna ambos valores como un objeto
+}
+
+const DeleteWhiteList = async () => {
+    const { whitelistcontract, addresswhitelist } = FormData_5;
+    const tokenContract = await getEthereumContract(whitelistcontract, contractABI_WHITELISTROUTER);
+    // Llamada a la función del contrato
+    const whitelist = await tokenContract.removePoolRouter(addresswhitelist);
+    // Retorna ambos valores como un objeto
+}
+
+
+//////////////////USER FUNCTIONS//////////////////////
+
 const BuyMeme = async (tokenAddress) => {
     const { amountswap } = FormData_6;
     const ETHAmount = ethers.parseEther(amountswap); // 0.1 ETH
@@ -473,26 +536,18 @@ const BuyMeme = async (tokenAddress) => {
 const SellMeme = async(tokenAddress) => {
     const { amountswap } = FormData_6;
     const decimals = 18;
-    //const tokenAddress = "0xD479B6592c7bA7c4595932EEC1D6a60A99511561";
     const tokenAmount = ethers.parseUnits(amountswap, parseInt(decimals, 10));
-
     const erc20Contract = await getEthereumContract(tokenAddress, contractABI_MEME)
     const transaction = await erc20Contract.approve(interactFactoryContract, tokenAmount);
     await transaction.wait(); // Esperar a que se complete la transacción
     console.log (`Se aprobaron ${tokenAmount} tokens para el contrato ${interactFactoryContract}`);
-
-    const gasPrice = ethers.parseUnits('10', 'gwei');
-    const gas = {
-        gasPrice: gasPrice,
-        gasLimit: 900000
-    };
 
     const transactionsContract_3 = await getEthereumContract(interactFactoryContract, contractABI_POOLINTERACT);
     const path = [tokenAddress, WETH];
     const to = currentAccount;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos desde ahora
 
-    const transaction_1 = await transactionsContract_3.swapExactTokensForETH(
+    const transaction_1 = await transactionsContract_3.swapExactTokensForETHSupportingFeeOnTransferTokens(
         tokenAmount,
         0,
         path,
@@ -677,7 +732,7 @@ const PoolFactoryInteract = async () => {
         Get_NFT_Minted,
         Get_ETH_Balance,
         GetMemeFee,
-        GetProtectHours,
+        GetProtectMinutes,
         Points_Earned,
         ClaimRewardsEggs,
         EmergWithdraw,
@@ -693,7 +748,14 @@ const PoolFactoryInteract = async () => {
         ChangePoolTreasury,
         PoolFactoryInteract,
         PoolFactoryInteract2,
-        GetlistmintersNFT
+        UpdateVaultAdmins,
+        SetVaultTokens,
+        DeleteTokenVault,
+        CheckVaultTokens,
+        GetlistmintersNFT,
+        CheckRouterWhitelist,
+        AddWhiteList,
+        DeleteWhiteList
     }}>
         {children}
     </TransactionContextETH.Provider>

@@ -30,6 +30,7 @@ export const TransactionProvider = ({ children }) => {
     const [poolFactoryContract, setpoolFactoryContract] = useState('');
     const [interactFactoryContract, setinteractFactoryContract] = useState('');
     const [currentMemeContract, setcurrentMemeData] = useState ('');
+    const [NFTcontract, setNFTcontract] = useState("");
     const [WETH, setWETH] = useState('');
     const [feeIntContract, setfeeIntContract] = useState ("");
     const [walletext, setWalletext] = useState("");
@@ -165,14 +166,14 @@ export const TransactionProvider = ({ children }) => {
                 throw new Error(`No se encontró información para la red ${network}.`);
             }
     
-            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, factory, fee, WETHaddress } = networkData;
+            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, factory, fee, WETHaddress, nftaddress } = networkData;
 
             setFactoryContract(factory);
             setfeeIntContract(fee);
             setpoolFactoryContract(poolFactory);
             setinteractFactoryContract(poolInteract);
             setWETH(WETHaddress);
-
+            setNFTcontract(nftaddress);
             //base switch network
                 try{
                     switchChain({chainId:  chainId },
@@ -375,8 +376,6 @@ export const TransactionProvider = ({ children }) => {
 
     const MintNft = async (firstname, lastname, country, city, province, company, address, postalCode, email) => {
 
-        console.log("pasa por aqui")
-        console.log(walletext,Network)
         const amount = 1;
         const item= 1;
         setIsLoading(true)
@@ -384,9 +383,9 @@ export const TransactionProvider = ({ children }) => {
             if (walletext==="Base Wallet") {
             writeContract({
                 abi: contractABI_GOLDENGNFT,
-                address: contractAddress_goldengnft,
+                address: NFTcontract,
                 functionName: 'mintTo',
-                args: [currentAccount],
+                args: [currentAccount,"xd"],
                 value: ethers.parseEther('0.0001'),
             },
             {    onSuccess: (transaction) => {
@@ -467,6 +466,7 @@ export const TransactionProvider = ({ children }) => {
             poolFactoryContract,
             interactFactoryContract,
             WETH,
+            NFTcontract,
             walletext,
             FormData, 
             FormData_2, 

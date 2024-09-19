@@ -11,7 +11,7 @@ const Description = ({ memedata, MemeFee, Tradestarted, ProtectTime, setShowMyMo
       const protectTime = parseInt(ProtectTime, 10);
 
       if (!isNaN(startTime) && !isNaN(protectTime)) {
-        const targetTime = (startTime * 1000) + (protectTime * 3600000);
+        const targetTime = (startTime * 1000) + (protectTime * 60000);
 
         const timer = setInterval(() => {
           const now = Date.now();
@@ -97,7 +97,7 @@ const Description = ({ memedata, MemeFee, Tradestarted, ProtectTime, setShowMyMo
             </div>
             <div className="flex flex-col">
               <p className="text-md font-medium text-gray-400">
-                Protect Time: {ProtectTime !== null ? `${ProtectTime} hours` : 'Connect Wallet...'}
+                Protect Time: {ProtectTime !== null ? `${ProtectTime/60} hours` : 'Connect Wallet...'}
               </p>
               <p className="text-md font-medium text-gray-400">
                 Created: {formattedDate !== null ? formattedDate : 'Connect Wallet...'}
@@ -177,8 +177,9 @@ const Description = ({ memedata, MemeFee, Tradestarted, ProtectTime, setShowMyMo
             <p className="text-center">25%</p>
             <p className="text-center">0%</p>
           </div>
-          <div className="text-white text-sm font-semibold">
-            Sell Fee
+          <div className="flex flex-col items-center text-white text-sm font-semibold">
+            Sell Fee:
+            <p>{MemeFee !== null ? `${MemeFee / 100}%` : '...'}</p>
           </div>
         </div>
       </div>

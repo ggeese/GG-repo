@@ -69,8 +69,6 @@ const Body = () => {
 
 
     const handleSubmit = () => {
-        if (Network != "Base Sepolia") return;
-
         if (walletext === "Base Wallet") {
             MintNft(address.firstname, address.lastname, address.country, address.city, address.province, address.company, address.address, address.postalCode,  address.email);
         } else{
@@ -108,7 +106,7 @@ const Body = () => {
                         <div className="mt-4 sm:mt-6">
                             <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-purple-700">Details</h3>
                             <p className="mb-2 text-base sm:text-lg">Price: 0.07 ETH</p>
-                            <p className="mb-2 text-base sm:text-lg">Network: BASE</p>
+                            <p className="mb-2 text-base sm:text-lg">Network: {Network}</p>
                             <p className="mb-2 text-base sm:text-lg">Currency: ETH</p>
                             <div className="mb-2 text-base sm:text-lg">
                                 <span>Minted: {counterNFT ? counterNFT : null}</span>
@@ -141,7 +139,7 @@ const Body = () => {
                         <div>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-center">Golden NFT Box</h2>
                             <p className="mb-4 sm:mb-5 text-base sm:text-xl leading-relaxed">
-                                🎉 Mint the Golden NFT Box, a magical box indeed! Inside each box lies Golden's most iconic meme created here in Golden! ✨ Imagine having your favorite memecoin in real life, taking it for a walk, caring for it, even sleeping with it. Isn't that amazing? 🌟 And that's not all — inside each box, you'll find a multisign wallet overflowing with rare memecoins. 💰 If you're lucky, owning one could make you rich.
+                                🎉 Mint the Golden NFT Box, a magical box indeed! Inside each box lies Golden's most iconic meme created here in Golden! ✨ Imagine having your favorite memecoin in real life, taking it for a walk, caring for it, even sleeping with it. Isn't that amazing? 🌟 And that's not all — the first 1000 NFTs will get a bag of memecoins. 💰 If you're lucky, owning one could make you rich.
                             </p>
                         </div>
                         <div className="w-full mt-4 sm:mt-6 text-left">
@@ -198,7 +196,7 @@ const Body = () => {
 
 
                         </div>
-                        <p className="text-xs sm:text-sm">*only on Base</p>
+                        <p className="text-xs sm:text-sm">*in Any Chain</p>
                     </div>
                 </div>
             </div>
