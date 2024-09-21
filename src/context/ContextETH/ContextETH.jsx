@@ -85,13 +85,12 @@ export const TransactionProviderETH = ({ children }) => {
   const sendTransactionETH = async (file) => {
     const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description, ProtectHorus } = FormData_2;
     setIsLoading(true);
-    console.log(Network, "network")
-
         try{
             if (!ethereum) return alert("Please install metamask");
             //fee tx fixed contract
             let Fee_tx = Fee !== undefined ? Fee : 0;
-            let protection_days = ProtectHorus ? ProtectHorus * 24 * 60 : 60;
+            console.log("ProtectHorus", ProtectHorus)
+            let protection_minutes = ProtectHorus ? ProtectHorus : 60;
             const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0];
@@ -99,7 +98,7 @@ export const TransactionProviderETH = ({ children }) => {
             const transactionsContract_2 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY)
             //const transactionsContract_2 = new ethers.Contract(contractAddress_meme_factory_2, contractABI_MEME_FACTORY, signer);
             console.log ("previo a la interaccion con el contrato")
-                const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_days,                 
+                const transactionHash = await transactionsContract_2.createMeme(MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes,                 
                     {   
                     gasLimit: 9999999, 
                     }

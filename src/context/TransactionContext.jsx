@@ -44,7 +44,7 @@ export const TransactionProvider = ({ children }) => {
     const [Balance, setBalance] = useState ("");
     const [MemeDegenBalance, setMemeDegenBalance] = useState("");
     const [Network, setNetwork] = useState(() => {
-        return localStorage.getItem('network') || 'Base Sepolia';
+        return localStorage.getItem('network') || 'Base';
       });
 
     //disconnect wagmi

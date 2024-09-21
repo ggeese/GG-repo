@@ -22,21 +22,21 @@ import TON from "../../../images/TON.svg";
 import zetachain from "../../../images/zetachain.svg";
 
 const networkIcons = {
-  'Moonbase Alpha': { icon: moonbeam, nick: 'Moonbase' },
+  'Base': { icon: base, nick: 'Base' },
   'Berachain bArtio': { icon: berachain, nick: 'Berachain Testnet' },
-  //'Base': { icon: base, nick: 'Base' },
+  'Moonbase Alpha': { icon: moonbeam, nick: 'Moonbase' },
   //'Manta Pacific Mainnet': { icon: manta, nick: 'Manta' },
   'Base Sepolia': { icon: base, nick: 'Base Testnet' },
-  'Sepolia ETH': { icon: eth, nick: 'ETH Sepolia' },
+  //'Sepolia ETH': { icon: eth, nick: 'ETH Sepolia' },
   'TON': { icon: TON, nick: 'TON (telegram)' },
-  'X Layer Mainnet': { icon: okb, nick: 'X Layer' },
+  //'X Layer Mainnet': { icon: okb, nick: 'X Layer' },
   //'BNB Smart Chain Mainnet': { icon: bnb, nick: 'BNB Chain' },
   //'Blast': { icon: blast, nick: 'Blast' },
   //'Linea': { icon: linea, nick: 'Linea' },
   //'Polygon Mainnet': { icon: polygon, nick: 'Polygon' },
   //'ZetaChain Mainnet': { icon: zetachain, nick: 'Zeta Chain' },
   'Solana': { icon: solana, nick: 'Solana Devnet' },
-  'Manta Pacific Testnet': { icon: manta, nick: 'Manta Testnet' },
+  //'Manta Pacific Testnet': { icon: manta, nick: 'Manta Testnet' },
 };
 
 const networks = Object.keys(networkIcons).map(network => ({

@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const useTestnet = false; 
+const useTestnet = true; 
 
 const appMemes = useTestnet 
   ? 'http://localhost:3001' //testnet

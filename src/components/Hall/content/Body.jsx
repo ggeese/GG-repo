@@ -15,7 +15,7 @@ const Body = () => {
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
     const [counterNFT, setcounterNFT] = useState("");
     const [clicked, setClicked] = useState(false);
-
+    const [isdisable, setisdisable] = useState(true);
 
     useEffect(() => {
         const fetchCounter = async () => {
@@ -139,7 +139,7 @@ const Body = () => {
                         <div>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-center">Golden NFT Box</h2>
                             <p className="mb-4 sm:mb-5 text-base sm:text-xl leading-relaxed">
-                                🎉 Mint the Golden NFT Box, a magical box indeed! Inside each box lies Golden's most iconic meme created here in Golden! ✨ Imagine having your favorite memecoin in real life, taking it for a walk, caring for it, even sleeping with it. Isn't that amazing? 🌟 And that's not all — the first 1000 NFTs will get a bag of memecoins. 💰 If you're lucky, owning one could make you rich.
+                                🎉 Mint the Golden NFT Box, a magical box indeed! Inside each box lies Golden's most iconic meme created here in GG! ✨ Imagine having your favorite memecoin in real life, taking it for a walk, caring for it, even sleeping with it. Isn't that amazing? 🌟 And that's not all — the first 1000 NFTs will get a bag of memecoins. 💰 If you're lucky, owning one could make you rich.
                             </p>
                         </div>
                         <div className="w-full mt-4 sm:mt-6 text-left">
@@ -184,12 +184,14 @@ const Body = () => {
                                             <Loader />
                                         </div>
                                     ) : (
-                                        <button
-                                            onClick={handleSubmit}
-                                            className="w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4"
-                                        >
-                                            Mint NFT
-                                        </button>
+                                <button
+                                    onClick={handleSubmit}
+                                    className={`w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4 ${isdisable ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={isdisable}
+                                >
+                                    Mint NFT
+                                </button>
+
                                     )}
                                 </div>
                             )}

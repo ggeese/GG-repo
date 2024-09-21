@@ -54,7 +54,7 @@ function FileUpload({ onFileSelect }) {
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 className="flex border-dashed border-4 border-gray-300 py-1 px-5 text-center cursor-pointer"
-                style={{ width: 300, minHeight: 150,  maxHeight: "auto" }}
+                style={{ width: 240, minHeight: 150,  maxHeight: "auto" }}
             >
                 {previewUrl ? (
                   <div className="relative">
@@ -69,8 +69,8 @@ function FileUpload({ onFileSelect }) {
                   </div>
   
                 ) : (
-                  <div className="flex text-center text-gray-500 items-center justify-center">  
-                      Drag and drop an image here, or click to select file
+                  <div className="flex text-center text-gray-500 items-center justify-center italic">  
+                      Drag and drop an image here, or click to select File Image
                   </div>
               )}
                 <input

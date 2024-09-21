@@ -76,10 +76,10 @@
         "explorerUrl": "https://basescan.org",
         "nftaddress":"0x238f08Eb0d6E5d09dC38EDBc215969267BD91653",
         "poolFactory": "0x4043B89e25c2C1E117204b1789939E2FAD035D8F",
-        "poolInteract": "0x26B5644c3A09E24d8cbD39746BcA477D232228Ef",
-        "factory":"0x70262A6a87F84a532248C861987dDeae7c5c9826",
+        "poolInteract": "0x567b7404EBdBE3Cf12879C89f785252bfB32b903",
+        "factory":"0x7473fc93A2Bd16CbFc045D3f5D22121007B33C0c",
         "nick":"Base",
-        "WETHaddress": "0x43b620CDCD633de6CE4EcB647aEA355910492A63",
+        "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001
       },
       {
@@ -91,7 +91,7 @@
         "nftaddress":"0x238f08Eb0d6E5d09dC38EDBc215969267BD91653",
         "poolFactory": "0x1bAd98d82598CA1077046cDE447D81d7F0bEbCb0",
         "poolInteract": "0x48b2C11f9b40Ca165Ab791b696165CD573B72371",
-        "factory":"0x70262A6a87F84a532248C861987dDeae7c5c9826",
+        "factory":"0xCEf74446478A0b110FC8711bEC69214B25215a6e",
         "nick":"Base",
         "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.0001
