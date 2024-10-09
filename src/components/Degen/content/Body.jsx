@@ -128,6 +128,7 @@ const Body = () => {
         try {
           const fee = await GetMemeFee(memedata.contract);
           setMemeFee(fee);
+          console.log(fee,"fee sell XD")
           const [Tstarted, protex] = await GetProtectMinutes(memedata.contract);
           setProtectTime(protex.toString());
           setTradestarted(Tstarted.toString());

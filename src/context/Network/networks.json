@@ -133,7 +133,7 @@
         "nftaddress":"0x875A9333bE45aa04102936EBEe06Fd40c270428d",
         "poolFactory": "0x1bAd98d82598CA1077046cDE447D81d7F0bEbCb0",
         "poolInteract": "0x48b2C11f9b40Ca165Ab791b696165CD573B72371",
-        "factory":"0x6C53B310b083E0F2C595e186894DF059Cf683eA2",
+        "factory":"0xe112fd0678693ce60c4b60Eca423a0A79979E0cF",
         "nick":"Base",
         "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.0001

@@ -7,7 +7,8 @@ import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransactionReceipt, useSignMessage } from 'wagmi';
 import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/ServerInteract";
 import { NetworkSelectMini } from "./Network/NetworkSelect";
-import { useWriteContracts } from "wagmi/experimental";
+import { useCallsStatus, useWriteContracts } from "wagmi/experimental";
+
 // Configurar el entorno para usar `buffer` y `process`
 
 export const TransactionContext = React.createContext();
@@ -44,7 +45,23 @@ export const TransactionProvider = ({ children }) => {
     const { writeContract } = useWriteContract();
     const [Balance, setBalance] = useState ("");
     const [MemeDegenBalance, setMemeDegenBalance] = useState("");
-    const { writeContractsAsync } = useWriteContracts();
+    const {
+        writeContractsAsync,
+        error: mintError,
+        status: mintStatus,
+        data: id,
+    } = useWriteContracts();
+
+    const { data: callsStatus } = useCallsStatus({
+        id: id,
+        query: {
+            enabled: !!id,
+            // Poll every second until the calls are confirmed
+            refetchInterval: (data) =>
+                data.state.data?.status === "CONFIRMED" ? false : 1000,
+        },
+    });
+
     const { signMessageAsync } = useSignMessage()
     const [Network, setNetwork] = useState(() => {
         return localStorage.getItem('network') || 'Base';
@@ -284,7 +301,7 @@ export const TransactionProvider = ({ children }) => {
        // Llamando a la función para probarla
         
     const meme_adding = async(currentMemeContract) => {
-        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description } = FormData_2;
+        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description} = FormData_2;
         let image_meme_url
         if (imageFile) {
             image_meme_url = await saveImageToServer(imageFile);
@@ -292,13 +309,14 @@ export const TransactionProvider = ({ children }) => {
             image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903";
         }
         setCurrentMemeImage(image_meme_url);
-        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Twitch, Fee, description);
+        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Twitch, Fee, description, Network);
     }
-    
+    ``
     const sendTransactionBase = async (file) => {
 
         const { MemeName, Symbol, Supply, Fee, ProtectInput, Timeframe } = FormData_2;
-        let protection_days = ProtectInput !== undefined ? ProtectInput * Timeframe : 60;
+        let protection_minutes = ProtectInput ? ProtectInput*Timeframe : 60;
+        console.log("ProtectInput", ProtectInput,"timeframe: ", Timeframe, "mult", protection_minutes);
         let Fee_tx = Fee !== undefined ? Fee : 0;
         const recipient = currentAccount;
         setImageFile(file);
@@ -313,7 +331,7 @@ export const TransactionProvider = ({ children }) => {
             abi: contractABI_MEME_FACTORY,
             address: factoryContract,
             functionName: 'createMeme',
-            args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_days],
+            args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes],
         }],
             capabilities: {
                 paymasterService: {
@@ -323,9 +341,7 @@ export const TransactionProvider = ({ children }) => {
             },
         });
         
-        console.log("Transacción enviada con éxito:", data);
-        setTxHashBase(data);
-        setTxHash(data);
+
     } catch (err) {
         console.error("Error al mintear:", err);
         // Manejar el error, por ejemplo, mostrar un mensaje al usuario
@@ -435,17 +451,36 @@ export const TransactionProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('network', Network);
       }, [Network]);
-    
 
     useEffect(() => {
-        if (BaseDataHash) {
-            const contract_meme = BaseDataHash.logs[1].address;
-            setcurrentMemeData(contract_meme);
-            console.log("meme contract",contract_meme)
-            // Aquí puedes continuar con la lógica que necesitas
-            meme_adding(contract_meme);
-        }
-    }, [BaseDataHash]);
+
+    if (!callsStatus?.receipts?.[0]?.logs) {
+        console.log("No valid logs found.", callsStatus);
+        return;
+    }
+
+    const logs = callsStatus.receipts[0].logs;
+
+    if (logs.length < 3) {
+        console.log("Logs do not have enough elements.");
+        return;
+    }
+
+    const contract_meme = logs[2]?.address; // Accede a la dirección del tercer log (índice 2)
+    const hash = callsStatus.receipts[0].blockHash
+    setTxHash(hash);
+
+    if (contract_meme) {
+        console.log("Address from the third log:", contract_meme);
+        setcurrentMemeData(contract_meme);
+        meme_adding(contract_meme);
+    } else {
+        console.log("No address found in the third log.");
+    }
+    }, [callsStatus]);
+    
+    
+    
 
     useEffect(() => {
         if (EVMAddress) {
