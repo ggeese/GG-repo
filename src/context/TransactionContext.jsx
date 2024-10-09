@@ -4,10 +4,10 @@ import { contractABI_GOLDENGNFT, contractAddress_goldengnft } from "../utils/con
 import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
 import networksData from './Network/networks.json'; // Importa el archivo JSON
 import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
-import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransactionReceipt  } from 'wagmi';
+import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransactionReceipt, useSignMessage } from 'wagmi';
 import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/ServerInteract";
 import { NetworkSelectMini } from "./Network/NetworkSelect";
-
+import { useWriteContracts } from "wagmi/experimental";
 // Configurar el entorno para usar `buffer` y `process`
 
 export const TransactionContext = React.createContext();
@@ -24,6 +24,7 @@ export const TransactionProvider = ({ children }) => {
     const [ TONAddress, setTONAddress] = useState ('');
     const [ SOLAddress, setSOLAddress] = useState ('');
     const [ EVMAddress, setEVMAddress] = useState ('');
+    const [ DataUser, setDataUser] = useState ('');
     const [currentMemeImage, setCurrentMemeImage] = useState ('');
     const [ imageFile, setImageFile] = useState ('');
     const [factoryContract, setFactoryContract] = useState ('');
@@ -43,6 +44,8 @@ export const TransactionProvider = ({ children }) => {
     const { writeContract } = useWriteContract();
     const [Balance, setBalance] = useState ("");
     const [MemeDegenBalance, setMemeDegenBalance] = useState("");
+    const { writeContractsAsync } = useWriteContracts();
+    const { signMessageAsync } = useSignMessage()
     const [Network, setNetwork] = useState(() => {
         return localStorage.getItem('network') || 'Base';
       });
@@ -101,7 +104,7 @@ export const TransactionProvider = ({ children }) => {
         
     };
 
-    const { connectors, connect } = useConnect()
+    const { connectors, connectAsync } = useConnect()
 
     //obteniendo datos del wagmi a partir del hash para el contrato
     const { data: BaseDataHash } = useTransactionReceipt ({
@@ -111,15 +114,14 @@ export const TransactionProvider = ({ children }) => {
     
     const connectSmartWallet = async () => {
 
-   try {
-          disconnectWagmi();
-          // Initialize Coinbase Wallet SDK
-          const coinbaseConnector = connectors.find(
+        try {
+            disconnectWagmi();
+            // Initialize Coinbase Wallet SDK
+            const coinbaseConnector = connectors.find(
             (connector) => connector.name === 'Coinbase Wallet'
-          )
-          if (coinbaseConnector) {
-          connect({ connector: coinbaseConnector },
-            {onSuccess: async (data) => {
+            )
+            if (coinbaseConnector) {
+                const data = await connectAsync ({ connector: coinbaseConnector });
                 const base_account = data.accounts[0];
                 setCurrentAccount(base_account);
                 setEVMAddress(base_account);
@@ -127,13 +129,12 @@ export const TransactionProvider = ({ children }) => {
                 const wallet ="Base Wallet" ;
                 setWalletext(wallet);
                 console.log("wallet ext en connect", wallet)
+                return base_account;
             }
-        });
-        };
-        changeNetwork(Network);
-        } catch (error) {
-          console.error("Error connecting to Coinbase Wallet:", error);
-        }
+            await changeNetwork(Network);
+            } catch (error) {
+                console.error("Error connecting to Coinbase Wallet:", error);
+            }
       };
 
     //cambiar red//
@@ -253,7 +254,7 @@ export const TransactionProvider = ({ children }) => {
 
     //boton 2 para creacion de meme, a partir de aqui es mi codigo
 
-    const [FormData_2, setFormData_2] = useState({ MemeName: '', Symbol: '', Supply: '', ProtectHorus: ''});
+    const [FormData_2, setFormData_2] = useState({ MemeName: '', Symbol: '', Supply: '', ProtectInput: '', Timeframe: ''});
     const handleChange_2 = (e2, name_2) => {
         setFormData_2((prevState) => ({ ...prevState, [name_2]: e2.target.value }));
     }
@@ -296,8 +297,8 @@ export const TransactionProvider = ({ children }) => {
     
     const sendTransactionBase = async (file) => {
 
-        const { MemeName, Symbol, Supply, Fee, ProtectHorus } = FormData_2;
-        let protection_days = ProtectHorus !== undefined ? ProtectHorus * 24 : 1 * 24;
+        const { MemeName, Symbol, Supply, Fee, ProtectInput, Timeframe } = FormData_2;
+        let protection_days = ProtectInput !== undefined ? ProtectInput * Timeframe : 60;
         let Fee_tx = Fee !== undefined ? Fee : 0;
         const recipient = currentAccount;
         setImageFile(file);
@@ -305,29 +306,49 @@ export const TransactionProvider = ({ children }) => {
         const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
         //const contractAddress_meme_factory = findContract(Network);
         setIsLoading(true);
-        writeContract({
+    try {
+        // Llamar a la función del contrato de forma asíncrona
+        const data = await writeContractsAsync({
+            contracts: [{
             abi: contractABI_MEME_FACTORY,
             address: factoryContract,
             functionName: 'createMeme',
             args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_days],
-          },
-          {onSuccess: async (data) => {
-            console.log("Transacción enviada con éxito:", data);
-                setTxHashBase(data);
-                setTxHash(data)
-                setIsLoading(false)
-        },
+        }],
+            capabilities: {
+                paymasterService: {
+                    // Paymaster Proxy Node url goes here.
+                    url: "https://api.developer.coinbase.com/rpc/v1/base/yCYGyekgTfIGKsj-ZM_MQnJmbufDhUMh",
+                },
+            },
+        });
         
-        onError: (err) => {
-            console.error("Error al mintear:", err);
-            setIsLoading(false)
-            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-        },
-    })
+        console.log("Transacción enviada con éxito:", data);
+        setTxHashBase(data);
+        setTxHash(data);
+    } catch (err) {
+        console.error("Error al mintear:", err);
+        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+    } finally {
+        // Desactivar el estado de carga, ya sea con éxito o error
+        setIsLoading(false);
+    }
 
     }
     
-
+    const SmartSignatureSession = async (nonce) => {
+        try {    
+            const signature = await signMessageAsync({
+                message: nonce,
+            });
+            return signature;
+    
+        } catch (error) {
+            console.error("Error signing message:", error);
+            throw error; 
+        }
+    };
+    
     const Claim_Rewards = async (stake_contract) => {
         const tokenContract = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
         console.log("PREVIO A CLAIM REWARDS")
@@ -449,6 +470,8 @@ export const TransactionProvider = ({ children }) => {
             MemeDegenBalance,
             setMemeDegenBalance,
             setCurrentAccount,
+            DataUser, 
+            setDataUser,
             setTONAddress, 
             setSOLAddress,
             EVMAddress,
@@ -458,6 +481,7 @@ export const TransactionProvider = ({ children }) => {
             setWalletext,
             setcurrentMemeData,
             connectSmartWallet,
+            SmartSignatureSession,
             currentAccount, 
             isLoading,
             TxHash,

@@ -57,7 +57,7 @@ const Welcome = () => {
   useEffect(() => {
     if (!isSmallScreen) {
       const timerbird = setTimeout(() => {
-        setShowBird(true);
+//        setShowBird(true);
       }, 5000);
       return () => clearTimeout(timerbird);
     }

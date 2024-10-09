@@ -1,12 +1,19 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { contractAddress_goldengnft } from "../../../utils/constants";
 import { TransactionContext } from "../../../context/TransactionContext";
-import meme from "../../../../images/meme.jpeg";
+import meme from "../../../../models/goldenbox.glb";
 import factory from "../../../../images/factory_2.jpeg";
+import background from "../../../../images/bgcube.jpg";
 import copy_logo from "../../../../images/copy.svg";
 import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import { Loader } from './'
 import Wallets from '../../../Wallets';
+// Importa react-three-fiber y el cargador GLTF
+import { Canvas, useLoader } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import { Model } from './'; // Adjust the path if necessary
+import * as THREE from 'three';
+
 
 const Body = () => {
     const { MintNft, walletext, isLoading, Network, currentAccount } = useContext(TransactionContext);
@@ -16,6 +23,13 @@ const Body = () => {
     const [counterNFT, setcounterNFT] = useState("");
     const [clicked, setClicked] = useState(false);
     const [isdisable, setisdisable] = useState(true);
+    // Luz blanca cálida
+    const lightColor = new THREE.Color(1, 1, 1); // Luz blanca cálida (un poco más amarilla)
+    const environmentColor = new THREE.Color(1, 0.7, 0.9); // Luz ambiental suave en tonos rosados
+    const yellowLightColor = new THREE.Color(1, 0.7, 0.9); // Amarillo cálido/anaranjado
+
+    const backgroundTexture = useLoader(THREE.TextureLoader, background);
+
 
     useEffect(() => {
         const fetchCounter = async () => {
@@ -95,14 +109,32 @@ const Body = () => {
             </div>
             
             <div className="relative z-1 bg-white shadow-lg rounded-lg overflow-hidden max-w-lg sm:max-w-2xl md:max-w-4xl w-full">
-                <div className="flex flex-col md:flex-row">
-                    <div className="md:w-1/2 w-full p-4 sm:p-8 text-center text-gray-900">
+                <div className="flex flex-col md:flex-row ">
+                    <div className="md:w-1/2 w-full p-4 sm:p-8 text-center text-gray-900 ">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 sm:mb-6">Golden BOX</h1>
-                        <img
-                            src={meme}
-                            alt="NFT Preview"
-                            className="w-full h-auto mb-4 rounded-lg border-4 border-purple-700"
-                        />
+                        {/* Cambia la imagen por el modelo 3D */}
+                        <div className="flex justify-center items-center w-auto h-80 mb-4 rounded-lg border-4 border-purple-700"> {/* Ajusta el tamaño aquí */}
+                            <Canvas 
+                                camera={{ position: [0, -73, -431], fov: 37 }} 
+                                style={{ height: '100%', width: '100%' }} 
+                                gl={{ toneMappingExposure: 1 }} // Ajustar la exposición
+
+                            >
+                                <primitive attach="background" object={backgroundTexture} />
+
+                                <ambientLight color={environmentColor} intensity={0} />
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[0, 0, 1]} /> {/*frontal*/}
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[0, 0, -1]} /> {/*frontal*/}
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[-1, 0, 0]} />{/*izquierdo*/}
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[1, 0, 0]} /> {/*derecha*/}
+                                <directionalLight color={yellowLightColor} intensity={3.73} position={[-1, 1, 0]} />{/*superior*/}
+                                <directionalLight color={yellowLightColor} intensity={2.73} position={[1, -1, 0]} /> {/*inferior*/}
+                                <OrbitControls enableZoom={true} />
+                                <Model path={meme} scale={1} />
+                            </Canvas>
+                        </div>
+
+
                         <div className="mt-4 sm:mt-6">
                             <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-purple-700">Details</h3>
                             <p className="mb-2 text-base sm:text-lg">Price: 0.07 ETH</p>
@@ -187,7 +219,7 @@ const Body = () => {
                                 <button
                                     onClick={handleSubmit}
                                     className={`w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4 ${isdisable ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={isdisable}
+                                    //disabled={isdisable}
                                 >
                                     Mint NFT
                                 </button>

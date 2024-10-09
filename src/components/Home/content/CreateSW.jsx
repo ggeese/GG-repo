@@ -3,27 +3,43 @@ import { CoinbaseWalletSDK } from '@coinbase/wallet-sdk';
 import logo_wallet from '../../../../images/coinbase_wallet.svg';
 
 const sdk = new CoinbaseWalletSDK({
-  appName: 'My Dapp With SDK',
-  appLogoUrl: 'https://example.com/logo.png',
+  appName: 'Base Smart Wamet',
+  appLogoUrl: {logo_wallet},
   appChainIds: [84532],
 });
 
 const provider = sdk.makeWeb3Provider();
+
+const handleSuccess = (address) => {
+  console.log('Wallet address:', address);
+  // Abre el enlace en un popup
+  const popupWidth = 400;
+  const popupHeight = 700;
+  const left = window.innerWidth / 2 - popupWidth / 2;
+  const top = window.innerHeight / 2 - popupHeight / 2;
+
+  window.open('https://keys.coinbase.com/settings', 'Coinbase Wallet Settings', `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`);
+};
+
+const handleError = (error) => {
+  console.error('Error creating wallet:', error);
+  alert(`Error creating wallet: ${error.message}`);
+};
 
 const createWallet = async () => {
   try {
     const [address] = await provider.request({
       method: 'eth_requestAccounts',
     });
-    handleSuccess(address); // Define la función handleSuccess para manejar la creación exitosa de la billetera
+    handleSuccess(address);
   } catch (error) {
-    handleError(error); // Define la función handleError para manejar errores
+    handleError(error);
   }
 };
 
-const BlackCreateWalletButton = ({ height = 66, width = 200 }) => {
-  const buttonHeight = Math.max(48, height);
-  const buttonWidth = Math.max(200, width);
+const BlackCreateWalletButton = ({ height = 73, width = 200 }) => {
+const buttonHeight = Math.max(48, height);
+const buttonWidth = Math.max(200, width);
 
   return (
     <button
@@ -41,4 +57,3 @@ const BlackCreateWalletButton = ({ height = 66, width = 200 }) => {
 };
 
 export { BlackCreateWalletButton, createWallet };
-

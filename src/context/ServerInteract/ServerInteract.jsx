@@ -106,14 +106,3 @@ export const Create_Delivery = async (firstname, lastname, country, city, provin
         console.log("Pedido registrado");
     });
 };
-
-
-export const ProfileCheck = async (Account) => {
-    AppSocialPoint.post('/users', {
-        walletAddress: Account
-    }).then(() => {
-        console.log("Perfil creado o ya existente");
-    }).catch(error => {
-        console.error("Error al crear o obtener el perfil:", error);
-    });
-}

@@ -11,5 +11,6 @@ export default defineConfig({
   ],
   optimizeDeps: {
     include: ['@project-serum/anchor', '@coinbase/wallet-sdk']
-  }
+  },
+  assetsInclude: ['**/*.glb'], // Add this line to include .glb files
 })

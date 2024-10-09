@@ -21,10 +21,24 @@ const App = () => {
   };
 
   useEffect(() => {
+    const closeDropdown = (event) => {
+      if (!event.target.closest(".dropdown-menu") &&
+          !event.target.closest(".dropdown-button")) {
+        setDropdownOpen(false);
+      }
+    };
+  
+    document.addEventListener("click", closeDropdown);
+    return () => {
+      document.removeEventListener("click", closeDropdown);
+    };
+  }, []);
+  
+  useEffect(() => {
     const closeMenu = (event) => {
       if (!event.target.closest(".toggle-menu") && 
           !event.target.closest(".toggle-button") && 
-          !event.target.closest(".mini-menu-select")
+          !event.target.closest(".mini-menu-select") 
         ) {
         setToggleMenu(false);
       }
@@ -73,11 +87,11 @@ const App = () => {
               <div>
                 {currentAccount ? (
                   <div className="relative inline-block wallet-button">
-                    <button className="text-white text-xl font-semibold" onClick={toggleDropdown}>
+                    <button className="text-white text-xl font-semibold dropdown-button" onClick={toggleDropdown}>
                       {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
                     </button>
                     {dropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 dropdown-menu">
                         <div className="py-1">
                           <Link to="/Profile" className=" block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm">Profile</Link>
                           <button onClick={disconnectWallet} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -138,14 +152,14 @@ const App = () => {
                   <li className="my-2 text-xl py-3">
                   {currentAccount ? (
                     <div className="relative inline-block">
-                      <button className="text-white font-semibold" onClick={toggleDropdown}>
+                      <button className="text-white font-semibold dropdown-button" onClick={toggleDropdown}>
                         {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
                       </button>
                       {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                           <Link to="/Profile" className="text-black text-sm px-4 py-2 hover:text-gray-300">Profile</Link>
                           <div className="py-1">
-                            <button onClick={disconnectWallet} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <button onClick={disconnectWallet} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dropdown-button">
                               Disconnect Wallet
                             </button>
                           </div>

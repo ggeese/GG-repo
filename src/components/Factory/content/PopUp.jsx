@@ -32,8 +32,10 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
     type={type}
     value={value}
     onChange={(e2) => handleChange_2(e2, name_2)}
-    className="placeholder:italic resize-none p-2 border rounded focus:outline-none focus:ring focus:border-blue-300"
+    className="placeholder:italic resize-none p-2 border text-sm rounded focus:outline-none focus:ring focus:border-blue-300"
     style={{ maxHeight: '200px', minHeight: '150px', minWidth:'200px', maxWidth:'300px'  }}    // Estilos de Tailwind CSS para el textarea
+    maxLength={370} // Limita la entrada a 370 caracteres
+
   />
 );
 
@@ -65,9 +67,8 @@ function PopUp({visible, onClose}) {
     const [switchState, setSwitchState] = useState("meme"); // Estado para el interruptor
     const [isChecked, setIsChecked] = useState(true);
     const [supplyError, setSupplyError] = useState(''); // Estado para controlar el mensaje de error
-    const [durationUnit, setDurationUnit] = useState('hours'); // Estado para la unidad de duración
-    const [durationValue, setDurationValue] = useState(1); // Estado para el valor ingresado
-
+    const [description, setDescription] = useState(''); // Estado para el texto del textarea
+    const maxCharacters = 370;
 
     const handleCheckboxChange = () => {
       setIsChecked(!isChecked);
@@ -77,23 +78,14 @@ function PopUp({visible, onClose}) {
         if (event.target.id === 'container_meme') onClose()
     };
 
-    const handleUnitChange = (e) => {
-      const selectedUnit = e.target.value;
-      setDurationUnit(selectedUnit);
-    
-      // Si el input ya tiene un valor, recalcula según la unidad seleccionada usando la función de flecha
-      setDurationValue((prevValue) => {
-        if (selectedUnit === 'days') {
-          handleChange_2({ target: { value: prevValue * 24 * 60 } }, 'ProtectHorus'); // Convierte días a minutos
-        } else if (selectedUnit === 'months') {
-          handleChange_2({ target: { value: prevValue * 24 * 30 * 60 } }, 'ProtectHorus'); // Convierte meses a minutos
-        } else if (selectedUnit === 'years') {
-          handleChange_2({ target: { value: prevValue * 24 * 365 * 60 } }, 'ProtectHorus'); // Convierte años a minutos
-        } else {
-          handleChange_2({ target: { value: prevValue } }, 'ProtectHorus'); // Mantén el valor
-        }
-      });
-    };
+      // Actualiza el estado del textarea y verifica la longitud
+  const handleTextareaChange = (e2) => {
+    const { value } = e2.target;
+    if (value.length <= maxCharacters) {
+      setDescription(value);
+      handleChange_2(e2, 'description'); // Llamada a la función original
+    }
+  };
     
     //comandos para controlar el pop up 2
     
@@ -231,12 +223,14 @@ function PopUp({visible, onClose}) {
                               placeholder="we are people who make memes that goes to da moon!!!!"
                               name_2="description"
                               type="text"
-                              handleChange_2={handleChange_2}
+                              handleChange_2={handleTextareaChange}
                               className="resize-none border rounded placeholder:sitalic p-2"
                               // Ajustamos el estilo para que el textarea tenga el mismo aspecto que el input
                               style={{ minHeight: 'auto' }}
                               // Establecemos una altura mínima para el textarea
                           />
+                          <p className="flex text-gray-500 text-xs ml-auto mt-1">{description.length}/370</p> {/* Muestra el contador */}
+
                       </div>
 
                     </div>
@@ -270,7 +264,7 @@ function PopUp({visible, onClose}) {
                         </div>
                           <div className="flex justify-end">
                               <p className="flex justify-center p-2 italic">twitter.com/</p>
-                              <Input2 placeholder="GoldenGoosememe" name_2="Twitter" type="text" handleChange_2={handleChange_2} className={`placeholder:italic w-auto p-2 border`}/>
+                              <Input2 placeholder="GeesesGolden" name_2="Twitter" type="text" handleChange_2={handleChange_2} className={`placeholder:italic w-auto p-2 border`}/>
                           </div>
                       </div>
                       {Network !== "Solana" && (
@@ -316,7 +310,7 @@ function PopUp({visible, onClose}) {
                         </div>
                           <div className="flex justify-end">
                               <p className="flex justify-center p-2 italic">twitch.tv/</p>
-                              <Input2 placeholder="goldeng" name_2="Twitch" type="text" handleChange_2={handleChange_2} className={`placeholder:italic`}/>
+                              <Input2 placeholder="gg" name_2="Twitch" type="text" handleChange_2={handleChange_2} className={`placeholder:italic`}/>
                           </div>
                       </div>
                       {Network !== "Solana" && (
@@ -344,18 +338,17 @@ function PopUp({visible, onClose}) {
                           </div>
                         </div>
 
-                          <div className="flex flex-fil justify-end items-center">
-                            <Input2 placeholder="1" name_2="ProtectHorus" type="number" handleChange_2={handleInputChange} disabled={!isChecked} className={`placeholder:italic w-32`} />
+                          <div className="flex flex-fil justify-end items-center gap-3">
+                            <Input2 placeholder="1" name_2="ProtectInput" type="number" handleChange_2={handleChange_2} disabled={!isChecked} className={`placeholder:italic w-24`} />
                             <select
-                              value={durationUnit}
-                              onChange={handleUnitChange} // Manejador para el select
-                              className="ml-2 p-2 border rounded text-sm w-20"
-                              disabled={!isChecked} // Deshabilitar si el checkbox no está seleccionado
-                            >
-                              <option value="hours">Hours</option>
-                              <option value="days">Days</option>
-                              <option value="months">Months</option>
-                              <option value="years">Years</option>
+                              onChange={(e2) => handleChange_2(e2, 'Timeframe')}
+                              className="border p-2 rounded-xl w-24"
+                                  >
+                                <option value={60}>Hours</option>
+                                <option value={60 * 24}>Days</option>
+                                <option value={60 * 24 * 7}>Weeks</option>
+                                <option value={60 * 24 * 30}>Months</option>
+                                <option value={60 * 24 * 30 * 12}>Years</option>
 
                             </select>
                           </div>

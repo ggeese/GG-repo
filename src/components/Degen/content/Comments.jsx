@@ -46,6 +46,10 @@ function Comments({ contractMeme, chainNetwork, Comments }) {
 
         setShowConnectWalletMessage(false); // Ocultar mensaje si la wallet está conectada
 
+        const nonderesponse = await AppSocialPoint.get(`/generateNonce/${currentAccount}`);
+        const nonce = nonderesponse.data.nonce;
+        console.log(nonce, "nonce code")
+
         if (newComment.trim() || media) {
             const newCommentData = {
                 text: newComment,
@@ -53,10 +57,12 @@ function Comments({ contractMeme, chainNetwork, Comments }) {
                 tableName: contractMeme, // Asegúrate de que este nombre sea consistente
                 chainNet: chainNetwork,
                 walletAddress: currentAccount, // Asocia el comentario con el usuario
+                nonce, // Incluir el nonce en la solicitud
             };
 
             try {
                 //const response = await axios.post("https://app-social-gg.onrender.com/comments", newCommentData);
+
                 const response = await AppSocialPoint.post('/comments', newCommentData);
 
                 setDataComments([response.data, ...allcomments]); // Usar la respuesta del servidor

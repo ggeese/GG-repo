@@ -20,7 +20,7 @@ export const config = createConfig({
     //walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
   ],
   transports: {
-    [base.id]: http(),
+    [base.id]: http('https://api.developer.coinbase.com/rpc/v1/base/yCYGyekgTfIGKsj-ZM_MQnJmbufDhUMh'),
     [baseSepolia.id]: http(),
     [xLayer.id]: http(),
     [bsc.id]: http(),

@@ -20,30 +20,28 @@ const Welcome_Factory = () => {
 
   return (
     <div className="px-3 py-7">
- <div className="flex flex-col mb-7 justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 overflow-hidden">
-  {/* Contenedor principal para el texto */}
-  <div className="flex flex-col w-full max-w-[420px] md:max-w-[600px] lg:max-w-[570px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
-    <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-goldeng text-center text-black p-3">
-      Create your meme
-    </h1>
-    <p className="text-lg sm:text-2lg md:text-3lg lg:text-4 lg text-center font-goldeng text-black p-3">
-    Meming the world across any chain! Join us and memificate with us!!! =) 🚀✨
-    </p>
-    <div className="flex justify-center mb-10">
-      <button
-        className="bg-black rounded-3xl hover:bg-yellow-600 px-10 sm:px-16 py-4 sm:py-6 md:px-20 md:py-7 text-xl sm:text-3xl md:text-4xl text-white font-goldeng mt-3"
-        onClick={() => setShowMyModal(true)}
-      >
-        Create
-      </button>
-    </div>
-  </div>
-  <div className="flex w-full max-w-[420px] md:max-w-[600px] lg:max-w-[570px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
-    <img src={eggs} alt="eggs" className="w-full h-full object-cover" />
-  </div>
-</div>
-
-
+      <div className="flex flex-col mb-7 justify-center md:flex-row items-center gap-8 md:gap-4 lg:gap-8 overflow-hidden">
+        {/* Contenedor principal para el texto */}
+        <div className="flex flex-col w-full max-w-[420px] md:max-w-[600px] lg:max-w-[570px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-goldeng text-center text-black p-3">
+            Create your meme
+          </h1>
+          <p className="text-lg sm:text-2lg md:text-3lg lg:text-4 lg text-center font-goldeng text-black p-3">
+          Meming the world across any chain! Join us and memificate with us!!! =) 🚀✨
+          </p>
+          <div className="flex justify-center mb-10">
+            <button
+              className="bg-black rounded-3xl hover:bg-yellow-600 px-10 sm:px-16 py-4 sm:py-6 md:px-20 md:py-7 text-xl sm:text-3xl md:text-4xl text-white font-goldeng mt-3"
+              onClick={() => setShowMyModal(true)}
+            >
+              Create
+            </button>
+          </div>
+        </div>
+        <div className="flex w-full max-w-[420px] md:max-w-[600px] lg:max-w-[570px] bg-white bg-opacity-70 rounded-[20px] overflow-hidden border-3 border-yellow-600 shadow-lg">
+          <img src={eggs} alt="eggs" className="w-full h-full object-cover" />
+        </div>
+      </div>
       {/* Contenedor para el segundo texto */}
       <div className="flex justify-center relative">
         {/* Contenedor para el texto superpuesto */}
@@ -54,7 +52,7 @@ const Welcome_Factory = () => {
           </div>
 
           <div className="relative p-4 w-full sm:w-auto sm:max-w-auto sm-h-10 md:w-full md:max-w-[840px] lg:w-[960px] lg:max-w-full xl:w-[1080px] border-t-3 border-b-3 md:border-3 border-yellow-600 md:rounded-b-3xl bg-black from-gray-300 to-transparent overflow-hidden">
-            <div className="flex flex-fil banner animate-slide supportedNetworks z-[0] relative flex items-center h-20 sm:h-10 md:h-20 xl:h-20 gap-1">
+            {/*<div className="flex flex-fil banner animate-slide supportedNetworks z-[0] relative flex items-center h-20 sm:h-10 md:h-20 xl:h-20 gap-1">
               <img src={ethereum_name} alt="ethereum" className="w-full h-full px-2" />
               <img src={bnb_name} alt="bnb_name" className="w-full sm:h-32 h-64" />
               <img src={polygon_name} alt="polygon" className="w-full sm:h-32 h-64" />
@@ -70,7 +68,7 @@ const Welcome_Factory = () => {
               <img src={bnb_name} alt="bnb_name" className="w-full h-64" />
               <img src={polygon_name} alt="polygon" className="w-full sm:h-32 h-64 px-2" />
               <img src={avax_name} alt="avax" className="w-full h-full px-2" />
-            </div>
+            </div>*/}
           </div>
 
           <div className="relative">

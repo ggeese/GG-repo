@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { saveImageToServer, Add_Meme, ProfileCheck } from "../ServerInteract/ServerInteract";
+import { saveImageToServer, Add_Meme } from "../ServerInteract/ServerInteract";
 import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractABI_GOLDENGNFT, contractABI_GOLDEN_EXP, contractABI_VAULT, contractAddress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME, contractABI_WHITELISTROUTER, contractAddress_goldengnft } from "../../utils/constants";
 import { TransactionContext } from '../TransactionContext';
 import { ethers } from "ethers";
@@ -66,7 +66,6 @@ export const TransactionProviderETH = ({ children }) => {
       setProviderState(provider);
       setCurrentAccount(accounts[0]);
       setEVMAddress(accounts[0]);
-      await ProfileCheck(accounts[0])
       //dedsconectando de las otras wallets
       const walletacc = "Metamask";
       setWalletext(walletacc);
@@ -76,6 +75,8 @@ export const TransactionProviderETH = ({ children }) => {
       // Cambia a la red actual
       await changeNetwork(Network);
 
+      return accounts[0];
+      
     } catch (error) {
       console.error("No ethereum object or user denied request:", error);
     }
@@ -83,14 +84,14 @@ export const TransactionProviderETH = ({ children }) => {
   
 
   const sendTransactionETH = async (file) => {
-    const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description, ProtectHorus } = FormData_2;
+    const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description, ProtectInput, Timeframe } = FormData_2;
     setIsLoading(true);
         try{
             if (!ethereum) return alert("Please install metamask");
             //fee tx fixed contract
             let Fee_tx = Fee !== undefined ? Fee : 0;
-            console.log("ProtectHorus", ProtectHorus)
-            let protection_minutes = ProtectHorus ? ProtectHorus : 60;
+            let protection_minutes = ProtectInput ? ProtectInput*Timeframe : 60;
+            console.log("ProtectInput", ProtectInput,"timeframe: ", Timeframe, "mult", protection_minutes)
             const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
             const account = await ethereum.request({ method: 'eth_accounts' });
             const recipient = account[0];
@@ -444,7 +445,13 @@ const CheckVaultTokens = async () => {
     return { tokensvault, amountpermint };
 }
 
-
+const signatureSession = async (nonce) => {
+    const provider = new ethers.BrowserProvider(window.ethereum); 
+    const signer = await provider.getSigner();
+    const signature = await signer.signMessage(nonce);
+    return signature;
+}
+ 
 const GetlistmintersNFT = async() => {
     try{
         const { NFTcontract } = FormData_5;
@@ -721,6 +728,7 @@ const PoolFactoryInteract = async () => {
         BuyMeme,
         SellMeme,
         burnMemes,
+        signatureSession,
         AddFastLiquidity,
         sendTransactionStake,
         sendTransactionUnstake,

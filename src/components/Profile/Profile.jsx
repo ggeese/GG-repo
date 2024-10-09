@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import Axios from "axios";
-import { AppSocialPoint } from '../../utils/axiossonfig'
 import farm2 from "../../../images/farm2.jpeg";
 import { TransactionContext } from "../../context/TransactionContext";
-
+import { TransactionContextETH } from "../../context/ContextETH/ContextETH";
+import gg from "../../../images/goldeng.png";
 const Profile = () => {
-  const { currentAccount } = useContext(TransactionContext);
+  const { currentAccount, DataUser } = useContext(TransactionContext);
+  const { signatureSession } = useContext(TransactionContextETH);
+  const [coinbaseBalance, setCoinbaseBalance] = useState([]); // Nuevo estado para el balance
   const [userProfile, setUserProfile] = useState(null);
   const [memes, setMemes] = useState([]);
   const [comments, setComments] = useState([]);
@@ -13,21 +14,23 @@ const Profile = () => {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        //const response = await Axios.get(`https://app-social-gg.onrender.com/users/${currentAccount}`);
-        const response = await AppSocialPoint.get(`/users/${currentAccount}`);
-
-        setUserProfile(response.data);
-        setMemes(response.data.memes || []);
-        setComments(response.data.comments || []);
+        console.log(DataUser);
+        setUserProfile(DataUser.user);
+        setCoinbaseBalance(DataUser.BaseBalances || []); 
+        setMemes(DataUser.memes || []);
+        setComments(DataUser.comments || []);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
     };
-
-    if (currentAccount) {
+  
+    // Llama a getUserData solo si currentAccount es válido y no hay perfil cargado
+    if (currentAccount && currentAccount.trim() !== "" && !userProfile) {
       getUserData();
     }
-  }, [currentAccount]);
+  }, [currentAccount, userProfile, signatureSession]);
+  
+  
 
   const backgroundStyle = {
     backgroundImage: `url(${farm2})`,
@@ -47,7 +50,7 @@ const Profile = () => {
             <div className="text-center">
               <div className="relative">
                 <img
-                  src={userProfile.profileImage}
+                  src={userProfile.profileImage || gg}
                   alt="Profile"
                   className="w-32 h-32 rounded-full border-4 border-white shadow-lg mx-auto"
                 />
@@ -59,20 +62,21 @@ const Profile = () => {
 
             {/* Sección de Memes Creados */}
             <div className="w-full">
-              <h3 className="text-2xl font-bold mb-4">Memes Created</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {memes.length > 0 ? (
-                  memes.map((meme, index) => (
+              <h3 className="text-2xl font-bold mb-4">Holdings on Base:</h3>
+              <div className="space-y-2">
+                {coinbaseBalance?.result?.balances && coinbaseBalance.result.balances.length > 0 ? (
+                  coinbaseBalance.result.balances.map((balance, index) => (
                     <div key={index} className="bg-gray-800 bg-opacity-70 p-4 rounded-lg shadow-lg">
-                      <img src={meme.imageUrl} alt={meme.title} className="w-full h-32 object-cover rounded-lg mb-2" />
-                      <h4 className="text-lg font-semibold">{meme.title}</h4>
+                      <p>Token: {balance.asset.groupId}</p>
+                      <p>Balance: {(parseFloat(balance.valueStr) / Math.pow(10, balance.decimals)).toFixed(2)}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-center col-span-2">No memes created yet.</p>
+                  <p>No balances found.</p>
                 )}
               </div>
             </div>
+
 
             {/* Feed de Comentarios */}
             <div className="w-full">
