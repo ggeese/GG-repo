@@ -1,38 +1,55 @@
-import { http, createConfig } from 'wagmi'
-import { baseSepolia, base, xLayer, bsc, blast, linea, polygon } from 'wagmi/chains'
-import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
-import { berachainTestnet } from './context/Network/wagmi/NewNetworks'
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+  coinbaseWallet,
+  metaMaskWallet,
+  rainbowWallet,
+  phantomWallet,
+  trustWallet,
+  ledgerWallet ,
+  walletConnectWallet
+} from '@rainbow-me/rainbowkit/wallets';
+import { useMemo } from 'react';
+import { http, createConfig } from 'wagmi';
+import { base, baseSepolia } from 'wagmi/chains';
 
-export const config = createConfig({
-  chains: [
-    base,
-    baseSepolia,
-    xLayer,
-    bsc,
-    blast,
-    linea,
-    polygon,
-    berachainTestnet, // Agregar Berachain Testnet aquí
-    ],
-    connectors: [
-    injected(),
-    coinbaseWallet(),
-    //walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
-  ],
-  transports: {
-    [base.id]: http('https://api.developer.coinbase.com/rpc/v1/base/yCYGyekgTfIGKsj-ZM_MQnJmbufDhUMh'),
-    [baseSepolia.id]: http(),
-    [xLayer.id]: http(),
-    [bsc.id]: http(),
-    [blast.id]: http(),
-    [linea.id]: http(),
-    [polygon.id]: http(),
-    [berachainTestnet.id]: http(), // Añadir transporte HTTP para Berachain
-  },
-})
-
-declare module 'wagmi' {
-  interface Register {
-    config: typeof config
+export function useWagmiConfig() {
+  const projectId = "2529ee2ce06e3c7d8f7369517d5473c5" ?? '';
+  if (!projectId) {
+    const providerErrMessage =
+      'To connect to all Wallets you need to provide a NEXT_PUBLIC_WC_PROJECT_ID env variable';
+    throw new Error(providerErrMessage);
   }
+
+  return useMemo(() => {
+    const connectors = connectorsForWallets(
+      [
+        {
+          groupName: 'Recommended Wallet',
+          wallets: [coinbaseWallet],
+        },
+        {
+          groupName: 'Other Wallets',
+          wallets: [metaMaskWallet, phantomWallet, trustWallet, ledgerWallet, rainbowWallet, walletConnectWallet],
+        },
+      ],
+      {
+        appName: 'onchainkit',
+        projectId,
+      },
+    );
+
+    const wagmiConfig = createConfig({
+      chains: [base, baseSepolia],
+      // turn off injected provider discovery
+      multiInjectedProviderDiscovery: false,
+      connectors,
+      ssr: true,
+      transports: {
+        [base.id]: http(),
+        [baseSepolia.id]: http(),
+      },
+    });
+
+    return wagmiConfig;
+  }, [projectId]);
 }

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { contractAddress_goldengnft } from "../../../utils/constants";
 import { TransactionContext } from "../../../context/TransactionContext";
+import { AppDataPoint } from '../../../utils/axiossonfig'
 import meme from "../../../../models/goldenbox.glb";
 import factory from "../../../../images/factory_2.jpeg";
 import background from "../../../../images/bgcube.jpg";
@@ -8,7 +9,6 @@ import copy_logo from "../../../../images/copy.svg";
 import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import { Loader } from './'
 import Wallets from '../../../Wallets';
-// Importa react-three-fiber y el cargador GLTF
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Model } from './'; // Adjust the path if necessary
@@ -16,13 +16,14 @@ import * as THREE from 'three';
 
 
 const Body = () => {
-    const { MintNft, walletext, isLoading, Network, currentAccount } = useContext(TransactionContext);
+    const { MintNft, walletext, isLoading, Network, currentAccount, NFTcontract } = useContext(TransactionContext);
     const { MetaMintNFT, Get_NFT_Minted } = useContext(TransactionContextETH);
     const [receivePhysical, setReceivePhysical] = useState(false);
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
     const [counterNFT, setcounterNFT] = useState("");
     const [clicked, setClicked] = useState(false);
-    const [isdisable, setisdisable] = useState(true);
+    const [isdisable, setisdisable] = useState(false);
+    
     // Luz blanca cálida
     const lightColor = new THREE.Color(1, 1, 1); // Luz blanca cálida (un poco más amarilla)
     const environmentColor = new THREE.Color(1, 0.7, 0.9); // Luz ambiental suave en tonos rosados
@@ -34,8 +35,13 @@ const Body = () => {
     useEffect(() => {
         const fetchCounter = async () => {
             try {
-                const counter = await Get_NFT_Minted();
-                    setcounterNFT(counter);
+                const dataNFT = await AppDataPoint.get('/NFT-minted', {
+                    params: {
+                      contract_NFT: NFTcontract,
+                      network: Network,
+                    }
+                });
+                setcounterNFT(dataNFT.data.MintedNFT);
             } catch (error) {
                 console.error("Error fetching token balance:", error);
                     setcounterNFT(0);
@@ -82,9 +88,9 @@ const Body = () => {
     const handleOnCloseWallets = () => setShowMyModalWallets(false);
 
 
-    const handleSubmit = () => {
+    const handleMinNft = async() => {
         if (walletext === "Base Wallet") {
-            MintNft(address.firstname, address.lastname, address.country, address.city, address.province, address.company, address.address, address.postalCode,  address.email);
+            MintNft();
         } else{
             MetaMintNFT()
         };
@@ -117,8 +123,7 @@ const Body = () => {
                             <Canvas 
                                 camera={{ position: [0, -73, -431], fov: 37 }} 
                                 style={{ height: '100%', width: '100%' }} 
-                                gl={{ toneMappingExposure: 1 }} // Ajustar la exposición
-
+                                gl={{ toneMappingExposure: 1 }} 
                             >
                                 <primitive attach="background" object={backgroundTexture} />
 
@@ -171,7 +176,7 @@ const Body = () => {
                         <div>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-center">Golden NFT Box</h2>
                             <p className="mb-4 sm:mb-5 text-base sm:text-xl leading-relaxed">
-                                🎉 Mint the Golden NFT Box, a magical box indeed! Inside each box lies Golden's most iconic meme created here in GG! ✨ Imagine having your favorite memecoin in real life, taking it for a walk, caring for it, even sleeping with it. Isn't that amazing? 🌟 And that's not all — the first 1000 NFTs will get a bag of memecoins. 💰 If you're lucky, owning one could make you rich.
+                                🎉 Mint the Golden NFT Box, a truly magical experience! Inside each box lies Golden's most iconic meme created right here in GG! ✨ Imagine having your favorite memecoin as a digital collectible — a piece of internet culture you can cherish and share. 🌟 And that's not all — the first 2000 NFTs come with a bag of memecoins included. 💰 If you're lucky, owning one could bring you unexpected fortune. Don't miss out!
                             </p>
                         </div>
                         <div className="w-full mt-4 sm:mt-6 text-left">
@@ -217,9 +222,9 @@ const Body = () => {
                                         </div>
                                     ) : (
                                 <button
-                                    onClick={handleSubmit}
+                                    onClick={() => handleMinNft()}
                                     className={`w-full bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4 ${isdisable ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    //disabled={isdisable}
+                                    disabled={isdisable}
                                 >
                                     Mint NFT
                                 </button>

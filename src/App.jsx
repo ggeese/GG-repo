@@ -6,6 +6,10 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { Wallets } from './';
 import logo from "../images/gg_coin_2.png";
 import meme from "./utils/goldeng.json";
+import SignupButton from './components/SignupButton.jsx';
+import LoginButton from './components/LoginButton.jsx';
+import { useAccount } from 'wagmi';
+
 
 const App = () => {
   const [toggleMenu, setToggleMenu] = useState(false);
@@ -15,7 +19,8 @@ const App = () => {
   const handleOnClose = () => setShowMyModal(false);
   const Navigate = useNavigate(); // Crear una instancia de useHistory
   const location = useLocation();
-  
+  const { address } = useAccount();
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -93,7 +98,8 @@ const App = () => {
                     {dropdownOpen && (
                       <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 dropdown-menu">
                         <div className="py-1">
-                          <Link to="/Profile" className=" block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm">Profile</Link>
+                          <Link
+                           to="/Profile" className=" block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm">Profile</Link>
                           <button onClick={disconnectWallet} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Disconnect Wallet
                           </button>
@@ -102,10 +108,10 @@ const App = () => {
                     )}
                   </div>
                 ) : (
-                  <button className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]" onClick={() => setShowMyModal(true)}>
-                    <p className="text-xl text-black">Connect Wallet</p>
-                    
-                  </button>
+                    <div className="flex items-center gap-3 z-80">
+                      <SignupButton />
+                      {!address && <LoginButton />}
+                    </div>
                 )}
               </div>
             </nav>
@@ -167,9 +173,10 @@ const App = () => {
                       )}
                     </div>
                   ) : (
-                    <button className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]" onClick={() => setShowMyModal(true)}>
-                      <p className="text-black">Connect Wallet</p>
-                    </button>
+                    <div className="flex w-auto items-center gap-3 z-80">
+                      <SignupButton />
+                      {!address && <LoginButton />}
+                    </div>
                   )}
                 </li>
               </ul>

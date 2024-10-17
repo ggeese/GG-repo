@@ -115,7 +115,7 @@ const Meme_Search = () => {
 
 
     const handleClick = (meme) => {
-        Navigate(`/Degen/${meme.contract}-${meme.network}`, { state: { meme } });
+        Navigate(`/Degen/${meme.network}-${meme.contract}`, { state: { meme } });
     };
 
 

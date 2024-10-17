@@ -901,7 +901,7 @@ const Admin = () => {
 
 
           </div>
-          <div className="flex flex-col gap-7">
+          {/*<div className="flex flex-col gap-7">
             <div className="flex flex-col mb-3 items-center">
               <div className=" p-3">MemeFactory</div>
               <Input placeholder="0xB3cd56FEF8aa18dB33930F6Eaf94aeE4c2EA3b3b" name_5="mefactcontract" type="text" handleChange_5={handleChange_5} />
@@ -923,7 +923,7 @@ const Admin = () => {
               </button>
               </div>
             </div>
-          </div>
+          </div>*/}
         </div>
 
       

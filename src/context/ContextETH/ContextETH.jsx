@@ -9,7 +9,7 @@ export const TransactionContextETH = React.createContext();
 
 export const TransactionProviderETH = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, WETH, NFTcontract } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, interactFactoryContract2, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, setTxHashPool, WETH, NFTcontract } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
 
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
@@ -522,13 +522,14 @@ const BuyMeme = async (tokenAddress) => {
     const to = currentAccount;
     const deadline = Math.floor(Date.now()) + 60 * 20000; // 20 minutos desde ahora
 
-    const transaction_1 = await transactionsContract_3.swapExactETHForTokens(
+    const transaction_1 = await transactionsContract_3.swapExactETHForTokensSupportingFeeOnTransferTokens(
         0,
         path,
         to,
         deadline,
         {
-            value: ETHAmount
+            value: ETHAmount,
+
         }
       );
       console.log(`Swapping ETH for tokens...`);
@@ -559,7 +560,6 @@ const SellMeme = async(tokenAddress) => {
         path,
         to,
         deadline,
-
     );
 
     console.log(`Swapping tokens for ETH...`);
@@ -583,7 +583,7 @@ const AddFastLiquidity = async (contract, eth) => {
         const ethtopool = ethers.parseEther(eth.toString());
         const transactionsContract_3 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY);
         const transaction_1 = await transactionsContract_3.fastAddLiquidity(
-            contract,
+            contract, 0,
             { value: ethtopool }
         );
         await transaction_1.wait();
@@ -643,75 +643,69 @@ const PoolFactoryInteract = async () => {
     console.log(hash_tx, "pool created data this")
 }
 
-    const PoolFactoryInteract2 = async () => {
-        const { lpmeme, lpeth, tokenaddress } = FormData_6;
-        try {
-            const decimals = 18
-            const amountADesired = ethers.parseUnits(lpmeme, decimals);
-            const amountAMin = ethers.parseUnits('0', decimals);
-            const amountBMin = ethers.parseUnits('0', decimals);
-            const deadline = Math.floor(Date.now()) + 3600*1000; // 1 hora en el futuro
+const PoolFactoryInteract2 = async (meme, lpoolmeme, lpooleth) => {
+    try {
+        const meme_token= meme.value;
+        const decimals = 18
+        const amountADesired = ethers.parseUnits(lpoolmeme, decimals);
+        const amountAMin = ethers.parseUnits('0', decimals);
+        const amountBMin = ethers.parseUnits('0', decimals);
+        const deadline = Math.floor(Date.now()) + 3600*1000; // 1 hora en el futuro
 
-      
-            // Aprobar token1
-            const erc20Contract1 = await getEthereumContract(tokenaddress, contractABI_MEME);
-            const token1_amount_big = ethers.parseUnits(lpmeme, decimals);
-            const pooleth = ethers.parseEther(lpeth)
-            let transaction1 = await erc20Contract1.approve(interactFactoryContract, token1_amount_big);
-            await transaction1.wait();
-            console.log(`Se aprobaron ${token1_amount_big} tokens para el contrato ${interactFactoryContract}`);
-/*
-            // Aprobar token2
-            const erc20Contract2 = await getEthereumContract(token2_contract, contractABI_MEME);
-            const token2_amount_big = ethers.parseUnits(token2_amount, decimals);
-            let transaction2 = await erc20Contract2.approve(interactFactoryContract, token2_amount_big);
-            await transaction2.wait();
-            console.log(`Se aprobaron ${token2_amount_big} tokens para el contrato ${interactFactoryContract}`);
-            */
-            // Interactuar con el contrato
-            const transactionsContract_4 = await getEthereumContract(interactFactoryContract, contractABI_POOLINTERACT);
-            console.log("Iniciando la creación del pool de liquidez", interactFactoryContract);
-            
-            // Añadir liquidez
-            const transactionPool2 = await transactionsContract_4.addLiquidityETH(
-                tokenaddress,
-                //token2_contract,
-                amountADesired,
-                //amountBDesired,
-                amountAMin,
-                amountBMin,
-                currentAccount,
-                deadline,
-                {   
-                    gasLimit: 9999999, 
-                    value: (pooleth) // El valor de ETH a añadir a la liquidez
-                }
-            );
+        // Aprobar token1
+        const erc20Contract1 = await getEthereumContract(meme_token, contractABI_MEME);
+        const token1_amount_big = ethers.parseUnits(lpoolmeme, decimals);
+        const pooleth = ethers.parseEther(lpooleth)
+        let transaction1 = await erc20Contract1.approve(interactFactoryContract2, token1_amount_big);
+        await transaction1.wait();
+        console.log(`Se aprobaron ${token1_amount_big} tokens para el contrato ${interactFactoryContract2}`);
 
-            const hash_tx_2 = await transactionPool2.wait();
-            console.log(hash_tx_2, "Datos del pool creado");
-        } catch (error) {
-            console.error("Error interactuando con el contrato:", error);
-        }
-    }
-    useEffect(() => {
-        if (currentAccount) {
-          const getETHBalance = async () => {
-            try {
-              const providerbalance = new ethers.BrowserProvider(window.ethereum); 
-              const balance = await providerbalance.getBalance(currentAccount);
-              const balanceInEth = ethers.formatEther(balance);
-              const balanceFinal = parseFloat(balanceInEth).toFixed(5);
-              console.log("balance account", balanceFinal);
-              setBalance(balanceFinal);
-            } catch (error) {
-              console.error("Error No ETH address:", error);
+        // Interactuar con el contrato
+        const transactionsContract_4 = await getEthereumContract(interactFactoryContract2, contractABI_POOLINTERACT);
+        console.log("Iniciando la creación del pool de liquidez", interactFactoryContract2);
+        
+        // Añadir liquidez
+        const transactionPool2 = await transactionsContract_4.addLiquidityETH(
+            meme_token,
+            amountADesired,
+            amountAMin,
+            amountBMin,
+            "0x0000000000000000000000000000000000000000", // Dirección de quema
+            deadline,
+            {   
+                gasLimit: 9999999, 
+                value: (pooleth) // El valor de ETH a añadir a la liquidez
             }
-          };
-          
-          getETHBalance();
+        );
+
+        const hash_tx_2 = await transactionPool2.wait();
+        setTxHashPool(hash_tx_2);
+        setcurrentMemeData(meme_token)
+        console.log(hash_tx_2, "Datos del pool creado");
+    } catch (error) {
+        console.error("Error interactuando con el contrato:", error);
+    }
+}
+
+
+useEffect(() => {
+    if (currentAccount) {
+        const getETHBalance = async () => {
+        try {
+            const providerbalance = new ethers.BrowserProvider(window.ethereum); 
+            const balance = await providerbalance.getBalance(currentAccount);
+            const balanceInEth = ethers.formatEther(balance);
+            const balanceFinal = parseFloat(balanceInEth).toFixed(5);
+            console.log("balance account", balanceFinal);
+            setBalance(balanceFinal);
+        } catch (error) {
+            console.error("Error No ETH address:", error);
         }
-      }, [currentAccount, Network]);
+        };
+        
+        getETHBalance();
+    }
+    }, [currentAccount, Network]);
 
   return (
     <TransactionContextETH.Provider value={{ 

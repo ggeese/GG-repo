@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart } from 'lightweight-charts';
 import tradingview from '../../../../images/tradingview.png';
-import { WSconnect } from '../../../utils/axiossonfig';
+import { WSconnect } from '../../../utils/axiossonfig'; // Importa la configuración de Axios
 
 const intervals = [
   { value: '1m', label: '1 Minuto' },
@@ -30,9 +30,7 @@ const TradingViewChart = ({ tableName, chainNet, SetOpenDonate }) => {
 
   useEffect(() => {
     if (tableName && chainNet && tableName.trim() !== '' && chainNet.trim() !== '') {
-      //const newWs = new WebSocket(WSconnect);
-      const newWs = new WebSocket('ws://localhost:3003');
-      //const newWs = new WebSocket('wss://app-graph-btzm.onrender.com');
+      const newWs = new WebSocket(WSconnect);
 
       newWs.onopen = () => {
         console.log('Connected to WebSocket');

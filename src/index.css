@@ -421,9 +421,30 @@ body {
   border: 1px solid #4a90e2; /* Color del borde del switch */
 }
 
+.switch-container2 {
+  position: relative;
+  background-color: #000000; /* Color de fondo del switch */
+  height: 40px; /* Aumenta la altura del switch */
+  width: 73px; /* Ajusta el ancho del switch */
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #4a90e2; /* Color del borde del switch */
+}
+
 .switch-button {
   position: absolute;
   background-color: #000000; /* Color del botón deslizante */
+  height: 80%;
+  width: 50%;
+  border-radius: 100px;
+  transition: transform 0.3s;
+}
+
+.switch-button2 {
+  position: absolute;
+  background-color: #737373; /* Color del botón deslizante */
   height: 80%;
   width: 50%;
   border-radius: 100px;
@@ -451,6 +472,14 @@ body {
   color: #333; /* Color del texto */
   font-weight: arial;
 }
+
+.switch-option2 {
+  width: 50%;
+  text-align: center;
+  color: #ffffff; /* Color del texto */
+  font-weight: arial;
+}
+
 
 /* styles.css o directamente dentro de tu archivo de Tailwind */
 ::-webkit-scrollbar {
@@ -484,5 +513,9 @@ body {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+.ockConnectWallet_Container span {
+  color: #030712;
 }
 

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { contractABI_GOLDENGNFT, contractAddress_goldengnft } from "../utils/constants";
-import { contractABI_MEME, contractABI_MEME_FACTORY, contractABI_STAKING_REWARDS, contractABI_GOLDEN_EXP } from "../utils/constants";
+import { contractABI_GOLDENGNFT, contractABI_MEME_FACTORY, contractABI_MEME, contractABI_STAKING_REWARDS, contractABI_POOLINTERACT } from "../utils/constants";
 import networksData from './Network/networks.json'; // Importa el archivo JSON
 import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransactionReceipt, useSignMessage } from 'wagmi';
 import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/ServerInteract";
 import { NetworkSelectMini } from "./Network/NetworkSelect";
 import { useCallsStatus, useWriteContracts } from "wagmi/experimental";
+import { useAccount } from 'wagmi';
+
 
 // Configurar el entorno para usar `buffer` y `process`
 
@@ -31,6 +32,7 @@ export const TransactionProvider = ({ children }) => {
     const [factoryContract, setFactoryContract] = useState ('');
     const [poolFactoryContract, setpoolFactoryContract] = useState('');
     const [interactFactoryContract, setinteractFactoryContract] = useState('');
+    const [interactFactoryContract2, setinteractFactoryContract2] = useState('');
     const [currentMemeContract, setcurrentMemeData] = useState ('');
     const [NFTcontract, setNFTcontract] = useState("");
     const [WETH, setWETH] = useState('');
@@ -40,11 +42,15 @@ export const TransactionProvider = ({ children }) => {
     const [FormData, setFormData] = useState({addressTo: '', amount: '', message: ''});
     const [providereth, setProviderState] = useState(null);
     const [TxHash, setTxHash] = useState ('');
+    const [TxHashPool, setTxHashPool] = useState ('');
     const [TxHashBase, setTxHashBase] = useState ('');
     const { switchChain } = useSwitchChain();
-    const { writeContract } = useWriteContract();
+    const { writeContract } = useWriteContract()
     const [Balance, setBalance] = useState ("");
     const [MemeDegenBalance, setMemeDegenBalance] = useState("");
+    const [switchPool, setSwitchPool] = useState("UNI"); // Estado para el interruptor
+    const { address } = useAccount();
+
     const {
         writeContractsAsync,
         error: mintError,
@@ -184,12 +190,13 @@ export const TransactionProvider = ({ children }) => {
                 throw new Error(`No se encontró información para la red ${network}.`);
             }
     
-            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, factory, fee, WETHaddress, nftaddress } = networkData;
+            const { chainId, rpcUrl, symbol, explorerUrl, poolFactory, poolInteract, poolInteract2, factory, fee, WETHaddress, nftaddress } = networkData;
 
             setFactoryContract(factory);
             setfeeIntContract(fee);
             setpoolFactoryContract(poolFactory);
             setinteractFactoryContract(poolInteract);
+            setinteractFactoryContract2(poolInteract2);
             setWETH(WETHaddress);
             setNFTcontract(nftaddress);
             //base switch network
@@ -261,6 +268,7 @@ export const TransactionProvider = ({ children }) => {
         disconnectWagmi();
         setCurrentAccount(null);
         console.log("Disconnected");
+        setDataUser('')
         try{
             await tonConnectUI.disconnect();
         }catch (error) {
@@ -324,34 +332,229 @@ export const TransactionProvider = ({ children }) => {
         const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
         //const contractAddress_meme_factory = findContract(Network);
         setIsLoading(true);
-    try {
-        // Llamar a la función del contrato de forma asíncrona
-        const data = await writeContractsAsync({
-            contracts: [{
-            abi: contractABI_MEME_FACTORY,
-            address: factoryContract,
-            functionName: 'createMeme',
-            args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes],
-        }],
-            capabilities: {
-                paymasterService: {
-                    // Paymaster Proxy Node url goes here.
-                    url: "https://api.developer.coinbase.com/rpc/v1/base/yCYGyekgTfIGKsj-ZM_MQnJmbufDhUMh",
+        try {
+            // Llamar a la función del contrato de forma asíncrona
+            await writeContractsAsync({
+                contracts: [{
+                abi: contractABI_MEME_FACTORY,
+                address: factoryContract,
+                functionName: 'createMeme',
+                args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes],
+            }],
+                capabilities: {
+                    paymasterService: {
+                        // Paymaster Proxy Node url goes here.
+                        url: "https://api.developer.coinbase.com/rpc/v1/base/yCYGyekgTfIGKsj-ZM_MQnJmbufDhUMh",
+                    },
                 },
-            },
-        });
-        
+            });
+            
 
-    } catch (err) {
-        console.error("Error al mintear:", err);
-        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-    } finally {
-        // Desactivar el estado de carga, ya sea con éxito o error
-        setIsLoading(false);
-    }
+            } catch (err) {
+                console.error("Error al mintear:", err);
+                // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            } finally {
+                // Desactivar el estado de carga, ya sea con éxito o error
+                setIsLoading(false);
+            }
 
-    }
+    };
+
+    const PoolFactoryInteractBase = async (meme, lpoolmeme, lpooleth) => {
+        try {
+            const meme_token= meme.value;
+            const decimals = 18
+            const amountADesired = ethers.parseUnits(lpoolmeme, decimals);
+            const amountAMin = ethers.parseUnits('0', decimals);
+            const amountBMin = ethers.parseUnits('0', decimals);
+            const deadline = Math.floor(Date.now()) + 3600*1000; // 1 hora en el futuro
     
+            // Aprobar token1
+            const token1_amount_big = ethers.parseUnits(lpoolmeme, decimals);
+            const pooleth = ethers.parseEther(lpooleth);
+            try {
+                // Llamar a la función del contrato de forma asíncrona
+                writeContract({
+                        abi: contractABI_MEME,
+                        address: meme_token,
+                        functionName: 'approve',
+                        args: [   
+                            interactFactoryContract2,
+                            token1_amount_big
+                        ],
+                    },
+                    {   
+                        onSuccess: (transaction) => {
+                            console.log("tx send", transaction)
+                            writeContract({
+                                abi: contractABI_POOLINTERACT,
+                                address: interactFactoryContract2,
+                                functionName: 'addLiquidityETH',
+                                args: [   
+                                    meme_token,
+                                    amountADesired,
+                                    amountAMin,
+                                    amountBMin,
+                                    "0x0000000000000000000000000000000000000000", // Dirección de quema
+                                    deadline,
+                                ],
+                                value: (pooleth) // El valor de ETH a añadir a la liquidez
+                            },
+                            {   
+                                onSuccess: (transaction2) => {
+                                console.log("tx send pool", transaction2)
+                            },
+                            
+                            onError: (err) => {
+                                console.error("Error:", err);
+                                // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                                setIsLoading(false)
+                            },
+                        });
+
+                    },
+                    
+                    onError: (err) => {
+                        console.error("Error:", err);
+                        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                        setIsLoading(false)
+                    },
+                });
+        
+                console.log("Transacción enviada con éxito");
+            } catch (err) {
+                console.error("Error en la transacción:", err);
+                // Puedes mostrar un mensaje al usuario en caso de error
+            }
+            
+            // Añadir liquidez
+            const transactionPool2 = await transactionsContract_4.addLiquidityETH(
+                meme_token,
+                amountADesired,
+                amountAMin,
+                amountBMin,
+                "0x0000000000000000000000000000000000000000", // Dirección de quema
+                deadline,
+                {   
+                    gasLimit: 9999999, 
+                    value: (pooleth) // El valor de ETH a añadir a la liquidez
+                }
+            );
+    
+            const hash_tx_2 = await transactionPool2.wait();
+            setTxHashPool(hash_tx_2);
+            setcurrentMemeData(meme_token)
+            console.log(hash_tx_2, "Datos del pool creado");
+        } catch (error) {
+            console.error("Error interactuando con el contrato:", error);
+        }
+    }
+
+    const BuyMemeBase = async (tokenAddress, amountswap) => {
+        console.log(tokenAddress, amountswap, interactFactoryContract2, "values for buy base memes");
+    
+        if (!tokenAddress || !amountswap || !currentAccount) {
+            console.error("Parámetros inválidos para la función de compra");
+            return;
+        }
+    
+        const ETHAmount = ethers.parseEther(amountswap); // Convertir el monto a ETH
+        const path = [WETH, tokenAddress];
+        const to = currentAccount;
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos desde ahora en segundos
+    
+        try {
+            // Llamar a la función del contrato de forma asíncrona
+            writeContract({
+                    abi: contractABI_POOLINTERACT,
+                    address: interactFactoryContract2,
+                    functionName: 'swapExactETHForTokens',
+                    args: [0, path, to, deadline],
+                    value: ETHAmount,
+                    overrides: {
+                        gasLimit: 200000, // Ajusta este valor según sea necesario
+                    },
+                },
+                
+                {   
+                    onSuccess: (transaction) => {
+                    console.log("Transacción enviada con éxito:");
+                    const txHash = transaction.hash;
+                    console.log("Hash de la transacción:", txHash);
+                    // Llama a Create_Delivery después de obtener el hash de la transacción
+                },
+                
+                onError: (err) => {
+                    console.error("Error:", err);
+                    // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                    setIsLoading(false)
+                },
+            });
+    
+            console.log("Transacción enviada con éxito");
+        } catch (err) {
+            console.error("Error en la transacción:", err);
+            // Puedes mostrar un mensaje al usuario en caso de error
+        }
+    };
+    
+
+    const SellMemeBase = async (tokenAddress, amountswap) => {
+        console.log(tokenAddress, amountswap,"values for buy base memes")
+        const tokenAmount = ethers.parseEther(amountswap); // 0.1 ETH
+        const path = [tokenAddress, WETH];
+        const to = currentAccount;
+        const deadline = Math.floor(Date.now()) + 60 * 20000; // 20 minutos desde ahora
+        try {
+            // Paso 1: Aprobar el uso del token
+            writeContract({
+                    abi: contractABI_MEME, // ABI del token
+                    address: tokenAddress, // Dirección del contrato del token
+                    functionName: 'approve',
+                    args: [tokenAddress, tokenAmount], // Cantidad a aprobar
+                },
+                {   
+                    onSuccess: (transaction) => {
+                        const txHash = transaction.hash;
+                        console.log("Hash de la transacción:", txHash);
+                        // Llama a Create_Delivery después de obtener el hash de la transacción
+                        writeContract({
+                            abi: contractABI_POOLINTERACT,
+                            address: interactFactoryContract2,
+                            functionName: 'swapExactTokensForETHSupportingFeeOnTransferTokens', // O la función correspondiente para la venta
+                            args: [tokenAmount, 0, path, to, deadline],
+                        },{
+                            onSuccess: (transactionSell) => {
+                                const txHashSell = transactionSell.hash;
+                                console.log("Hash de la transacción:", txHashSell);
+
+                            }
+                        });
+
+                    },
+                    
+                    onError: (err) => {
+                        console.error("Error:", err);
+                        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                        setIsLoading(false)
+                    },
+                });
+            // Paso 2: Interactuar con el contrato después de la aprobación
+             writeContract({
+                    abi: contractABI_POOLINTERACT,
+                    address: interactFactoryContract2,
+                    functionName: 'swapExactTokensForETHSupportingFeeOnTransferTokens', // O la función correspondiente para la venta
+                    args: [tokenAmount, 0, path, to, deadline],
+            });
+
+        } catch (err) {
+            console.error("Error en la transacción:", err);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario        
+        } finally {
+            // Desactivar el estado de carga, ya sea con éxito o error
+        }
+    }
+
     const SmartSignatureSession = async (nonce) => {
         try {    
             const signature = await signMessageAsync({
@@ -411,38 +614,32 @@ export const TransactionProvider = ({ children }) => {
         }
     };
 
-    const MintNft = async (firstname, lastname, country, city, province, company, address, postalCode, email) => {
-
-        const amount = 1;
-        const item= 1;
+    const MintNft = async () => {
         setIsLoading(true)
-        if (Network === "Base Sepolia") {
-            if (walletext==="Base Wallet") {
-            writeContract({
-                abi: contractABI_GOLDENGNFT,
-                address: NFTcontract,
-                functionName: 'mintTo',
-                args: [currentAccount,"xd"],
-                value: ethers.parseEther('0.0001'),
-            },
-            {    onSuccess: (transaction) => {
-                    console.log("Transacción enviada con éxito:");
-                    const txHash = transaction.hash;
-                    console.log("Hash de la transacción:", txHash);
-                    
-                    // Llama a Create_Delivery después de obtener el hash de la transacción
-                    Create_Delivery(firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount);
-                },
-                
-                onError: (err) => {
-                    console.error("Error al mintear:", err);
-                    // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                    setIsLoading(false)
 
-                },
-            });
-        }
-        };
+        writeContract({
+            abi: contractABI_GOLDENGNFT,
+            address: NFTcontract,
+            functionName: 'mintTo',
+            args: [currentAccount, "0x"],
+            value: ethers.parseEther(0.001.toString()),
+        },
+        {    onSuccess: (transaction) => {
+                console.log("Transacción enviada con éxito:");
+                const txHash = transaction.hash;
+                console.log("Hash de la transacción:", txHash);
+                
+                // Llama a Create_Delivery después de obtener el hash de la transacción
+                //Create_Delivery(firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount);
+            },
+            
+            onError: (err) => {
+                console.error("Error al mintear:", err);
+                // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                setIsLoading(false)
+
+            },
+        });
     }
 
     /////////////CHAINS/////////////
@@ -500,7 +697,11 @@ export const TransactionProvider = ({ children }) => {
         <TransactionContext.Provider value={{ 
             //connectWallet,
             setTxHash,
+            setTxHashPool,
             Balance,
+            BuyMemeBase,
+            SellMemeBase,
+            PoolFactoryInteractBase,
             setBalance,
             MemeDegenBalance,
             setMemeDegenBalance,
@@ -515,15 +716,19 @@ export const TransactionProvider = ({ children }) => {
             setIsLoading, 
             setWalletext,
             setcurrentMemeData,
+            switchPool,
+            setSwitchPool,
             connectSmartWallet,
             SmartSignatureSession,
             currentAccount, 
             isLoading,
             TxHash,
+            TxHashPool,
             Network,
             factoryContract,
             poolFactoryContract,
             interactFactoryContract,
+            interactFactoryContract2,
             WETH,
             NFTcontract,
             walletext,

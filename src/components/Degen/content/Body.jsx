@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { dbMemesPoint, AppSocialPoint } from '../../../utils/axiossonfig';
+import React, { useState, useEffect, useContext, useRef } from "react";
+import { dbMemesPoint, AppDataPoint, AppSocialPoint } from '../../../utils/axiossonfig';
 import TradingViewChart from "./tvwidget";
+import UniTradingViewChart from './unitvwidget'; // Importa tu primer gráfico
 import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
 import { TransactionContext } from "../../../context/TransactionContext";
 import { Wallets } from '../../../';
@@ -9,6 +10,7 @@ import { Burn } from './';
 import { Comments } from './';
 import { Description } from "./";
 import { useParams } from "react-router-dom";
+import TransportMethod from './switch';
 
 
 const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
@@ -33,8 +35,8 @@ const Body = () => {
   const [memedata, setMemeData] = useState({});
   const [MemeBalance, setMemeBalance] = useState("");
   const [MemeTreasury, setMemeTreasury] = useState("");
-  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, GetMemeFee, GetProtectMinutes, Get_Token_Balance } = useContext(TransactionContextETH); 
-  const { currentAccount, Balance, factoryContract } = useContext(TransactionContext); 
+  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, Get_Token_Balance } = useContext(TransactionContextETH); 
+  const { currentAccount, Balance, factoryContract, BuyMemeBase, SellMemeBase, walletext, switchPool, setSwitchPool} = useContext(TransactionContext); 
   const [showMyModal, setShowMyModal] = useState(false);
   const [showMyModalDonate, setShowMyModalDonate] = useState(false);
   const [showMyModalBurn, setShowMyModalBurn] = useState(false);
@@ -42,7 +44,7 @@ const Body = () => {
   const [Tradestarted, setTradestarted] = useState(null);
         // Extraer el 'id' de la URL que contiene tanto el contract como el network
   const { id } = useParams();
-
+  const prevIdRef = useRef();
 
   const handleOnClose = () => setShowMyModal(false);
   const handleOnCloseDonate = () => setShowMyModalDonate(false);
@@ -51,6 +53,7 @@ const Body = () => {
   const [Tablename, setTableName] = useState("");
   const [ChainNet,setChainNet] = useState("");
   const [MemeFee, setMemeFee] = useState(null);
+  const [UniContract, setUniContract] = useState("");
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -93,59 +96,78 @@ const Body = () => {
     }
   }, [Tablename, ChainNet]); // Dependencias específicas para comentarios
 
-
   useEffect(() => {
-    const allMemeData = async () => {
-      try {
+    // Verifica si el id ha cambiado
+    if (prevIdRef.current !== id) {
+      const allMemeData = async () => {
         console.log("Enviando solicitud de búsqueda por contrato...");
+        const [searchNetwork, searchContract] = id.split('-');
 
-        const [searchContract, searchNetwork] = id.split('-');
+        try {
+          const response = await dbMemesPoint.get('/meme_by_contract', {
+            params: {
+              contract: searchContract,
+              network: searchNetwork,
+            }
+          });
+          setMemeData(response.data);
+        } catch (error) {
+          console.error('Error fetching meme data:', error);
+        }
 
-        const response = await dbMemesPoint.get('/meme_by_contract', {
-        //const response = await Axios.get("https://app-memes-golden-g-goose.onrender.com/meme_by_contract", {
+        try {
+          const checkpool = await AppDataPoint.get('/meme_pool', {
+            params: {
+              contract: searchContract,
+              network: searchNetwork,
+              AMM: "UNI",
+            }
+          });
+          console.log(checkpool.data.pairAddress, "check pool address");
+          setUniContract(checkpool.data.pairAddress);
+        } catch (error) {
+          console.error('Error fetching pool data:', error);
+        }
+      };
 
-          params: {
-            contract: searchContract,
-            network: searchNetwork,
-          }
-        });
-
-        setMemeData(response.data);
-      } catch (error) {
-        console.error('Error fetching meme data:', error);
-      }
-    };
-
-    if (id) {
       allMemeData();
+      prevIdRef.current = id; // Actualiza el ref con el nuevo id
     }
   }, [id]); // Dependencia específica para meme data
-
+  
 
   useEffect(() => {
     const fetchMemeFee = async () => {
+      console.log("memdata fee XD")
+
       if (memedata && memedata.contract) {
         try {
-          const fee = await GetMemeFee(memedata.contract);
-          setMemeFee(fee);
-          console.log(fee,"fee sell XD")
-          const [Tstarted, protex] = await GetProtectMinutes(memedata.contract);
-          setProtectTime(protex.toString());
-          setTradestarted(Tstarted.toString());
+          const [searchNetwork, searchContract] = id.split('-');
+
+          const memefeesdata = await AppDataPoint.get('/meme_data', {
+            params: {
+              contract_meme: searchContract,
+              network: searchNetwork,
+            }
+          });
+          console.log(memefeesdata.data.memefeestring,"memdata fee XD")
+          setMemeFee(memefeesdata.data.memefeestring);
+          setProtectTime(memefeesdata.data.protectminutes);
+          setTradestarted(memefeesdata.data.startTrade);
         } catch (error) {
           console.error("Error Meme Fee:", error);
         }
       }
     };
     fetchMemeFee();
-  }, [memedata, currentAccount]);
+  }, [memedata]);
 
-    // Función para cambiar entre pestañas
-    const handleTabChange = (tab) => {
-      setActiveTab(tab);
-      // Reiniciar el valor del input cuando se cambia de pestaña
-      change_input_swap(0);
-    };
+  // Función para cambiar entre pestañas
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    // Reiniciar el valor del input cuando se cambia de pestaña
+    change_input_swap(0);
+  };
 
   const handleOutsideClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -154,10 +176,19 @@ const Body = () => {
   };
 
   const handleBuy = (contract) => {
-    BuyMeme(contract); 
+    if (walletext==="Base Wallet") {
+      BuyMemeBase(contract, FormData_6.amountswap); 
+    } else{
+      BuyMeme(contract); 
+    }
   }
+
   const handleSell = (contract) => {
-    SellMeme(contract); 
+    if (walletext==="Base Wallet") {
+      SellMemeBase(contract, FormData_6.amountswap); 
+    } else{
+      SellMeme(contract); 
+    }
   }
 
   const handleClickpPercent = (value) => {
@@ -199,16 +230,32 @@ const Body = () => {
       />
 
       {/* Contenedor principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 text-white">
-        {/* Sección del gráfico */}
-        <div className="bg-gray-800 rounded-lg shadow-lg p-4 lg:col-span-3">
-          <div className="w-full h-96 bg-gray-700 rounded-lg flex items-center justify-center">
 
-            <TradingViewChart 
-              tableName={memedata?.contract ? memedata.contract.substring(1) : ''} 
-              chainNet={memedata?.network ? memedata.network : ''} 
-              SetOpenDonate={setShowMyModalDonate}
-            />
+      <div className="flex flex-col lg:flex-row gap-2 text-white">
+        {/* Sección del gráfico */}
+        <div className="w-full bg-gray-800 rounded-lg shadow-lg p-4 lg:col-span-3">
+          <div className="relative">
+            <div className="absolute top-2 right-3 z-20"> {/* Cambié left-1 a right-4 para moverlo a la derecha */}
+              <TransportMethod switchPool={switchPool} setSwitchPool={setSwitchPool}/>
+            </div>
+          </div>
+          <div className="w-auto h-96 bg-gray-700 rounded-lg flex items-center justify-center">
+            
+
+            {switchPool === "GG" ? (
+
+              <TradingViewChart 
+                tableName={memedata?.contract ? memedata.contract.substring(1) : ''} 
+                chainNet={memedata?.network ? memedata.network : ''} 
+                SetOpenDonate={setShowMyModalDonate}
+              />
+            ) : (
+                <UniTradingViewChart
+                poolContract={UniContract? UniContract : ''}
+                chainNet={memedata?.network ? memedata.network : ''}
+                SetOpenDonate={setShowMyModalDonate}
+              />
+            )}
           </div>
         </div>
 
@@ -284,7 +331,7 @@ const Body = () => {
                 <div className="flex justify-center">
                   {currentAccount ? (
                     <button
-                      onClick={() => handleBuy(memedata.contract)}
+                      onClick={() => handleBuy(id.split('-')[1])}
                       className="w-full py-2 rounded-md shadow-md bg-green-600 hover:bg-green-700"
                     >
                       Buy
@@ -353,7 +400,7 @@ const Body = () => {
                 <div className="flex justify-center">
                   {currentAccount ? (
                     <button
-                      onClick={() => handleSell(memedata.contract)}
+                      onClick={() => handleSell(id.split('-')[1])}
                       className="w-full py-2 rounded-md shadow-md bg-red-600 hover:bg-red-700"
                     >
                       Sell

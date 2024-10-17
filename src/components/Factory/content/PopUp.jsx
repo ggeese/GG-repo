@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaInfoCircle } from 'react-icons/fa';
 import { Loader } from './'
 import { PopUp_2 } from "./"
+import { PopUp_3 } from "./"
 import { TransactionContext } from '../../../context/TransactionContext';
 import { TransactionContextTON } from '../../../context/ContextTON/ContextTON';
 import { TransactionContextSOL } from '../../../context/ContextSOL/ContextSOL';
@@ -32,7 +33,7 @@ const Textarea = ({ placeholder, name_2, type , value, handleChange_2 }) => (
     type={type}
     value={value}
     onChange={(e2) => handleChange_2(e2, name_2)}
-    className="placeholder:italic resize-none p-2 border text-sm rounded focus:outline-none focus:ring focus:border-blue-300"
+    className="placeholder:italic resize-none p-2 border text-sm rounded focus:outline-none focus:ring focus:border-blue-300 rounded-lg"
     style={{ maxHeight: '200px', minHeight: '150px', minWidth:'200px', maxWidth:'300px'  }}    // Estilos de Tailwind CSS para el textarea
     maxLength={370} // Limita la entrada a 370 caracteres
 
@@ -56,14 +57,17 @@ const Tooltip = ({ message, space }) => (
 
 function PopUp({visible, onClose}) {
     const { sendTransactionTON } = useContext(TransactionContextTON);
-    const { FormData_2, sendTransactionBase, walletext, handleChange_2, currentAccount, isLoading, TxHash, Network, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
+    const { FormData_2, sendTransactionBase, walletext, handleChange_2, currentAccount, isLoading, TxHash, TxHashPool, Network, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
     const { sendTransactionSOL } = useContext(TransactionContextSOL); 
     const { sendTransactionETH } = useContext(TransactionContextETH); 
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
     const [file, setFile] = useState(null); // Agregar estado para el archivo
     const [formularioVisible, setFormularioVisible] = useState(false);
+    const [formularioVisible2, setFormularioVisible2] = useState(false);
     const [showMyModal_2, setShowMyModal_2] = useState(false);
+    const [showMyModal_3, setShowMyModal_3] = useState(false);
     const [lastTxHash, setlastTxHash] = useState(""); // Nuevo estado para prevLoadingState
+    const [lastTxHashPool, setlastTxHashPool] = useState(""); // Nuevo estado para prevLoadingState
     const [switchState, setSwitchState] = useState("meme"); // Estado para el interruptor
     const [isChecked, setIsChecked] = useState(true);
     const [supplyError, setSupplyError] = useState(''); // Estado para controlar el mensaje de error
@@ -90,6 +94,8 @@ function PopUp({visible, onClose}) {
     //comandos para controlar el pop up 2
     
     const handleOnClose_2 = () => setShowMyModal_2(false);
+    const handleOnClose_3 = () => setShowMyModal_3(false);
+
 
     const handleOnCloseWallets = () => setShowMyModalWallets(false);
 
@@ -102,11 +108,24 @@ function PopUp({visible, onClose}) {
         setShowMyModal_2(true);
         setlastTxHash(TxHash);
       }
-    }, [TxHash]); // Este efecto se ejecutará cada vez que isLoading cambie
+
+      if (lastTxHashPool !== TxHashPool) {
+        // Ejecutar la función cuando isLoading vuelve a ser false
+        setShowMyModal_3(true);
+        setlastTxHashPool(TxHashPool);
+      }
+    }, [TxHash, TxHashPool]); // Este efecto se ejecutará cada vez que isLoading cambie
+    
+
 
     const toggleFormulario = () => {
         setFormularioVisible(!formularioVisible);
       };
+
+    const toggleFormulario2 = () => {
+      setFormularioVisible2(!formularioVisible2);
+    };
+
 
     // Aquí actualizas el estado del archivo en PopUp cuando se selecciona un archivo en FileUpload
     const handleFileSelect = (file) => {
@@ -173,13 +192,13 @@ function PopUp({visible, onClose}) {
                         <div className="flex flex-fil items-center">
                           <p className="font-bold p-2">* Name</p>
                         </div>
-                          <Input2 placeholder="Golden Geese" name_2="MemeName" type="text" handleChange_2={handleChange_2} className={`placeholder:italic`}/>
+                          <Input2 placeholder="Golden Geese" name_2="MemeName" type="text" handleChange_2={handleChange_2} className={`placeholder:italic rounded-xl`}/>
                       </div>
                       <div className="flex flex-col items-center p-2 ">  {/* Columna 2 */}
                         <div className="flex flex-fil items-center">
                           <p className="font-bold p-2">* Symbol</p>
                           </div>  
-                          <Input2 placeholder="GG" name_2="Symbol" type="text" handleChange_2={handleChange_2} className={`placeholder:italic uppercase`}/>
+                          <Input2 placeholder="GG" name_2="Symbol" type="text" handleChange_2={handleChange_2} className={`placeholder:italic uppercase rounded-xl`}/>
                       </div>
                       {/*/////////////334001  MIN SUPPLY ///////////////*/}
                       <div className="flex flex-col items-center p-2 ">  {/* Columna 3 */}
@@ -190,7 +209,7 @@ function PopUp({visible, onClose}) {
                               space={1}
                             />
                           </div>
-                          <Input2 placeholder="100,000,000" name_2="Supply" type="number" handleChange_2={handleInputChange} className={`placeholder:italic`}/>
+                          <Input2 placeholder="100,000,000" name_2="Supply" type="number" handleChange_2={handleInputChange} className={`placeholder:italic rounded-xl`}/>
                           {supplyError && (
                               <p className="text-red-500 text-sm italic mt-1">{supplyError}</p>
                           )}
@@ -213,12 +232,12 @@ function PopUp({visible, onClose}) {
                   {formularioVisible && (
                   <div>
                     <div className="flex flex-col sm:flex-row">
-                      {/* Primera columna */}
+                      {/* Primera columna descripcion*/}
                       <div className="flex flex-col items-center flex-1 mb-4 md:mb-0 md:mr-4">  {/* Ajusta los márgenes para la separación */}
                         <div className="flex flex-fil items-center">
                           <p className="font-bold text-center mb-1 mr-2">Description</p>
                         </div>
-                        <div className="flex flex-col justify-center items-center p-2 italic input-container">
+                        <div className="flex flex-col justify-center items-center p-2 mb-1 italic input-container">
                           <Textarea
                               placeholder="we are people who make memes that goes to da moon!!!!"
                               name_2="description"
@@ -231,132 +250,146 @@ function PopUp({visible, onClose}) {
                           />
                           <p className="flex text-gray-500 text-xs ml-auto mt-1">{description.length}/370</p> {/* Muestra el contador */}
 
-                      </div>
-
-                    </div>
-
-                    {/* Segunda columna */}
-                    <div className="flex flex-col flex-1"> {/* Utiliza flex-1 para que esta columna ocupe el espacio restante */}
-                      <div className="flex flex-col justify-center items-center">
-                        <div className="flex flex-fil items-center">
-                          <h1 className="text-center font-bold mr-2">Image</h1>
                         </div>
-                      </div>
-                      <div className="flex justify-center p-2">
-                        <FileUpload onFileSelect={handleFileSelect}  />
-                      </div>
-                    </div>
-                  </div>
-
-                  
-                  <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center mt-3 gap-3">
-                    <div className="flex flex-col">
-                      <div className="flex flex-col items-center mb-3">
-                          <div className="flex flex-fil items-center justify-center">
-                            <p className="flex font-bold justify-center mr-2">Web Page</p>
-                          </div>
-                          <Input2 placeholder="www.yourmeme.com" name_2="Website" type="text" handleChange_2={handleChange_2} className={`placeholder:italic w-64 p-2 border`}/>
-                      </div>
-
-                      <div className="flex flex-col mb-3">
-                        <div className="flex flex-fil items-center justify-center">
-                          <p className="flex justify-center font-bold mr-2">Twitter</p>
-                        </div>
-                          <div className="flex justify-end">
-                              <p className="flex justify-center p-2 italic">twitter.com/</p>
-                              <Input2 placeholder="GeesesGolden" name_2="Twitter" type="text" handleChange_2={handleChange_2} className={`placeholder:italic w-auto p-2 border`}/>
-                          </div>
-                      </div>
-                      {Network !== "Solana" && (
-                        <div className="flex flex-col">
-                          <div className="flex flex-fil items-center justify-center">
-                            <p className="flex justify-center font-bold p-2">Fee (0 - 1) %</p>
-                            <Tooltip 
-                              message={
-                                <>
-                                  <p className="mb-3">This fee applies to all transfers.</p>
-                                  <p className="mb-3">The collected taxes are directed to the creator's wallet address.</p>
-                                </>
-                              }
-                            space={1}
-                          />
-                          </div>
-                            <div className="flex justify-end">
-                              <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} className={`placeholder:italic`}/>
+                        {Network !== "Solana" && (
+                          <div className="flex flex-col items-center mb-3">
+                            <div className="flex flex-fil items-center justify-center">
+                              <p className="flex justify-center font-bold p-2">Fee (0 - 1) %</p>
+                              <Tooltip 
+                                message={
+                                  <>
+                                    <p className="mb-3">This fee applies to all transfers.</p>
+                                    <p className="mb-3">The collected taxes are directed to the creator's wallet address.</p>
+                                  </>
+                                }
+                              space={1}
+                            />
                             </div>
-                        </div>
-                      )}
-
-                    </div>
-
-                    <div className="flex flex-col">
-                      <div className="flex flex-col mb-3">
-                        <div className="flex flex-fil items-center justify-center">
-                          <p className="flex justify-center font-bold mr-2">Discord</p>
-                        </div>
-                          <div className="flex justify-end">
-                              <p className="flex justify-center p-2 italic">discord.com/</p>
-                              <Input2 placeholder="invite/FfeHwrqdAY" name_2="Discord" type="text" handleChange_2={handleChange_2} className={`placeholder:italic`}/>
+                              <div className="flex justify-end">
+                                <Input2 placeholder="0.01" name_2="Fee" type="number" handleChange_2={handleChange_2} className={`placeholder:italic rounded-lg`}/>
+                              </div>
                           </div>
+                        )}
+
                       </div>
 
-                      <div className="flex flex-col mb-3">
-                        <div className="flex flex-fil items-center justify-center">
-                          <p className="flex justify-center font-bold mr-2">Twitch</p>
-                          <Tooltip 
-                            message="This channel will appear in the Degen section, allowing you to watch live streams in real time."
-                            space={1}
-                          />
-                        </div>
-                          <div className="flex justify-end">
-                              <p className="flex justify-center p-2 italic">twitch.tv/</p>
-                              <Input2 placeholder="gg" name_2="Twitch" type="text" handleChange_2={handleChange_2} className={`placeholder:italic`}/>
-                          </div>
-                      </div>
-                      {Network !== "Solana" && (
-                      <div className="flex flex-col">
-                        <div className="flex flex-fil justify-center items-center">
-                          <input 
-                            type="checkbox" 
-                            checked={isChecked} 
-                            onChange={handleCheckboxChange} 
-                            className="mr-2"
-                          />
+                      {/* Segunda columna imagen */}
+                      <div className="flex flex-col flex-1"> {/* Utiliza flex-1 para que esta columna ocupe el espacio restante */}
+                        <div className="flex flex-col justify-center items-center">
                           <div className="flex flex-fil items-center">
-                          <p className="flex font-bold p-2 ">Smart Launch</p>
-                          <Tooltip
-                            message={
-                              <>
-                                <p className="mb-3">Smart Launch applies a sell fee to the token, which decreases gradually over time.</p>
-                                <p className="mb-3">When the token is first created, the sell fee starts at 100%.</p>
-                                <p className="mb-3">It then reduces in a linear fashion until reaching 0%, according to the specified time frame.</p>
-                              </>
-                            }
-                            space={1}
-                          />
-
+                            <h1 className="text-center font-bold mr-2">Image</h1>
                           </div>
                         </div>
+                        <div className="flex justify-center p-2 mb-7">
+                          <FileUpload onFileSelect={handleFileSelect}  />
+                        </div>
+                        {Network !== "Solana" && (
+                          <div className="flex flex-col items-center mb-3">
+                            <div className="flex flex-fil justify-center items-center">
+                              <input 
+                                type="checkbox" 
+                                checked={isChecked} 
+                                onChange={handleCheckboxChange} 
+                                className="mr-2"
+                              />
+                              <div className="flex flex-fil items-center">
+                              <p className="flex font-bold p-2 ">Smart Launch</p>
+                              <Tooltip
+                                message={
+                                  <>
+                                    <p className="mb-3">Smart Launch applies a sell fee to the token, which decreases gradually over time.</p>
+                                    <p className="mb-3">When the token is first created, the sell fee starts at 100%.</p>
+                                    <p className="mb-3">It then reduces in a linear fashion until reaching 0%, according to this specified time frame.</p>
+                                  </>
+                                }
+                                space={1}
+                              />
 
-                          <div className="flex flex-fil justify-end items-center gap-3">
-                            <Input2 placeholder="1" name_2="ProtectInput" type="number" handleChange_2={handleChange_2} disabled={!isChecked} className={`placeholder:italic w-24`} />
-                            <select
-                              onChange={(e2) => handleChange_2(e2, 'Timeframe')}
-                              className="border p-2 rounded-xl w-24"
-                                  >
-                                <option value={60}>Hours</option>
-                                <option value={60 * 24}>Days</option>
-                                <option value={60 * 24 * 7}>Weeks</option>
-                                <option value={60 * 24 * 30}>Months</option>
-                                <option value={60 * 24 * 30 * 12}>Years</option>
+                              </div>
+                            </div>
 
-                            </select>
+                              <div className="flex flex-fil justify-end items-center gap-3">
+                                <Input2 placeholder="1" name_2="ProtectInput" type="number" handleChange_2={handleChange_2} disabled={!isChecked} className={`placeholder:italic w-24 rounded-lg`} />
+                                <select
+                                  onChange={(e2) => handleChange_2(e2, 'Timeframe')}
+                                  className="border p-2 rounded-xl w-24"
+                                      >
+                                    <option value={60}>Hours</option>
+                                    <option value={60 * 24}>Days</option>
+                                    <option value={60 * 24 * 7}>Weeks</option>
+                                    <option value={60 * 24 * 30}>Months</option>
+                                    <option value={60 * 24 * 30 * 12}>Years</option>
+
+                                </select>
+                              </div>
                           </div>
+                        )}
                       </div>
-                    )}
                     </div>
-                  </div>
+                    <div className="flex justify-center font-goldeng">
+                      <button className="py-1" onClick={toggleFormulario2}>
+                        {formularioVisible2 ? "Less Options" : "Social Media"}
+                      </button>
+                    </div>
+                      {formularioVisible2 && (
+                    <div>
+                      <div className="border-t-2 border-dashed border-[#9c9c9c] w-full mt-4"></div>
 
+                      <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row justify-center mt-3 gap-3">
+                        <div className="flex flex-col">
+
+                          <div className="flex flex-col mb-3">
+                            <div className="flex flex-fil items-center justify-center">
+                              <p className="flex justify-center font-bold mr-2">Twitter</p>
+                            </div>
+                              <div className="flex justify-end">
+                                  <p className="flex justify-center p-2 italic">twitter.com/</p>
+                                  <Input2 placeholder="GeesesGolden" name_2="Twitter" type="text" handleChange_2={handleChange_2} className={`placeholder:italic w-auto p-2 border rounded-lg`}/>
+                              </div>
+                          </div>
+                          <div className="flex flex-col items-center mb-3">
+                              <div className="flex flex-fil items-center justify-center">
+                                <p className="flex font-bold justify-center mr-2">Web Page</p>
+                              </div>
+                              <Input2 placeholder="www.yourmeme.com" name_2="Website" type="text" handleChange_2={handleChange_2} className={`placeholder:italic w-64 p-2 border rounded-lg`}/>
+                          </div>
+
+
+
+
+                        </div>
+
+                        <div className="flex flex-col">
+
+                          <div className="flex flex-col mb-3">
+                            <div className="flex flex-col mb-3">
+                              <div className="flex flex-fil items-center justify-center">
+                                <p className="flex justify-center font-bold mr-2">Twitch</p>
+                                <Tooltip 
+                                  message="This channel will appear in the Degen section, allowing you to watch live streams in real time."
+                                  space={1}
+                                />
+                              </div>
+                              <div className="flex justify-end">
+                                  <p className="flex justify-center p-2 italic">twitch.tv/</p>
+                                  <Input2 placeholder="gg" name_2="Twitch" type="text" handleChange_2={handleChange_2} className={`placeholder:italic rounded-lg`}/>
+                              </div>
+                            </div>
+                            <div className="flex flex-fil items-center justify-center">
+                              <p className="flex justify-center font-bold mr-2">Discord</p>
+                            </div>
+                            <div className="flex justify-end">
+                                <p className="flex justify-center p-2 italic">discord.com/</p>
+                                <Input2 placeholder="invite/FfeHwrqdAY" name_2="Discord" type="text" handleChange_2={handleChange_2} className={`placeholder:italic rounded-lg`}/>
+                            </div>
+                          </div>
+
+
+
+                        </div>
+                      </div>
+                    </div>
+                      )}
                   </div>
                     )}
 
@@ -396,6 +429,7 @@ function PopUp({visible, onClose}) {
             </div>
             
           <PopUp_2 onClose_2 = {handleOnClose_2} visible_2 = {showMyModal_2}/>
+          <PopUp_3 onClose_3 = {handleOnClose_3} visible_3 = {showMyModal_3}/>
           <Wallets onCloseWallets={handleOnCloseWallets} visibleWallets={showMyModalWallets} />
         </div>
 

@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-crypto/sha256-js": "^5.2.0",
     "@coinbase/cbpay-js": "^2.2.1",
+    "@coinbase/onchainkit": "^0.34.0",
     "@coinbase/wallet-sdk": "^4.0.3",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",

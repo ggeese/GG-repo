@@ -39,7 +39,7 @@ const Searcher = ({ setMemeData, setTableName, setChainNet}) => {
     setMemeData(result);
     setTableName(result.contract.substring(1));
     setChainNet(result.network);
-    Navigate(`/Degen/${result.contract}-${result.network}`, { state: { result } });
+    Navigate(`/Degen/${result.network}-${result.contract}`, { state: { result } });
     setSearchResults([]);
     setSearch("");
 
