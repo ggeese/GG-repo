@@ -89,31 +89,12 @@ const App = () => {
               <div className="relative flex items-center justify-between mb-6 text-left">
                 <NetworkSelectMini isMini={false}  changeNetwork={changeNetwork} Network={Network}/>
               </div>
-              <div>
-                {currentAccount ? (
-                  <div className="relative inline-block wallet-button">
-                    <button className="text-white text-xl font-semibold dropdown-button" onClick={toggleDropdown}>
-                      {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)}
-                    </button>
-                    {dropdownOpen && (
-                      <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 dropdown-menu">
-                        <div className="py-1">
-                          <Link
-                           to="/Profile" className=" block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm">Profile</Link>
-                          <button onClick={disconnectWallet} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Disconnect Wallet
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                    <div className="flex items-center gap-3 z-80">
-                      <SignupButton />
-                      {!address && <LoginButton />}
-                    </div>
-                )}
+
+              <div className="flex items-center gap-3 z-80">
+                <SignupButton />
+                {!address && <LoginButton />}
               </div>
+
             </nav>
             <div className="flex md:hidden items-center ml-auto py-4 px-3">
               {/* Logo */}

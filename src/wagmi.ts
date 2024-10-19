@@ -11,6 +11,9 @@ import {
 import { useMemo } from 'react';
 import { http, createConfig } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
+import { isWalletACoinbaseSmartWallet } from '@coinbase/onchainkit/wallet';
+import { createPublicClient } from 'viem';
+
 
 export function useWagmiConfig() {
   const projectId = "2529ee2ce06e3c7d8f7369517d5473c5" ?? '';
@@ -19,6 +22,16 @@ export function useWagmiConfig() {
       'To connect to all Wallets you need to provide a NEXT_PUBLIC_WC_PROJECT_ID env variable';
     throw new Error(providerErrMessage);
   }
+
+  const publicClient = createPublicClient({
+    chain: baseSepolia,
+    transport: http(),
+  });
+
+  const checkIfCoinbaseSmartWallet = async (senderAddress) => {
+    const userOperation = { sender: senderAddress };
+    return isWalletACoinbaseSmartWallet({ client: publicClient, userOp: userOperation });
+  };
 
   return useMemo(() => {
     const connectors = connectorsForWallets(
@@ -33,7 +46,7 @@ export function useWagmiConfig() {
         },
       ],
       {
-        appName: 'onchainkit',
+        appName: 'GG',
         projectId,
       },
     );
@@ -50,6 +63,6 @@ export function useWagmiConfig() {
       },
     });
 
-    return wagmiConfig;
+    return { wagmiConfig, checkIfCoinbaseSmartWallet }; // Return the check function
   }, [projectId]);
 }

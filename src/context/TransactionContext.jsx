@@ -8,7 +8,7 @@ import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/S
 import { NetworkSelectMini } from "./Network/NetworkSelect";
 import { useCallsStatus, useWriteContracts } from "wagmi/experimental";
 import { useAccount } from 'wagmi';
-
+import { useWagmiConfig } from '../wagmi';
 
 // Configurar el entorno para usar `buffer` y `process`
 
@@ -22,7 +22,7 @@ const { ethereum } = window;
 
 
 export const TransactionProvider = ({ children }) => {
-    const [currentAccount, setCurrentAccount] = useState ('');
+    const [currentAccount2, setCurrentAccount] = useState ('');
     const [ TONAddress, setTONAddress] = useState ('');
     const [ SOLAddress, setSOLAddress] = useState ('');
     const [ EVMAddress, setEVMAddress] = useState ('');
@@ -45,12 +45,13 @@ export const TransactionProvider = ({ children }) => {
     const [TxHashPool, setTxHashPool] = useState ('');
     const [TxHashBase, setTxHashBase] = useState ('');
     const { switchChain } = useSwitchChain();
-    const { writeContract } = useWriteContract()
+    const { data: hashdata, writeContract } = useWriteContract();
+    const { checkIfCoinbaseSmartWallet } = useWagmiConfig();
     const [Balance, setBalance] = useState ("");
     const [MemeDegenBalance, setMemeDegenBalance] = useState("");
     const [switchPool, setSwitchPool] = useState("UNI"); // Estado para el interruptor
-    const { address } = useAccount();
-
+    const { address: currentAccount } = useAccount();
+    const [ChainID, setChainID] =useState("")
     const {
         writeContractsAsync,
         error: mintError,
@@ -170,14 +171,6 @@ export const TransactionProvider = ({ children }) => {
         }
         else {setCurrentAccount(TONAddress)};
         console.log("network: ",Network)
-
-    }else if(network==="Solana"){
-        setNetwork("Solana")
-        if (!SOLAddress) {
-            setCurrentAccount(null)
-        }
-        else {setCurrentAccount(SOLAddress)};
-        console.log("network: ",Network)
     
     }else{
         if (EVMAddress) {
@@ -199,65 +192,31 @@ export const TransactionProvider = ({ children }) => {
             setinteractFactoryContract2(poolInteract2);
             setWETH(WETHaddress);
             setNFTcontract(nftaddress);
+            setChainID(chainId);
             //base switch network
-                try{
-                    switchChain({chainId:  chainId },
-                        {onError: async (error) => {
-                            disconnectWagmi();
-                            setEVMAddress(null);
-                        }})
+            try{
+                switchChain(
+                    { chainId: chainId },
+                    {
+                      onSuccess: () => {
+                        console.log("Network switched successfully:");
+                        setNetwork(network); 
+                        // Add any additional actions you want to perform on success here
+                      },
+                      onError: async (error) => {
+                        console.error("Error switching network:", error);
+                        disconnectWagmi();
+                        setEVMAddress(null);
+                        // Handle any additional error handling here
+                      },
                     }
-                catch(error) 
-                    {console.log("error switch chain",error)}
-                
-
-            if (window.ethereum) {
-
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: `0x${chainId.toString(16)}` }],
-                    });
-
-                    console.log(`Red cambiada a ${network}.`);
-                    setNetwork(network); // Solo actualizar la red si el cambio se realizó con éxito
-                    const accounts = await ethereum.request({ method: 'eth_accounts' });
-                    //setCurrentAccount(accounts[0]);
-                    console.log("red actual ",network)
-                } catch (switchError) {
-                    if (switchError.code === 4902) {
-                        try {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: `0x${chainId.toString(16)}`,
-                                    rpcUrls: [rpcUrl],
-                                    chainName: network,
-                                    nativeCurrency: {
-                                        name: symbol,
-                                        symbol,
-                                        decimals: 18
-                                    },
-                                    blockExplorerUrls: [explorerUrl]
-                                }]
-                            });
-                            console.log(`Red ${network} añadida y cambiada.`);
-                            setNetwork(network); // Actualizar la red si se agregó correctamente
-                            const accounts = await ethereum.request({ method: 'eth_accounts' });
-                            setEVMAddress(accounts[0])
-                            console.log("red actual ",network)
-                        } catch (addError) {
-                            console.error('Error al añadir la red:', addError);
-                            throw new Error(`Error al agregar la red ${network}: ${addError.message}`);
-                        }
-                    } else {
-                        console.error('Error al cambiar de red:', switchError);
-                        throw new Error(`Error al cambiar de red: ${switchError.message}`);
-                    }
+                  );
+                  
                 }
-            } else {
-                throw new Error('Metamask no está instalado o no está disponible.');
-            }
+            catch(error) 
+                {console.log("error switch chain",error)}
+            console.log("Network", Network)
+
         } catch (error) {
             console.error('Error al cambiar de red:', error);
             // Aquí podrías mostrar un mensaje de error al usuario
@@ -304,22 +263,67 @@ export const TransactionProvider = ({ children }) => {
             console.error("Error al cambiar el input de staking:", error);
         }
     };
-    
+       
+    const sendTransaction = async (file) => {
+        const { MemeName, Symbol, Supply, Fee, ProtectInput, Timeframe } = FormData_2;
+        let protection_minutes = ProtectInput ? ProtectInput*Timeframe : 60;
+        let Fee_tx = Fee !== undefined ? Fee : 0;
+        const recipient = currentAccount;
+        setImageFile(file);
+        const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
+        const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
+        //const contractAddress_meme_factory = findContract(Network);
+        setIsLoading(true);
+        const isSmartWallet = await checkIfCoinbaseSmartWallet(currentAccount);
+        if (isSmartWallet.isCoinbaseSmartWallet === true) {
+            console.log("pass fhere", isSmartWallet)
 
-       // Llamando a la función para probarla
-        
-    const meme_adding = async(currentMemeContract) => {
-        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description} = FormData_2;
-        let image_meme_url
-        if (imageFile) {
-            image_meme_url = await saveImageToServer(imageFile);
-        } else {
-            image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903";
-        }
-        setCurrentMemeImage(image_meme_url);
-        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Twitch, Fee, description, Network);
-    }
-    ``
+            try {
+                // Llamar a la función del contrato de forma asíncrona
+                await writeContractsAsync({
+                    contracts: [{
+                    abi: contractABI_MEME_FACTORY,
+                    address: factoryContract,
+                    functionName: 'createMeme',
+                    args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes],
+                }],
+                    capabilities: {
+                        paymasterService: {
+                            // Paymaster Proxy Node url goes here.
+                            url: "https://api.developer.coinbase.com/rpc/v1/base/yCYGyekgTfIGKsj-ZM_MQnJmbufDhUMh",
+                        },
+                    },
+                });
+                
+    
+                } catch (err) {
+                    console.error("Error al mintear:", err);
+                    // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                } finally {
+                    // Desactivar el estado de carga, ya sea con éxito o error
+                    setIsLoading(false);
+                }
+        } else {          // Llamar a la función del contrato de forma asíncrona
+            writeContract({
+                abi: contractABI_MEME_FACTORY,
+                address: factoryContract,
+                functionName: 'createMeme',
+                args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes],
+                },{   
+                    onSuccess: (transaction2) => {
+                    console.log("tx send pool", transaction2);
+                    setIsLoading(false);
+                },
+                
+                onError: (err) => {
+                    console.error("Error:", err);
+                    // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                    setIsLoading(false)
+                },
+            })           
+        } 
+    };
+    
     const sendTransactionBase = async (file) => {
 
         const { MemeName, Symbol, Supply, Fee, ProtectInput, Timeframe } = FormData_2;
@@ -402,7 +406,8 @@ export const TransactionProvider = ({ children }) => {
                             },
                             {   
                                 onSuccess: (transaction2) => {
-                                console.log("tx send pool", transaction2)
+                                console.log("tx send pool", transaction2);
+                                setIsLoading(false);
                             },
                             
                             onError: (err) => {
@@ -587,7 +592,6 @@ export const TransactionProvider = ({ children }) => {
         return PointsEarned
     }
 
-
     const add_metamask = async(tokenAddress, tokenImage) => {        
         try {
         const wasAdded = await window.ethereum // Or window.ethereum if you don't support EIP-6963.
@@ -700,6 +704,7 @@ export const TransactionProvider = ({ children }) => {
             setTxHashPool,
             Balance,
             BuyMemeBase,
+            ChainID,
             SellMemeBase,
             PoolFactoryInteractBase,
             setBalance,
@@ -742,6 +747,7 @@ export const TransactionProvider = ({ children }) => {
             changeNetwork,
             disconnectWallet,
             sendTransactionBase,
+            sendTransaction,
             MintNft,
             Claim_Rewards, 
             add_metamask,

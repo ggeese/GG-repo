@@ -31,7 +31,7 @@ const Degen = React.lazy(() => import('./components/Degen/Degen.jsx'));
 const Profile = React.lazy(() => import('./components/Profile/Profile.jsx'));
 
 const AppWrapper = () => {
-  const wagmiConfig = useWagmiConfig();
+  const { wagmiConfig } = useWagmiConfig();
 
   return (
     <TonConnectUIProvider manifestUrl="https://raw.githubusercontent.com/goldengcoin/goldengcoin.github.io/main/tonconnect-manifest.json">

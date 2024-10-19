@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { FaInfoCircle } from 'react-icons/fa';
 import { Loader } from './'
 import { PopUp_2 } from "./"
 import { PopUp_3 } from "./"
@@ -57,7 +56,7 @@ const Tooltip = ({ message, space }) => (
 
 function PopUp({visible, onClose}) {
     const { sendTransactionTON } = useContext(TransactionContextTON);
-    const { FormData_2, sendTransactionBase, walletext, handleChange_2, currentAccount, isLoading, TxHash, TxHashPool, Network, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
+    const { FormData_2, sendTransactionBase, sendTransaction, walletext, handleChange_2, currentAccount, isLoading, TxHash, TxHashPool, Network, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
     const { sendTransactionSOL } = useContext(TransactionContextSOL); 
     const { sendTransactionETH } = useContext(TransactionContextETH); 
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
@@ -149,12 +148,10 @@ function PopUp({visible, onClose}) {
         sendTransactionTON(file);
       } else if (Network === "Solana") {
         sendTransactionSOL(file);
-      } else {
-        if (walletext === "Base Wallet") {
-          sendTransactionBase(file);
-        } else{
-          sendTransactionETH(file)};
-      }
+        } else {
+          console.log("sended tx")
+          sendTransaction(file);
+        };
     };
     
     const handleInputChange = (e2, name_2) => {
@@ -399,6 +396,7 @@ function PopUp({visible, onClose}) {
                   ) : (
                     <div className="flex justify-center">
                       {currentAccount ? (
+
                         <div className="flex p-4 text-xl font-goldeng mt-3">
                           <button
                             className="px-10 py-4 bg-black text-xl text-white rounded-2xl shadow-md hover:bg-[#9e701f] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"

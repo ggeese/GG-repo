@@ -1,8 +1,11 @@
 import React, { useContext, useState, useEffect } from "react";
 import { saveImageToServer, Add_Meme } from "../ServerInteract/ServerInteract";
 import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractABI_GOLDENGNFT, contractABI_GOLDEN_EXP, contractABI_VAULT, contractAddress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME, contractABI_WHITELISTROUTER, contractAddress_goldengnft } from "../../utils/constants";
+import { useWagmiConfig } from '../../wagmi'; 
 import { TransactionContext } from '../TransactionContext';
+import { useWriteContract } from 'wagmi';
 import { ethers } from "ethers";
+import { writeContract as writeContract2, waitForTransactionReceipt } from 'wagmi/actions'
 
 export const TransactionContextETH = React.createContext();
 
@@ -11,7 +14,9 @@ export const TransactionProviderETH = ({ children }) => {
 
   const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, interactFactoryContract2, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, setTxHashPool, WETH, NFTcontract } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
-
+  const { wagmiConfig } = useWagmiConfig();
+  const { checkIfCoinbaseSmartWallet } = useWagmiConfig();
+  const { data: hashdata, writeContract } = useWriteContract();
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
   const handleChange_3 = (e3, name_3) => {
       setFormData_3((prevState) => ({ ...prevState, [name_3]: e3.target.value }));
@@ -81,7 +86,6 @@ export const TransactionProviderETH = ({ children }) => {
       console.error("No ethereum object or user denied request:", error);
     }
   };
-  
 
   const sendTransactionETH = async (file) => {
     const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description, ProtectInput, Timeframe } = FormData_2;
@@ -513,7 +517,7 @@ const DeleteWhiteList = async () => {
 
 //////////////////USER FUNCTIONS//////////////////////
 
-const BuyMeme = async (tokenAddress) => {
+const BuyMeme2 = async (tokenAddress) => {
     const { amountswap } = FormData_6;
     const ETHAmount = ethers.parseEther(amountswap); // 0.1 ETH
 
@@ -540,33 +544,129 @@ const BuyMeme = async (tokenAddress) => {
     console.log("address pool reciever changed", transaction_1 )
 };
 
+const BuyMeme = async (tokenAddress) => {
+    const { amountswap } = FormData_6;
+    const ETHAmount = ethers.parseEther(amountswap); // 0.1 ETH
+    const path = [WETH, tokenAddress];
+    const to = currentAccount;
+    const deadline = Math.floor(Date.now()) + 60 * 20000; // 20 minutos desde ahora
+        
+    writeContract({
+        abi: contractABI_POOLINTERACT,
+        address: interactFactoryContract2,
+        functionName: 'swapExactETHForTokensSupportingFeeOnTransferTokens',
+        args: [   
+            0,
+            path,
+            to,
+            deadline,
+        ],
+        value: (ETHAmount) // El valor de ETH a añadir a la liquidez
+    },
+    {   
+        onSuccess: (transaction2) => {
+        console.log("tx send pool", transaction2);
+        //setIsLoading(false);
+        },
+
+        onError: (err) => {
+            console.error("Error:", err);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            //setIsLoading(false)
+        },
+    });
+};
+
 const SellMeme = async(tokenAddress) => {
     const { amountswap } = FormData_6;
     const decimals = 18;
     const tokenAmount = ethers.parseUnits(amountswap, parseInt(decimals, 10));
-    const erc20Contract = await getEthereumContract(tokenAddress, contractABI_MEME)
-    const transaction = await erc20Contract.approve(interactFactoryContract, tokenAmount);
-    await transaction.wait(); // Esperar a que se complete la transacción
-    console.log (`Se aprobaron ${tokenAmount} tokens para el contrato ${interactFactoryContract}`);
-
-    const transactionsContract_3 = await getEthereumContract(interactFactoryContract, contractABI_POOLINTERACT);
     const path = [tokenAddress, WETH];
     const to = currentAccount;
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos desde ahora
 
-    const transaction_1 = await transactionsContract_3.swapExactTokensForETHSupportingFeeOnTransferTokens(
-        tokenAmount,
-        0,
-        path,
-        to,
-        deadline,
-    );
+    const isSmartWallet = await checkIfCoinbaseSmartWallet(currentAccount);
+    console.log(isSmartWallet,"isSmartWallet")
 
-    console.log(`Swapping tokens for ETH...`);
-    const receipt = await transaction_1.wait();
-    console.log(`Transaction hash: ${receipt.transactionHash}`);
+    if (isSmartWallet.isCoinbaseSmartWallet === true) {
 
-    console.log("Address pool receiver changed", transaction_1);
+        writeContract({
+            abi: contractABI_MEME,
+            address: tokenAddress,
+            functionName: 'approve',
+            args: [   
+                interactFactoryContract2,
+                tokenAmount,
+            ],
+        },
+        {   
+            onSuccess: () => {
+                writeContract({
+                    abi: contractABI_POOLINTERACT,
+                    address: interactFactoryContract2,
+                    functionName: 'swapExactTokensForETHSupportingFeeOnTransferTokens',
+                    args: [
+                        tokenAmount,   
+                        0,
+                        path,
+                        to,
+                        deadline,
+                    ],
+                    value: (amountswap) // El valor de ETH a añadir a la liquidez
+                },
+                {   
+                    onSuccess: (transaction2) => {
+                    console.log("tx send pool", transaction2);
+                    },
+            
+                    onError: (err) => {
+                        console.error("Error:", err);
+                        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                    },
+                });        
+            },
+
+            onError: (err) => {
+                console.error("Error:", err);
+                // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            },
+        });
+    } else {
+        try {
+            // Primer paso: Aprobar el token
+            const approveTx = await writeContract2(wagmiConfig,{
+              address: tokenAddress,
+              abi: contractABI_MEME,
+              functionName: 'approve',
+              args: [interactFactoryContract2, tokenAmount],
+            });
+        
+            console.log('Transacción de aprobación enviada:', approveTx);
+        
+            // Esperar a que la transacción de aprobación sea confirmada
+            await waitForTransactionReceipt(wagmiConfig,{ hash: approveTx });
+            console.log("pas 2")
+            // Segundo paso: Realizar el swap
+            const swapTx = await writeContract2(wagmiConfig,{
+              address: interactFactoryContract2,
+              abi: contractABI_POOLINTERACT,
+              functionName: 'swapExactTokensForETHSupportingFeeOnTransferTokens',
+              args: [tokenAmount, 0, path, to, deadline],
+            });
+        
+            console.log('Transacción de swap enviada:', swapTx);
+        
+            // Esperar a que la transacción de swap sea confirmada
+            await waitForTransactionReceipt(wagmiConfig,{ hash: swapTx.hash });
+        
+            // Transacción completada con éxito
+            setIsLoading(false);
+          } catch (error) {
+            console.error('Error en el proceso de venta:', error);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            setIsLoading(false);
+          }
+    }
 };
 
 const burnMemes = async (contract, tokens) => {
