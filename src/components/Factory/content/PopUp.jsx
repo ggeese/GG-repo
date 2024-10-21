@@ -4,13 +4,14 @@ import { PopUp_2 } from "./"
 import { PopUp_3 } from "./"
 import { TransactionContext } from '../../../context/TransactionContext';
 import { TransactionContextTON } from '../../../context/ContextTON/ContextTON';
-import { TransactionContextSOL } from '../../../context/ContextSOL/ContextSOL';
-import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import TransportMethod from './switch';
 import AddLiquidity from './AddLiquidity';
 import Wallets from '../../../Wallets';
 import { FileUpload } from './'
 import info from "../../../../images/info.svg";
+import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
+import LoginButton from '../../LoginButton';
+import { useAccount } from 'wagmi';
 
 
 const Input2 = ({ placeholder, name_2, type, value, handleChange_2, disabled, className }) => (
@@ -56,21 +57,30 @@ const Tooltip = ({ message, space }) => (
 
 function PopUp({visible, onClose}) {
     const { sendTransactionTON } = useContext(TransactionContextTON);
-    const { FormData_2, sendTransactionBase, sendTransaction, walletext, handleChange_2, currentAccount, isLoading, TxHash, TxHashPool, Network, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
-    const { sendTransactionSOL } = useContext(TransactionContextSOL); 
-    const { sendTransactionETH } = useContext(TransactionContextETH); 
+    const { pop_up_2 } = useContext(TransactionContextETH);
+    const { FormData_2, sendTransaction, handleChange_2, currentAccount, pop_up_1, Network, isLoading, changeNetwork, NetworkSelectMini } = useContext(TransactionContext); 
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
     const [file, setFile] = useState(null); // Agregar estado para el archivo
     const [formularioVisible, setFormularioVisible] = useState(false);
     const [formularioVisible2, setFormularioVisible2] = useState(false);
     const [showMyModal_2, setShowMyModal_2] = useState(false);
     const [showMyModal_3, setShowMyModal_3] = useState(false);
-    const [lastTxHash, setlastTxHash] = useState(""); // Nuevo estado para prevLoadingState
-    const [lastTxHashPool, setlastTxHashPool] = useState(""); // Nuevo estado para prevLoadingState
     const [switchState, setSwitchState] = useState("meme"); // Estado para el interruptor
     const [isChecked, setIsChecked] = useState(true);
     const [supplyError, setSupplyError] = useState(''); // Estado para controlar el mensaje de error
     const [description, setDescription] = useState(''); // Estado para el texto del textarea
+    const { address } = useAccount();
+
+    useEffect(() => {
+      setShowMyModal_2(pop_up_1);
+
+    }, [pop_up_1]);
+
+    useEffect(() => {
+      setShowMyModal_3(pop_up_2);
+
+    }, [pop_up_2]);
+
     const maxCharacters = 370;
 
     const handleCheckboxChange = () => {
@@ -99,24 +109,6 @@ function PopUp({visible, onClose}) {
     const handleOnCloseWallets = () => setShowMyModalWallets(false);
 
 
-      // Verificar si isLoading cambió de true a false
-    useEffect(() => {
-
-      if (lastTxHash !== TxHash) {
-        // Ejecutar la función cuando isLoading vuelve a ser false
-        setShowMyModal_2(true);
-        setlastTxHash(TxHash);
-      }
-
-      if (lastTxHashPool !== TxHashPool) {
-        // Ejecutar la función cuando isLoading vuelve a ser false
-        setShowMyModal_3(true);
-        setlastTxHashPool(TxHashPool);
-      }
-    }, [TxHash, TxHashPool]); // Este efecto se ejecutará cada vez que isLoading cambie
-    
-
-
     const toggleFormulario = () => {
         setFormularioVisible(!formularioVisible);
       };
@@ -132,7 +124,7 @@ function PopUp({visible, onClose}) {
     };
 
     
-    const handleSubmit_2 = (file) => {
+    const handleSubmit_2 = async (file) => {
       const { MemeName, Symbol, Supply } = FormData_2;
 
       if (!MemeName || !Symbol || !Supply) return;
@@ -145,12 +137,10 @@ function PopUp({visible, onClose}) {
       }
       
       if (Network === "TON") {
-        sendTransactionTON(file);
-      } else if (Network === "Solana") {
-        sendTransactionSOL(file);
+          sendTransactionTON(file);
         } else {
           console.log("sended tx")
-          sendTransaction(file);
+          const txhash = await sendTransaction(file);
         };
     };
     
@@ -392,26 +382,31 @@ function PopUp({visible, onClose}) {
 
 
                   {isLoading ? (
-                    <Loader />
+                    <div>
+                      <Loader />
+
+                    </div>
                   ) : (
                     <div className="flex justify-center">
                       {currentAccount ? (
 
-                        <div className="flex p-4 text-xl font-goldeng mt-3">
+                        <div className="flex flex-col p-4 text-xl font-goldeng mt-3">
                           <button
                             className="px-10 py-4 bg-black text-xl text-white rounded-2xl shadow-md hover:bg-[#9e701f] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
                             onClick={() => handleSubmit_2(file)} // Pasar 'file' como parámetro
                           >
                             Create Meme
                           </button>
+                          <div>
+                            {isLoading && <p>Esperando confirmación de la transacción...</p>}
+                            {/* Resto del contenido del PopUp */}
+                          </div>
                         </div>
+                        
                       ) : (
-                        <button
-                          className="bg-black py-4 px-4 mx-2 rounded-xl mt-7 cursor-pointer hover:bg-[#9e701f]"
-                          onClick={() => setShowMyModalWallets(true)}
-                        >
-                          <p className="text-xl text-white">Connect Wallet</p>
-                        </button>
+                        <div className="bg-black rounded-3xl text-xl mt-3 px-3">
+                          {!address && <LoginButton />}
+                        </div>
                       )}
                     </div>
                   )}

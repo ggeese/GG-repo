@@ -140,12 +140,12 @@ const Home = () => {
             </button>
           </div>
         )}
-        <img
+        {/*<img
           src={goose_static}
           alt="Goose"
           className="transform transition-all hover:scale-110 w-20 h-auto sm:w-44 md:w-52 lg:w-50 xl:w-72 object-cover cursor-pointer animate-float" // Ajusta el tamaño de la imagen según sea necesario
           onClick={togglePiece} // Agregar evento onClick
-        />
+        />*/}
       </div>
 
       {/* Botón con contrato encima de la nube */}

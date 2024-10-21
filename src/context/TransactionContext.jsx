@@ -7,8 +7,10 @@ import { useConnect, useDisconnect, useSwitchChain, useWriteContract, useTransac
 import { saveImageToServer, Add_Meme, Create_Delivery } from "./ServerInteract/ServerInteract";
 import { NetworkSelectMini } from "./Network/NetworkSelect";
 import { useCallsStatus, useWriteContracts } from "wagmi/experimental";
-import { useAccount } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 import { useWagmiConfig } from '../wagmi';
+import { AppSocialPoint } from '../utils/axiossonfig'
+import useTransactionStatus from './Hooks/WaitForTx'
 
 // Configurar el entorno para usar `buffer` y `process`
 
@@ -33,25 +35,32 @@ export const TransactionProvider = ({ children }) => {
     const [poolFactoryContract, setpoolFactoryContract] = useState('');
     const [interactFactoryContract, setinteractFactoryContract] = useState('');
     const [interactFactoryContract2, setinteractFactoryContract2] = useState('');
-    const [currentMemeContract, setcurrentMemeData] = useState ('');
+    const [currentMemeContract, setcurrentMemeData] = useState (null);
     const [NFTcontract, setNFTcontract] = useState("");
     const [WETH, setWETH] = useState('');
     const [feeIntContract, setfeeIntContract] = useState ("");
     const [walletext, setWalletext] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const [FormData, setFormData] = useState({addressTo: '', amount: '', message: ''});
     const [providereth, setProviderState] = useState(null);
     const [TxHash, setTxHash] = useState ('');
-    const [TxHashPool, setTxHashPool] = useState ('');
+    const [lastTxPool, setlastTxPool] = useState(""); // Nuevo estado para prevLoadingStat
     const [TxHashBase, setTxHashBase] = useState ('');
     const { switchChain } = useSwitchChain();
-    const { data: hashdata, writeContract } = useWriteContract();
-    const { checkIfCoinbaseSmartWallet } = useWagmiConfig();
-    const [Balance, setBalance] = useState ("");
+    const { data: StatusWagmi, writeContract } = useWriteContract();
+    const { checkIfCoinbaseSmartWallet, wagmiConfig } = useWagmiConfig();
     const [MemeDegenBalance, setMemeDegenBalance] = useState("");
     const [switchPool, setSwitchPool] = useState("UNI"); // Estado para el interruptor
     const { address: currentAccount } = useAccount();
-    const [ChainID, setChainID] =useState("")
+    const [ChainID, setChainID] =useState("");
+    const [lastTxHashMeme, setlastTxHashMeme] = useState(null); // Nuevo estado para prevLoadingState
+    const [txHashMeme, setTxHashMeme] = useState(null);
+    const [pop_up_1,setpop_up_1] = useState(false);
+    const { data: datameme, isError, isLoading, isSuccess } = useTransactionStatus(txHashMeme);
+
+
+    const currentbalance = useBalance({
+        address: currentAccount,
+      })
     const {
         writeContractsAsync,
         error: mintError,
@@ -83,10 +92,6 @@ export const TransactionProvider = ({ children }) => {
       //discoonect wallet TON
       const [tonConnectUI] = useTonConnectUI();
     
-    const timeout = setTimeout(() => {
-        setIsLoading(false);
-      }, 80000); // 1 minuto de tiempo máximo
-      
 
     const handleChange = (e, name) => {
         setFormData((prevState) => ({...prevState, [name]: e.target.value}));
@@ -100,6 +105,18 @@ export const TransactionProvider = ({ children }) => {
         return transactionsContract;
     }
     
+    const meme_adding = async(currentMemeContract) => {
+        const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description } = FormData_2;
+        let image_meme_url
+        if (imageFile) {
+            image_meme_url = await saveImageToServer(imageFile);
+        } else {
+            image_meme_url = "https://ik.imagekit.io/PAMBIL/egg.gif?updatedAt=1718300067903";
+        }
+        setCurrentMemeImage(image_meme_url);
+        await Add_Meme(MemeName, Symbol, Supply, currentMemeContract, image_meme_url, currentAccount, Website, Twitter, Discord, Twitch, Fee, description, Network);
+        console.log("meme registrado XD")
+    }
 
 
     const checkIfWalletIsConnected = async () => {
@@ -199,7 +216,7 @@ export const TransactionProvider = ({ children }) => {
                     { chainId: chainId },
                     {
                       onSuccess: () => {
-                        console.log("Network switched successfully:");
+                        console.log("Network switched successfully: chaian id", chainId);
                         setNetwork(network); 
                         // Add any additional actions you want to perform on success here
                       },
@@ -273,11 +290,8 @@ export const TransactionProvider = ({ children }) => {
         const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
         const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
         //const contractAddress_meme_factory = findContract(Network);
-        setIsLoading(true);
         const isSmartWallet = await checkIfCoinbaseSmartWallet(currentAccount);
-        if (isSmartWallet.isCoinbaseSmartWallet === true) {
-            console.log("pass fhere", isSmartWallet)
-
+        if (isSmartWallet.isCoinbaseSmartWallet === true) {            
             try {
                 // Llamar a la función del contrato de forma asíncrona
                 await writeContractsAsync({
@@ -295,13 +309,11 @@ export const TransactionProvider = ({ children }) => {
                     },
                 });
                 
-    
                 } catch (err) {
                     console.error("Error al mintear:", err);
                     // Manejar el error, por ejemplo, mostrar un mensaje al usuario
                 } finally {
                     // Desactivar el estado de carga, ya sea con éxito o error
-                    setIsLoading(false);
                 }
         } else {          // Llamar a la función del contrato de forma asíncrona
             writeContract({
@@ -309,18 +321,17 @@ export const TransactionProvider = ({ children }) => {
                 address: factoryContract,
                 functionName: 'createMeme',
                 args: [MemeName, Symbol, Suply_total, recipient, Fee_tx_fixed, protection_minutes],
-                },{   
-                    onSuccess: (transaction2) => {
-                    console.log("tx send pool", transaction2);
-                    setIsLoading(false);
+            }, {   
+                onSuccess: async (txhash) => { // Corregido aquí
+                    setTxHashMeme(txhash);
+                    console.log("setTxHashMeme, xd",txhash)
                 },
-                
                 onError: (err) => {
                     console.error("Error:", err);
                     // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                    setIsLoading(false)
                 },
-            })           
+            });
+                 
         } 
     };
     
@@ -335,7 +346,6 @@ export const TransactionProvider = ({ children }) => {
         const Suply_total = ethers.parseEther(Supply); //covertimos amount a wei
         const Fee_tx_fixed = parseInt(parseFloat(Fee_tx) * 100);
         //const contractAddress_meme_factory = findContract(Network);
-        setIsLoading(true);
         try {
             // Llamar a la función del contrato de forma asíncrona
             await writeContractsAsync({
@@ -359,7 +369,6 @@ export const TransactionProvider = ({ children }) => {
                 // Manejar el error, por ejemplo, mostrar un mensaje al usuario
             } finally {
                 // Desactivar el estado de carga, ya sea con éxito o error
-                setIsLoading(false);
             }
 
     };
@@ -407,13 +416,11 @@ export const TransactionProvider = ({ children }) => {
                             {   
                                 onSuccess: (transaction2) => {
                                 console.log("tx send pool", transaction2);
-                                setIsLoading(false);
                             },
                             
                             onError: (err) => {
                                 console.error("Error:", err);
                                 // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                                setIsLoading(false)
                             },
                         });
 
@@ -422,7 +429,6 @@ export const TransactionProvider = ({ children }) => {
                     onError: (err) => {
                         console.error("Error:", err);
                         // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                        setIsLoading(false)
                     },
                 });
         
@@ -447,7 +453,6 @@ export const TransactionProvider = ({ children }) => {
             );
     
             const hash_tx_2 = await transactionPool2.wait();
-            setTxHashPool(hash_tx_2);
             setcurrentMemeData(meme_token)
             console.log(hash_tx_2, "Datos del pool creado");
         } catch (error) {
@@ -456,7 +461,7 @@ export const TransactionProvider = ({ children }) => {
     }
 
     const BuyMemeBase = async (tokenAddress, amountswap) => {
-        console.log(tokenAddress, amountswap, interactFactoryContract2, "values for buy base memes");
+        console.log(tokenAddress, amountswap, interactFactoryContract2, currentbalance, " balance values for buy base memes");
     
         if (!tokenAddress || !amountswap || !currentAccount) {
             console.error("Parámetros inválidos para la función de compra");
@@ -492,7 +497,6 @@ export const TransactionProvider = ({ children }) => {
                 onError: (err) => {
                     console.error("Error:", err);
                     // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                    setIsLoading(false)
                 },
             });
     
@@ -503,63 +507,6 @@ export const TransactionProvider = ({ children }) => {
         }
     };
     
-
-    const SellMemeBase = async (tokenAddress, amountswap) => {
-        console.log(tokenAddress, amountswap,"values for buy base memes")
-        const tokenAmount = ethers.parseEther(amountswap); // 0.1 ETH
-        const path = [tokenAddress, WETH];
-        const to = currentAccount;
-        const deadline = Math.floor(Date.now()) + 60 * 20000; // 20 minutos desde ahora
-        try {
-            // Paso 1: Aprobar el uso del token
-            writeContract({
-                    abi: contractABI_MEME, // ABI del token
-                    address: tokenAddress, // Dirección del contrato del token
-                    functionName: 'approve',
-                    args: [tokenAddress, tokenAmount], // Cantidad a aprobar
-                },
-                {   
-                    onSuccess: (transaction) => {
-                        const txHash = transaction.hash;
-                        console.log("Hash de la transacción:", txHash);
-                        // Llama a Create_Delivery después de obtener el hash de la transacción
-                        writeContract({
-                            abi: contractABI_POOLINTERACT,
-                            address: interactFactoryContract2,
-                            functionName: 'swapExactTokensForETHSupportingFeeOnTransferTokens', // O la función correspondiente para la venta
-                            args: [tokenAmount, 0, path, to, deadline],
-                        },{
-                            onSuccess: (transactionSell) => {
-                                const txHashSell = transactionSell.hash;
-                                console.log("Hash de la transacción:", txHashSell);
-
-                            }
-                        });
-
-                    },
-                    
-                    onError: (err) => {
-                        console.error("Error:", err);
-                        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                        setIsLoading(false)
-                    },
-                });
-            // Paso 2: Interactuar con el contrato después de la aprobación
-             writeContract({
-                    abi: contractABI_POOLINTERACT,
-                    address: interactFactoryContract2,
-                    functionName: 'swapExactTokensForETHSupportingFeeOnTransferTokens', // O la función correspondiente para la venta
-                    args: [tokenAmount, 0, path, to, deadline],
-            });
-
-        } catch (err) {
-            console.error("Error en la transacción:", err);
-            // Manejar el error, por ejemplo, mostrar un mensaje al usuario        
-        } finally {
-            // Desactivar el estado de carga, ya sea con éxito o error
-        }
-    }
-
     const SmartSignatureSession = async (nonce) => {
         try {    
             const signature = await signMessageAsync({
@@ -619,20 +566,18 @@ export const TransactionProvider = ({ children }) => {
     };
 
     const MintNft = async () => {
-        setIsLoading(true)
-
+        console.log("currentAccount")
         writeContract({
             abi: contractABI_GOLDENGNFT,
             address: NFTcontract,
             functionName: 'mintTo',
-            args: [currentAccount, "0x"],
+            args: [currentAccount, currentAccount],
             value: ethers.parseEther(0.001.toString()),
         },
         {    onSuccess: (transaction) => {
                 console.log("Transacción enviada con éxito:");
                 const txHash = transaction.hash;
                 console.log("Hash de la transacción:", txHash);
-                
                 // Llama a Create_Delivery después de obtener el hash de la transacción
                 //Create_Delivery(firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount);
             },
@@ -640,17 +585,51 @@ export const TransactionProvider = ({ children }) => {
             onError: (err) => {
                 console.error("Error al mintear:", err);
                 // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-                setIsLoading(false)
 
             },
         });
     }
 
     /////////////CHAINS/////////////
+      
+    useEffect(() => {
+        const authenticateUser = async () => {
+        if (!currentAccount) {
+            console.log("currentAccount no tiene un valor");
+            return;
+        }
+    
+        try {
+            // Cambiar de red si es necesario
+            //await changeNetwork(Network);
+            console.log("Network initial changed");
+            // Obtener nonce
+            const nonceResponse = await AppSocialPoint.get(`/generateNonce/${currentAccount}`);    
+            const { nonce } = nonceResponse.data;    
+            // Firmar el mensaje
+            const signature = await signMessageAsync({ message: nonce });    
+            // Autenticar al usuario
+            const response = await AppSocialPoint.post('/authenticate', {
+            walletAddress: currentAccount,
+            signature: signature,
+            type: "evm",
+            });
+    
+            // Establecer los datos del usuario
+            setDataUser(response.data);
+        } catch (error) {
+            console.error("Error during authentication:", error);
+        }
+        };
+    
+        // Llamar a la función de autenticación si currentAccount tiene un valor
+        authenticateUser();
+    }, [currentAccount]);
 
     //connectWallet();
     useEffect(() => {
         localStorage.setItem('network', Network);
+
       }, [Network]);
 
     useEffect(() => {
@@ -669,6 +648,7 @@ export const TransactionProvider = ({ children }) => {
 
     const contract_meme = logs[2]?.address; // Accede a la dirección del tercer log (índice 2)
     const hash = callsStatus.receipts[0].blockHash
+    console.log(hash)
     setTxHash(hash);
 
     if (contract_meme) {
@@ -679,9 +659,27 @@ export const TransactionProvider = ({ children }) => {
         console.log("No address found in the third log.");
     }
     }, [callsStatus]);
+
+    useEffect(() => {
+        console.log(callsStatus,"callsStatusssssssssss")
+      }, [callsStatus]);
     
+      useEffect(() => {
+        if (txHashMeme && txHashMeme !== lastTxHashMeme) {
+            // Verificar si hay logs y extraer la dirección del contrato meme
+            if (datameme && datameme.logs && datameme.logs.length > 1) {
+                const contract_meme = datameme.logs[1].address;
+                
+                // Actualizar el estado y ejecutar la función solo si el hash es diferente
+                setcurrentMemeData(contract_meme);
+                setpop_up_1(true)
+                meme_adding(contract_meme);
     
-    
+                // Actualizar lastTxHashMeme para evitar ejecuciones repetidas
+                setlastTxHashMeme(txHashMeme);
+            }
+        }
+    }, [datameme, txHashMeme, lastTxHashMeme]);
 
     useEffect(() => {
         if (EVMAddress) {
@@ -701,13 +699,11 @@ export const TransactionProvider = ({ children }) => {
         <TransactionContext.Provider value={{ 
             //connectWallet,
             setTxHash,
-            setTxHashPool,
-            Balance,
+            pop_up_1,
             BuyMemeBase,
             ChainID,
-            SellMemeBase,
             PoolFactoryInteractBase,
-            setBalance,
+            currentbalance,
             MemeDegenBalance,
             setMemeDegenBalance,
             setCurrentAccount,
@@ -718,17 +714,15 @@ export const TransactionProvider = ({ children }) => {
             EVMAddress,
             setEVMAddress,
             setCurrentMemeImage,
-            setIsLoading, 
             setWalletext,
+            currentMemeContract,
             setcurrentMemeData,
             switchPool,
             setSwitchPool,
             connectSmartWallet,
             SmartSignatureSession,
             currentAccount, 
-            isLoading,
             TxHash,
-            TxHashPool,
             Network,
             factoryContract,
             poolFactoryContract,
@@ -744,15 +738,16 @@ export const TransactionProvider = ({ children }) => {
             handleChange, 
             handleChange_2, 
             handleChange_3, 
+            isLoading,
             changeNetwork,
             disconnectWallet,
             sendTransactionBase,
             sendTransaction,
+            txHashMeme,
             MintNft,
             Claim_Rewards, 
             add_metamask,
             currentMemeImage, 
-            currentMemeContract,
             change_input_staking,
             Points_Earned,
             NetworkSelectMini

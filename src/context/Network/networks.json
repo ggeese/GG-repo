@@ -120,7 +120,7 @@
         "poolFactory": "0x18CFf4C5059f13958eE7AbD7C22930a125E03443",
         "poolInteract": "0x567b7404EBdBE3Cf12879C89f785252bfB32b903",
         "poolInteract2": "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24",
-        "factory":"0x3aF3848B305d5aF01DB194BfA144138E4F47d3eE",
+        "factory":"0x4319C5a837f21C6c79D5f6fcf3358495E16EaD81",
         "nick":"Base",
         "WETHaddress": "0x4200000000000000000000000000000000000006",
         "fee":0.00001

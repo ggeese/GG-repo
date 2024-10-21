@@ -28,7 +28,7 @@ const networkIcons = {
   //'Sei Network': { icon: SEI, nick: 'SEI' },
   //'Moonbase Alpha': { icon: moonbeam, nick: 'Moonbase' },
   //'Manta Pacific Mainnet': { icon: manta, nick: 'Manta' },
-  'Base Sepolia': { icon: base, nick: 'Base Testnet' },
+  //'Base Sepolia': { icon: base, nick: 'Base Testnet' },
   //'Sepolia ETH': { icon: eth, nick: 'ETH Sepolia' },
   //'TON': { icon: TON, nick: 'TON (telegram)' },
   //'X Layer Mainnet': { icon: okb, nick: 'X Layer' },

@@ -6,24 +6,24 @@ import meme from "../../../../models/goldenbox.glb";
 import factory from "../../../../images/factory_2.jpeg";
 import background from "../../../../images/bgcube.jpg";
 import copy_logo from "../../../../images/copy.svg";
-import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import { Loader } from './'
-import Wallets from '../../../Wallets';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Model } from './'; // Adjust the path if necessary
+import LoginButton from '../../LoginButton';
+import { useAccount } from 'wagmi';
 import * as THREE from 'three';
 
 
 const Body = () => {
-    const { MintNft, walletext, isLoading, Network, currentAccount, NFTcontract } = useContext(TransactionContext);
-    const { MetaMintNFT, Get_NFT_Minted } = useContext(TransactionContextETH);
+    const { MintNft, isLoading, Network, currentAccount, NFTcontract } = useContext(TransactionContext);
     const [receivePhysical, setReceivePhysical] = useState(false);
     const [showMyModalWallets, setShowMyModalWallets] = useState(false);
     const [counterNFT, setcounterNFT] = useState("");
     const [clicked, setClicked] = useState(false);
     const [isdisable, setisdisable] = useState(false);
-    
+    const { address: account } = useAccount();
+
     // Luz blanca cálida
     const lightColor = new THREE.Color(1, 1, 1); // Luz blanca cálida (un poco más amarilla)
     const environmentColor = new THREE.Color(1, 0.7, 0.9); // Luz ambiental suave en tonos rosados
@@ -89,11 +89,7 @@ const Body = () => {
 
 
     const handleMinNft = async() => {
-        if (walletext === "Base Wallet") {
             MintNft();
-        } else{
-            MetaMintNFT()
-        };
     };
 
     const handleInputChange = (e) => {
@@ -102,7 +98,7 @@ const Body = () => {
         setAddress({ ...address, [stateField]: value });
     };
 
-    const totalAmount = 10;
+    const totalAmount = 2000;
     const progress = (counterNFT / totalAmount) * 100;
     const shortenedAddress = `${contractAddress_goldengnft.slice(0, 6)}...${contractAddress_goldengnft.slice(-4)}`;
 
@@ -118,8 +114,7 @@ const Body = () => {
                 <div className="flex flex-col md:flex-row ">
                     <div className="md:w-1/2 w-full p-4 sm:p-8 text-center text-gray-900 ">
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 sm:mb-6">Golden BOX</h1>
-                        {/* Cambia la imagen por el modelo 3D */}
-                        <div className="flex justify-center items-center w-auto h-80 mb-4 rounded-lg border-4 border-purple-700"> {/* Ajusta el tamaño aquí */}
+                        <div className="flex justify-center items-center w-auto h-80 mb-4 rounded-lg border-4 border-purple-700">
                             <Canvas 
                                 camera={{ position: [0, -73, -431], fov: 37 }} 
                                 style={{ height: '100%', width: '100%' }} 
@@ -128,12 +123,12 @@ const Body = () => {
                                 <primitive attach="background" object={backgroundTexture} />
 
                                 <ambientLight color={environmentColor} intensity={0} />
-                                <directionalLight color={yellowLightColor} intensity={1.73} position={[0, 0, 1]} /> {/*frontal*/}
-                                <directionalLight color={yellowLightColor} intensity={1.73} position={[0, 0, -1]} /> {/*frontal*/}
-                                <directionalLight color={yellowLightColor} intensity={1.73} position={[-1, 0, 0]} />{/*izquierdo*/}
-                                <directionalLight color={yellowLightColor} intensity={1.73} position={[1, 0, 0]} /> {/*derecha*/}
-                                <directionalLight color={yellowLightColor} intensity={3.73} position={[-1, 1, 0]} />{/*superior*/}
-                                <directionalLight color={yellowLightColor} intensity={2.73} position={[1, -1, 0]} /> {/*inferior*/}
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[0, 0, 1]} /> 
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[0, 0, -1]} /> 
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[-1, 0, 0]} />
+                                <directionalLight color={yellowLightColor} intensity={1.73} position={[1, 0, 0]} /> 
+                                <directionalLight color={yellowLightColor} intensity={3.73} position={[-1, 1, 0]} />
+                                <directionalLight color={yellowLightColor} intensity={2.73} position={[1, -1, 0]} /> 
                                 <OrbitControls enableZoom={true} />
                                 <Model path={meme} scale={1} />
                             </Canvas>
@@ -176,10 +171,10 @@ const Body = () => {
                         <div>
                             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 text-center">Golden NFT Box</h2>
                             <p className="mb-4 sm:mb-5 text-base sm:text-xl leading-relaxed">
-                                🎉 Mint the Golden NFT Box, a truly magical experience! Inside each box lies Golden's most iconic meme created right here in GG! ✨ Imagine having your favorite memecoin as a digital collectible — a piece of internet culture you can cherish and share. 🌟 And that's not all — the first 2000 NFTs come with a bag of memecoins included. 💰 If you're lucky, owning one could bring you unexpected fortune. Don't miss out!
+                                🎉 Mint the Golden NFT Box, a truly magical experience! Inside each box lies Golden's most iconic meme created right here in GG! ✨ Imagine having your favorite memecoin as a digital collectible — a piece of internet culture you can cherish and share. 🌟 And that's not all — the first 2000 NFTs come with a bag of memecoins included. 💰 If you're lucky, owning one could bring you unexpected memes. Don't miss out!
                             </p>
                         </div>
-                        <div className="w-full mt-4 sm:mt-6 text-left">
+                        <div className="flex flex-col items-center w-auto mt-4 sm:mt-6 text-left">
                             <label className="flex items-center mb-4">
                                 <input
                                     type="checkbox"
@@ -208,12 +203,9 @@ const Body = () => {
                                 </div>
                             )*/}
                             {!currentAccount ? (
-                                <button
-                                    onClick={() => setShowMyModalWallets(true)}
-                                    className="w-full bg-white hover:bg-purple-800 text-black font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition duration-300 text-lg sm:text-2xl mb-4"
-                                >
-                                    Connect Wallet
-                                </button>
+                            <div className="bg-black text-2xl rounded-3xl px-3">
+                                {!account && <LoginButton />}
+                            </div>
                             ) : (
                                 <div>
                                     {isLoading ? (
@@ -235,12 +227,11 @@ const Body = () => {
 
 
                         </div>
-                        <p className="text-xs sm:text-sm">*in Any Chain</p>
+                        <p className="text-xs sm:text-sm">*only in Base</p>
                     </div>
                 </div>
             </div>
 
-            <Wallets onCloseWallets={handleOnCloseWallets} visibleWallets={showMyModalWallets} />
 
         </div>
     );

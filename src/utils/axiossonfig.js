@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const useTestnet = true; 
+const useTestnet = false; 
 
 const appData = useTestnet 
   ? 'http://localhost:3000' //testnet

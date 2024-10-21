@@ -18,14 +18,9 @@ export const TransactionContextSOL = React.createContext();
 
 export const TransactionProviderSOL = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setSOLAddress, setIsLoading, setcurrentMemeData, currentAccount, setTxHash, Network } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setSOLAddress, setcurrentMemeData, currentAccount, setTxHash, Network } = useContext(TransactionContext); 
   const [connectionSol, setConnectionSol] = useState('');
   const [program, setProgram] = useState(null);
-
-  const timeout = setTimeout(() => {
-    setIsLoading(false);
-  }, 80000); // 1 minuto de tiempo máximo
-  
 
   const initialize = async (provider) => {
     try {
@@ -335,7 +330,6 @@ export const TransactionProviderSOL = ({ children }) => {
     const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
         //asignacion de fees
         //updateTransactionFee();
-        setIsLoading(true);
         try{
             //const contract_meme = await SolCreateToken(MemeName, Symbol, Supply, file);
             const contract_meme = await SolTokenFactory(MemeName, Supply);
@@ -348,14 +342,10 @@ export const TransactionProviderSOL = ({ children }) => {
                 } catch(error){
                   console.log("server database is down")
                 }
-                clearTimeout(timeout);
-                setIsLoading(false);
                 setcurrentMemeData(contract_meme.toBase58());
             }
         //console.log("token created");  
         }   catch (error) {
-            clearTimeout(timeout);
-            setIsLoading(false);
             console.log(error);
 
             throw new Error("No Solana object.")

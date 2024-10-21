@@ -172,7 +172,7 @@ const Meme_Search = () => {
                                 </button>
                             </div>
                             <div className="flex w-full justify-between">
-                                <h1 className="text-md font-semibold mb-2 px-4 text-left text-gray-700">Contract: {meme.contract.slice(0, 6)}...{meme.contract.slice(-4)}</h1>
+                                <h1 className="text-md font-semibold mb-2 px-4 text-left text-gray-700">Contract: {meme.contract?.slice(0, 6)}...{meme.contract?.slice(-4)}</h1>
                                 <button 
                                 
                                     onClick={() => handleButtonClick(meme.contract)}

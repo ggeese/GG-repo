@@ -5,6 +5,8 @@ import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import Wallets from '../../../Wallets';
 import egger from '../../../../images/egger.png';
 import eth from '../../../../images/eth.svg';
+import LoginButton from '../../LoginButton';
+import { useAccount } from 'wagmi';
 
 const Input = ({ placeholder, type, value, onChange  }) => (
   <input
@@ -18,15 +20,16 @@ const Input = ({ placeholder, type, value, onChange  }) => (
 );  
 
 const AddLiquidity = () => {
-  const { currentAccount, Network, NetworkSelectMini, changeNetwork, DataUser, walletext, PoolFactoryInteractBase} = useContext(TransactionContext); 
-  const { Get_ETH_Balance, PoolFactoryInteract2 } = useContext(TransactionContextETH); 
+  const { currentAccount, Network, NetworkSelectMini, changeNetwork, DataUser, walletext, PoolFactoryInteractBase, currentbalance} = useContext(TransactionContext); 
+  const { PoolFactoryInteract2 } = useContext(TransactionContextETH); 
   const [showMyModalWallets, setShowMyModalWallets] = useState(false);
   const [memeAmount, setMemeAmount] = useState(0);
   const [ethAmount, setEthAmount] = useState(0);
   const [memeMax, setMemeMax] = useState(0); // Valor máximo para meme tokens
-  const [ethMax, setEthMax] = useState(0);    // Valor máximo para ETH
   const [selectedToken, setSelectedToken] = useState(""); // Token seleccionado
   const [options, setOptions] = useState([]); // Initialize options state
+  const formattedBalance = currentbalance?.data?.formatted ?? "0.00";
+  const { address } = useAccount();
 
   // Formatear opciones para react-select después de que DataUser esté disponible
   useEffect(() => {
@@ -42,36 +45,36 @@ const AddLiquidity = () => {
     }
   }, [DataUser]); // Depend on DataUser to set options
 
-    const handleTokenChange = (selectedOption) => {
-      // Si se selecciona una opción, actualiza `selectedToken` con la opción seleccionada
-      if (selectedOption) {
-        setSelectedToken(selectedOption);
-        // Aquí obtienes el balance del token seleccionado
-        const tokenBalance = DataUser.BaseBalances?.result?.balances?.find(
-          (balance) => balance.asset.groupId === selectedOption.value
-        );
-    
-        if (tokenBalance) {
-          const adjustedBalance = (parseFloat(tokenBalance.value) / Math.pow(10, tokenBalance.decimals)).toFixed(2);
-          setMemeMax(adjustedBalance);
-        } else {
-          setSelectedToken(null); // Permitir selección vacía
-        }
+  const handleTokenChange = (selectedOption) => {
+    // Si se selecciona una opción, actualiza `selectedToken` con la opción seleccionada
+    if (selectedOption) {
+      setSelectedToken(selectedOption);
+      // Aquí obtienes el balance del token seleccionado
+      const tokenBalance = DataUser.BaseBalances?.result?.balances?.find(
+        (balance) => balance.asset.groupId === selectedOption.value
+      );
+  
+      if (tokenBalance) {
+        const adjustedBalance = (parseFloat(tokenBalance.value) / Math.pow(10, tokenBalance.decimals)).toFixed(2);
+        setMemeMax(adjustedBalance);
       } else {
-        // Si el usuario borra el texto, no establecemos selectedToken a null
-        // Permitir que el valor escrito se mantenga
         setSelectedToken(null); // Permitir selección vacía
       }
-    };
-    
+    } else {
+      // Si el usuario borra el texto, no establecemos selectedToken a null
+      // Permitir que el valor escrito se mantenga
+      setSelectedToken(null); // Permitir selección vacía
+    }
+  };
+  
 
-    const handleCreateOption = (inputValue) => {
-      console.log("Option creation");
-      const newOption = { value: inputValue, label: inputValue };
-      setOptions((prevOptions) => [...prevOptions, newOption]);
-      setSelectedToken(newOption);
-      return newOption; // Esto es importante para que el nuevo valor se agregue al select
-    };
+  const handleCreateOption = (inputValue) => {
+    console.log("Option creation");
+    const newOption = { value: inputValue, label: inputValue };
+    setOptions((prevOptions) => [...prevOptions, newOption]);
+    setSelectedToken(newOption);
+    return newOption; // Esto es importante para que el nuevo valor se agregue al select
+  };
     
 
   const handleMemeAmountChange = (e) => {
@@ -94,31 +97,15 @@ const AddLiquidity = () => {
 
   }
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const balance_ETH = await Get_ETH_Balance();
-        if (balance_ETH) {
-          setEthMax(balance_ETH);
-        }
-      } catch (error) {
-        console.error('Error fetching ETH balance:', error);
-      }
-    };
-
-    if (currentAccount && Network) {
-      fetchBalance();
-    }
-  }, [currentAccount, Network, Get_ETH_Balance]);
 
   return (
   <div className="add-liquidity-container p-1 space-y-2 rounded-3xl py-3 max-w-lg mx-auto">
 
-    <div className="flex flex-col text-center ">
+    <div className="flex flex-col text-center items-center">
       {/* Selector de memes */}
       <label className="block text-lg font-goldeng">Add liquidity to your meme!</label>
 
-      <div className="flex flex-col space-y-4 py-3">
+      <div className="flex flex-col space-y-4 py-3 w-full">
         <CreatableSelect
           id="tokenSelect"
           value={selectedToken}
@@ -200,7 +187,7 @@ const AddLiquidity = () => {
               className="p-3 border-4 border-green-400 rounded-lg bg-white text-gray-900 w-full text-center transition duration-200 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-pink-500"
             />
             <div className='flex justify-end text-xs'>
-              {ethMax}
+            {parseFloat(formattedBalance).toFixed(5)}
             </div>
           </div>
 
@@ -209,33 +196,33 @@ const AddLiquidity = () => {
             <input
               type="range"
               min="0.001"
-              max={ethMax}
-              step={ethMax / 100}
+              max={formattedBalance}
+              step={formattedBalance / 100}
               value={ethAmount}
               onChange={handleEthAmountChange}
               className="w-full py-3 accent-green-500"
             />
             <div className="flex justify-between text-sm">
               <button
-                onClick={() => handleEthAmountChange({ target: { value: (ethMax * 0.01).toFixed(4)  } })}
+                onClick={() => handleEthAmountChange({ target: { value: (formattedBalance * 0.01).toFixed(4)  } })}
                 className="bg-green-300 text-black px-2 py-1 rounded-xl hover:bg-green-400"
               >
                 1%
               </button>
               <button
-                onClick={() => handleEthAmountChange({ target: { value: (ethMax * 0.03).toFixed(4)} })}
+                onClick={() => handleEthAmountChange({ target: { value: (formattedBalance * 0.03).toFixed(4)} })}
                 className="bg-green-300 text-black px-2 py-1 rounded-xl hover:bg-green-400"
               >
                 3%
               </button>
               <button
-                onClick={() => handleEthAmountChange({ target: { value: (ethMax * 0.07).toFixed(4) } })}
+                onClick={() => handleEthAmountChange({ target: { value: (formattedBalance * 0.07).toFixed(4) } })}
                 className="bg-green-300 text-black px-2 py-1 rounded-xl hover:bg-green-400"
               >
                 7%
               </button>
               <button
-                onClick={() => handleEthAmountChange({ target: { value: (ethMax * 0.1).toFixed(4) } })}
+                onClick={() => handleEthAmountChange({ target: { value: (formattedBalance * 0.1).toFixed(4) } })}
                 className="bg-green-300 text-black px-2 py-1 rounded-xl hover:bg-green-400"
               >
                 10%
@@ -244,7 +231,7 @@ const AddLiquidity = () => {
           </div>
         </div>
         </div>
-        <div className="flex flex-fil justify-around items-center text-sm  mb-3">
+        <div className="flex flex-fil justify-around items-center gap-10 text-sm  mb-3">
         <img src={egger} alt="EGG" style={{ width: '50px', height: '50px' }} />
           <NetworkSelectMini
             isMini={true}
@@ -271,14 +258,9 @@ const AddLiquidity = () => {
           </button>
         </div>
       ) : (
-        <div className="flex justify-center">
-          <button
-            className="bg-black py-4 px-4 mx-2 rounded-xl mt-3 cursor-pointer hover:bg-[#9e701f] text-xl text-white"
-            onClick={() => setShowMyModalWallets(true)}
-          >
-            Connect Wallet
-          </button>
-        </div>
+        <div className="bg-black rounded-3xl text-xl px-3 w-min mt-3">
+        {!address && <LoginButton />}
+      </div>
       )}
     </div>
 

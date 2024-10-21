@@ -3,21 +3,27 @@ import { saveImageToServer, Add_Meme } from "../ServerInteract/ServerInteract";
 import { contractABI_POOLINTERACT, contractABI_POOLFACTORY, contractABI_MEME_FACTORY, contractABI_GOLDENGNFT, contractABI_GOLDEN_EXP, contractABI_VAULT, contractAddress_golden_exp, contractABI_STAKING_REWARDS, contractABI_MEME, contractABI_WHITELISTROUTER, contractAddress_goldengnft } from "../../utils/constants";
 import { useWagmiConfig } from '../../wagmi'; 
 import { TransactionContext } from '../TransactionContext';
-import { useWriteContract } from 'wagmi';
+import { useWriteContract, useReadContract, useAccount } from 'wagmi';
 import { ethers } from "ethers";
-import { writeContract as writeContract2, waitForTransactionReceipt } from 'wagmi/actions'
+import { writeContract as writeContract2, waitForTransactionReceipt, readContract } from 'wagmi/actions'
+import useTransactionStatus from '../Hooks/WaitForTx'
 
 export const TransactionContextETH = React.createContext();
 
 
 export const TransactionProviderETH = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, setMemeDegenBalance, MemeDegenBalance, factoryContract, poolFactoryContract, interactFactoryContract, interactFactoryContract2, setCurrentAccount, setEVMAddress, EVMAddress, Network, setIsLoading, setcurrentMemeData, setWalletext, currentAccount, setBalance, setTxHash, setTxHashPool, WETH, NFTcontract } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, changeNetwork, factoryContract, poolFactoryContract, interactFactoryContract, interactFactoryContract2, setCurrentAccount, setEVMAddress, Network, setcurrentMemeData, setWalletext, currentAccount, setTxHash, WETH, NFTcontract } = useContext(TransactionContext); 
   const [providereth, setProviderState] = useState(null);
-  const { wagmiConfig } = useWagmiConfig();
-  const { checkIfCoinbaseSmartWallet } = useWagmiConfig();
+  const { address: addressreal } = useAccount(); // Obtén la dirección de la billetera conectada
+  const { wagmiConfig, checkIfCoinbaseSmartWallet } = useWagmiConfig();
   const { data: hashdata, writeContract } = useWriteContract();
   const [FormData_3, setFormData_3] = useState({ stake: '', unstake: ''});
+  const [lasttxHashPool, setlastTxHashPool] = useState(null); // Nuevo estado para prevLoadingStat
+  const [TxHashPool, setTxHashPool] = useState (null);
+  const [pop_up_2,setpop_up_2] = useState(false);
+  const { data: datapool } = useTransactionStatus(TxHashPool);
+
   const handleChange_3 = (e3, name_3) => {
       setFormData_3((prevState) => ({ ...prevState, [name_3]: e3.target.value }));
   }
@@ -36,7 +42,6 @@ export const TransactionProviderETH = ({ children }) => {
   }
 
   const timeout = setTimeout(() => {
-    setIsLoading(false);
   }, 80000); // 1 minuto de tiempo máximo
 
   const getEthSign = async (message) => {
@@ -89,7 +94,6 @@ export const TransactionProviderETH = ({ children }) => {
 
   const sendTransactionETH = async (file) => {
     const { MemeName, Symbol, Supply, Website, Twitter, Discord, Twitch, Fee, description, ProtectInput, Timeframe } = FormData_2;
-    setIsLoading(true);
         try{
             if (!ethereum) return alert("Please install metamask");
             //fee tx fixed contract
@@ -129,13 +133,11 @@ export const TransactionProviderETH = ({ children }) => {
                 console.log("contract meme ",contract_meme);
                 await Add_Meme(MemeName, Symbol, Supply, contract_meme, currentMemeImage, recipient, Website, Twitter, Discord, Twitch, Fee, description, Network)
                 clearTimeout(timeout);
-                setIsLoading(false);
                 setcurrentMemeData(contract_meme)
             //console.log(`Success - ${transactionHash.hash}`);
 
         }   catch (error) {
             clearTimeout(timeout);
-            setIsLoading(false);
             console.log(error);
 
             throw new Error("No ethereum object.")
@@ -147,7 +149,6 @@ const MetaMintNFT = async () => {
     try{
     const commissionAmount = ethers.parseEther(0.001.toString());
     //ponemos los datos del contrato de staking
-    setIsLoading(true)
     const message = "Sign to check accounts";
     const signature = await getEthSign(message);
     const recoveredAddress = ethers.verifyMessage(message, signature);
@@ -159,54 +160,118 @@ const MetaMintNFT = async () => {
     const transactionsContract = await getEthereumContract(NFTcontract, contractABI_GOLDENGNFT);
     const mintNFT = await transactionsContract.mintTo(currentAccount, signature, {value: commissionAmount} );
     const txHashChain = await mintNFT.wait();
-    setIsLoading(false)
     }catch{
-        setIsLoading(false)
     }
 }
 
 const sendTransactionStake = async (stake_contract, token_stake_contract, decimals) => {
-    if (Network != "Base Sepolia") {
-        await changeNetwork("Base Sepolia");
-    }
-    console.log ("previo a stake transaction ")
+
     const { stake } = FormData_3;
-    console.log ("stake contract XDDDD ", stake_contract)
     //ponemos los datos del contrato de staking
-    const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
-    console.log ("previo a la interaccion con el contrato stake");
-    //ponemos los datos del token que queremos que controle el contrato de staking
-    const erc20Contract = await getEthereumContract(token_stake_contract, contractABI_MEME)
     const stake_amount = ethers.parseUnits(stake, parseInt(decimals, 10));
+    const isSmartWallet = await checkIfCoinbaseSmartWallet(currentAccount);
 
-    //const stake_amount = ethers.parseEther(stake)
-    console.log ("llamada al contrato del token");
-    console.log(stake_amount)
-    //permiso para que el contrato X pida a la wallet el uso de cierto token
+    if (isSmartWallet.isCoinbaseSmartWallet === true) {
 
-    const transaction = await erc20Contract.approve(stake_contract, stake_amount);
-    await transaction.wait(); // Esperar a que se complete la transacción
-    console.log (`Se aprobaron ${stake} tokens para el contrato ${stake_contract}`);
+        writeContract({
+            abi: contractABI_MEME,
+            address: token_stake_contract,
+            functionName: 'approve',
+            args: [   
+                stake_contract,
+                stake_amount,
+            ],
+        },
+        {   
+            onSuccess: () => {
+                writeContract({
+                    abi: contractABI_STAKING_REWARDS,
+                    address: stake_contract,
+                    functionName: 'stake',
+                    args: [
+                        stake_amount,   
+                    ],
+                },
+                {   
+                    onSuccess: (transaction2) => {
+                    console.log("tx sent", transaction2);
+                    },
+            
+                    onError: (err) => {
+                        console.error("Error:", err);
+                        // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+                    },
+                });        
+            },
 
-    //interaccion con el contrato de staking
-    const transactionHash = await transactionsContract_3.stake(stake_amount)
+            onError: (err) => {
+                console.error("Error:", err);
+                // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            },
+        });
+    } else {
+        try {
+            // Primer paso: Aprobar el token
+            const approveTx = await writeContract2(wagmiConfig,{
+              address: token_stake_contract,
+              abi: contractABI_MEME,
+              functionName: 'approve',
+              args: [stake_contract, stake_amount],
+            });
+        
+            console.log('Transacción de aprobación enviada:', approveTx);
+        
+            // Esperar a que la transacción de aprobación sea confirmada
+            await waitForTransactionReceipt(wagmiConfig,{ hash: approveTx });
+            console.log("pas 2")
+            // Segundo paso: Realizar el swap
+            const stakeTx = await writeContract2(wagmiConfig,{
+              address: stake_contract,
+              abi: contractABI_STAKING_REWARDS,
+              functionName: 'stake',
+              args: [stake_amount],
+            });
+        
+            console.log('Transacción de swap enviada:', stakeTx);
+        
+            // Esperar a que la transacción de swap sea confirmada
+            await waitForTransactionReceipt(wagmiConfig,{ hash: stakeTx });
+        
+            // Transacción completada con éxito
+          } catch (error) {
+            console.error('Error en el proceso de venta:', error);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+          }
+    }
     
 }
 
 const sendTransactionUnstake = async (stake_contract, decimals) => {
     try {
-        console.log("Previo a stake transaction");
 
         const { stake } = FormData_3;    
-        // Ponemos los datos del contrato de staking
-        const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
 
         const unstake_amount = ethers.parseUnits(stake, parseInt(decimals, 10));
 
-        // Interacción con el contrato de staking
-        const transactionHash = await transactionsContract_3.unstake(unstake_amount);
-
-        console.log("Transacción exitosa:", transactionHash);
+        writeContract({
+            abi: contractABI_STAKING_REWARDS,
+            address: stake_contract,
+            functionName: 'unstake',
+            args: [
+                unstake_amount,   
+            ],
+        },
+        {   
+            onSuccess: (transaction2) => {
+            console.log("tx sent", transaction2);
+            },
+    
+            onError: (err) => {
+                console.error("Error:", err);
+                // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            },
+        });         
+    
     } catch (error) {
         console.error("Error en la transacción de unstake:", error);
     }
@@ -258,6 +323,7 @@ const Get_ETH_Balance = async () => {
     const balance = await providereth.getBalance(currentAccount);
     const balanceInEth  = ethers.formatEther(balance);
     const balance_final = parseFloat(balanceInEth).toFixed(5);
+    
     return balance_final;
 }
 
@@ -277,13 +343,27 @@ const GetMemeFee = async (contract_meme) => {
     const CurrentFee = await tokenContract.getCurrentFee();
     return CurrentFee.toString();
 }
+
 //obtenemos el balance del usuario para ver la cantidad de tokens stakeados 
 const Get_Token_Balance = async(contract_meme, AccountAddress, decimals) => {
-    const tokenContract = await getEthereumContract(contract_meme, contractABI_MEME);
-    const balance = await tokenContract.balanceOf(AccountAddress);
-    return ethers.formatUnits(balance.toString(), parseInt(decimals, 10));
-}
+    console.log(addressreal,"addresssssssssssssssss")
+    try {
+        const balance = await readContract({
+            address: contract_meme,
+            abi: contractABI_MEME,
+            functionName: 'balanceOf',
+            args: [AccountAddress],
+            watch: true, // Para actualizar automáticamente si hay cambios en el balance
 
+        });
+        console.log(balance,"balance xd")
+        const formattedBalance = ethers.formatUnits(balance.toString(), decimals);
+        return formattedBalance;
+    } catch (error) {
+        console.error("Error fetching balanceeeeeeeeeeeeeeeee:", error);
+        return null; // O manejar el error de otra manera
+    }
+};
 
 //obtenemos el balance del usuario para ver la cantidad de tokens stakeados
 const Get_NFT_Minted = async() => {
@@ -291,14 +371,23 @@ const Get_NFT_Minted = async() => {
     const balance = await tokenContract.getMintCount();
     return balance.toString();
 }
-
 //obtenemos el balance del contrato estakeado para ver la cantidad de tokens stakeados
 const Get_Balance_Staked = async(contract_staking, decimals) => {
-    console.log("contract token Staked", contract_staking)
-    const tokenContract = await getEthereumContract(contract_staking, contractABI_STAKING_REWARDS)
-    const balance = await tokenContract.balanceOf(currentAccount);
-    console.log("balance token Staked", balance)
-    return ethers.formatUnits(balance.toString(), parseInt(decimals, 10));
+    try {
+        const balance = await readContract(wagmiConfig,{
+            address: contract_staking,
+            abi: contractABI_STAKING_REWARDS,
+            functionName: 'balanceOf',
+            args: [currentAccount],
+
+        });
+        console.log(balance,"balance xd")
+        return ethers.formatUnits(balance.toString(), parseInt(decimals, 10));
+    } catch (error) {
+        console.error("Error fetching balance:", error);
+        return null; // O manejar el error de otra manera
+    }
+
 }
 
 const Points_Earned = async (stake_contract) => {
@@ -306,16 +395,30 @@ const Points_Earned = async (stake_contract) => {
     const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
     //interaccion con el contrato de staking
     const PointsEarned = await transactionsContract_3.earned(currentAccount)
-    console.log(PointsEarned, "earned!!!!!!!!!!!!!!!!")
     return PointsEarned
 }
 
 const ClaimRewardsEggs = async (stake_contract) => {
+    console.log("claim rewards f")
     //ponemos los datos del contrato de staking
-    const transactionsContract_3 = await getEthereumContract(stake_contract, contractABI_STAKING_REWARDS)
     //interaccion con el contrato de staking
-    const EggsEarned = await transactionsContract_3.claim()
-    return EggsEarned
+    writeContract({
+        abi: contractABI_STAKING_REWARDS,
+        address: stake_contract,
+        functionName: 'claim',
+    },
+    {   
+        onSuccess: (transaction2) => {
+        console.log("tx send pool", transaction2);
+        //setIsLoading(false);
+        },
+
+        onError: (err) => {
+            console.error("Error:", err);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+            //setIsLoading(false)
+        },
+    });
 }
     ///////////ADMIN FUNCTIONS////////////
 
@@ -657,14 +760,12 @@ const SellMeme = async(tokenAddress) => {
             console.log('Transacción de swap enviada:', swapTx);
         
             // Esperar a que la transacción de swap sea confirmada
-            await waitForTransactionReceipt(wagmiConfig,{ hash: swapTx.hash });
+            await waitForTransactionReceipt(wagmiConfig,{ hash: swapTx });
         
             // Transacción completada con éxito
-            setIsLoading(false);
           } catch (error) {
             console.error('Error en el proceso de venta:', error);
             // Manejar el error, por ejemplo, mostrar un mensaje al usuario
-            setIsLoading(false);
           }
     }
 };
@@ -678,8 +779,32 @@ const burnMemes = async (contract, tokens) => {
 
 
 const AddFastLiquidity = async (contract, eth) => {
+    const ethtopool = ethers.parseEther(eth.toString());
+    writeContract({
+        abi: contractABI_MEME_FACTORY,
+        address: factoryContract,
+        functionName: 'fastAddLiquidity',
+        args: [contract, 0],
+        value: ethtopool 
+    },
+    {    onSuccess: (transaction) => {
+            console.log("Transacción enviada con éxito:");
+            const txHash = transaction.hash;
+            console.log("Hash de la transacción:", txHash);
+            // Llama a Create_Delivery después de obtener el hash de la transacción
+            //Create_Delivery(firstname, lastname, country, city, province, company, address, postalCode, email, currentAccount, item, amount);
+        },
+        
+        onError: (err) => {
+            console.error("Error al mintear:", err);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+    
+        },
+    });
+};
+
+const AddFastLiquidity1 = async (contract, eth) => {
     try {
-        setIsLoading(true); // Inicia el estado de carga
         const ethtopool = ethers.parseEther(eth.toString());
         const transactionsContract_3 = await getEthereumContract(factoryContract, contractABI_MEME_FACTORY);
         const transaction_1 = await transactionsContract_3.fastAddLiquidity(
@@ -691,7 +816,6 @@ const AddFastLiquidity = async (contract, eth) => {
     } catch (error) {
         console.error('Error during liquidity addition:', error);
     } finally {
-        setIsLoading(false); // Finaliza el estado de carga
     }
 };
 
@@ -746,6 +870,66 @@ const PoolFactoryInteract = async () => {
 const PoolFactoryInteract2 = async (meme, lpoolmeme, lpooleth) => {
     try {
         const meme_token= meme.value;
+        const decimals = 18;
+        const amountADesired = ethers.parseUnits(lpoolmeme, decimals);
+        const amountAMin = ethers.parseUnits('0', decimals);
+        const amountBMin = ethers.parseUnits('0', decimals);
+        const deadline = Math.floor(Date.now()) + 3600*1000; // 1 hora en el futuro
+
+        // Aprobar token1
+        const token1_amount_big = ethers.parseUnits(lpoolmeme, decimals);
+        const pooleth = ethers.parseEther(lpooleth);
+
+        // Interactuar con el contrato
+        
+        try {
+            // Primer paso: Aprobar el token
+            const approveTx = await writeContract2(wagmiConfig,{
+              address: meme_token,
+              abi: contractABI_MEME,
+              functionName: 'approve',
+              args: [interactFactoryContract2, token1_amount_big],
+            });
+        
+            console.log('Transacción de aprobación enviada:', approveTx);
+        
+            // Esperar a que la transacción de aprobación sea confirmada
+            await waitForTransactionReceipt(wagmiConfig,{ hash: approveTx });
+            // Segundo paso: Realizar el swap
+            const addLpTx = await writeContract2(wagmiConfig,{
+              address: interactFactoryContract2,
+              abi: contractABI_POOLINTERACT,
+              functionName: 'addLiquidityETH',
+              args: [meme_token,
+                amountADesired,
+                amountAMin,
+                amountBMin,
+                "0x0000000000000000000000000000000000000000", // Dirección de quema
+                deadline,],
+                value: pooleth // El valor de ETH a añadir a la liquidez
+
+            });
+                
+            // Esperar a que la transacción de swap sea confirmada
+            await waitForTransactionReceipt(wagmiConfig,{ hash: addLpTx });
+            setTxHashPool(addLpTx);
+
+            // Transacción completada con éxito
+          } catch (error) {
+            console.error('Error en el proceso de venta:', error);
+            // Manejar el error, por ejemplo, mostrar un mensaje al usuario
+          }
+        setcurrentMemeData(meme_token)
+    } catch (error) {
+        console.error("Error interactuando con el contrato:", error);
+    }
+}
+
+
+
+const PoolFactoryInteract21 = async (meme, lpoolmeme, lpooleth) => {
+    try {
+        const meme_token= meme.value;
         const decimals = 18
         const amountADesired = ethers.parseUnits(lpoolmeme, decimals);
         const amountAMin = ethers.parseUnits('0', decimals);
@@ -785,27 +969,25 @@ const PoolFactoryInteract2 = async (meme, lpoolmeme, lpooleth) => {
     } catch (error) {
         console.error("Error interactuando con el contrato:", error);
     }
+    
 }
 
-
 useEffect(() => {
-    if (currentAccount) {
-        const getETHBalance = async () => {
-        try {
-            const providerbalance = new ethers.BrowserProvider(window.ethereum); 
-            const balance = await providerbalance.getBalance(currentAccount);
-            const balanceInEth = ethers.formatEther(balance);
-            const balanceFinal = parseFloat(balanceInEth).toFixed(5);
-            console.log("balance account", balanceFinal);
-            setBalance(balanceFinal);
-        } catch (error) {
-            console.error("Error No ETH address:", error);
+
+    if (TxHashPool && TxHashPool !== lasttxHashPool) {
+        // Verificar si hay logs y extraer la dirección del contrato meme
+        if (datapool && datapool.logs && datapool.logs.length > 1) {
+            const contract_meme = datapool.logs[1].address;
+            
+            // Actualizar el estado y ejecutar la función solo si el hash es diferente
+            setcurrentMemeData(contract_meme);
+            setpop_up_2(true);
+
+            // Actualizar lastTxHashMeme para evitar ejecuciones repetidas
+            setlastTxHashPool(TxHashPool);
         }
-        };
-        
-        getETHBalance();
     }
-    }, [currentAccount, Network]);
+}, [datapool, TxHashPool, lasttxHashPool]);
 
   return (
     <TransactionContextETH.Provider value={{ 
@@ -822,13 +1004,13 @@ useEffect(() => {
         BuyMeme,
         SellMeme,
         burnMemes,
+        pop_up_2,
         signatureSession,
         AddFastLiquidity,
         sendTransactionStake,
         sendTransactionUnstake,
         change_input_staking,
         change_input_swap,
-        Get_Token_Balance,
         Get_Balance_Staked,
         Get_NFT_Minted,
         Get_ETH_Balance,

@@ -4,14 +4,15 @@ import TradingViewChart from "./tvwidget";
 import UniTradingViewChart from './unitvwidget'; // Importa tu primer gráfico
 import { TransactionContextETH } from "../../../context/ContextETH/ContextETH";
 import { TransactionContext } from "../../../context/TransactionContext";
-import { Wallets } from '../../../';
 import { Donate, Searcher } from './';
 import { Burn } from './';
 import { Comments } from './';
 import { Description } from "./";
 import { useParams } from "react-router-dom";
 import TransportMethod from './switch';
-
+import useTokenBalance  from '../../../context/Hooks/GetBalance';
+import LoginButton from '../../LoginButton';
+import { useAccount } from 'wagmi';
 
 const Input = ({ placeholder, name_6, type, value, handleChange_6 }) => (
   <input
@@ -33,10 +34,8 @@ const Body = () => {
   const [customPercentages, setCustomPercentages] = useState([1, 2, 3, 5]);
   const [isEditing, setIsEditing] = useState(false);
   const [memedata, setMemeData] = useState({});
-  const [MemeBalance, setMemeBalance] = useState("");
-  const [MemeTreasury, setMemeTreasury] = useState("");
-  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap, Get_Token_Balance } = useContext(TransactionContextETH); 
-  const { currentAccount, Balance, factoryContract, BuyMemeBase, SellMemeBase, walletext, switchPool, setSwitchPool} = useContext(TransactionContext); 
+  const { BuyMeme, SellMeme, FormData_6, handleChange_6, change_input_swap } = useContext(TransactionContextETH); 
+  const { currentAccount, factoryContract, BuyMemeBase, walletext, switchPool, setSwitchPool, currentbalance} = useContext(TransactionContext); 
   const [showMyModal, setShowMyModal] = useState(false);
   const [showMyModalDonate, setShowMyModalDonate] = useState(false);
   const [showMyModalBurn, setShowMyModalBurn] = useState(false);
@@ -45,7 +44,6 @@ const Body = () => {
         // Extraer el 'id' de la URL que contiene tanto el contract como el network
   const { id } = useParams();
   const prevIdRef = useRef();
-
   const handleOnClose = () => setShowMyModal(false);
   const handleOnCloseDonate = () => setShowMyModalDonate(false);
   const handleOnCloseBurn = () => setShowMyModalBurn(false);
@@ -54,21 +52,9 @@ const Body = () => {
   const [ChainNet,setChainNet] = useState("");
   const [MemeFee, setMemeFee] = useState(null);
   const [UniContract, setUniContract] = useState("");
-
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const meme_balance = await Get_Token_Balance(memedata.contract, currentAccount, 18);
-        setMemeBalance(meme_balance);
-        const meme_balance_treasury = await Get_Token_Balance(memedata.contract, factoryContract, 18);
-        setMemeTreasury(meme_balance_treasury);
-      } catch (error) {
-        setMemeBalance(0);
-      }
-    };
-    fetchBalance();
-  },[id, currentAccount])
-
+  const { balance: MemeBalance} = useTokenBalance(id.split('-')[1], currentAccount, 18);
+  const { balance: MemeTreasury} = useTokenBalance(id.split('-')[1], factoryContract, 18);
+  const { address } = useAccount();
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -97,7 +83,6 @@ const Body = () => {
   }, [Tablename, ChainNet]); // Dependencias específicas para comentarios
 
   useEffect(() => {
-    // Verifica si el id ha cambiado
     if (prevIdRef.current !== id) {
       const allMemeData = async () => {
         console.log("Enviando solicitud de búsqueda por contrato...");
@@ -184,25 +169,23 @@ const Body = () => {
   }
 
   const handleSell = (contract) => {
-    if (walletext==="Base Wallet") {
-      SellMemeBase(contract, FormData_6.amountswap); 
-    } else{
+
       SellMeme(contract); 
-    }
   }
 
   const handleClickpPercent = (value) => {
     if (activeTab === "buy") {
       setBuyPercentage(value);
-      console.log("ETH value for buy", Balance * value / 100);
-      change_input_swap(Balance * value / 100);
+      const ethValueForBuy = (currentbalance.data?.formatted ? parseFloat(currentbalance.data.formatted) : 0) * value / 100;
+      change_input_swap(ethValueForBuy);
+      
     } else if (activeTab === "sell") {
       setSellPercentage(value);
-      console.log("ETH value for sell", MemeBalance * value / 100);
-      change_input_swap(MemeBalance * value / 100);
-
+      const ethValueForSell = (MemeBalance * value) / 100;
+      change_input_swap(ethValueForSell);
     }
   };
+  
 
   const handleEditPercentage = (index, newValue) => {
     const newPercentages = [...customPercentages];
@@ -283,7 +266,9 @@ const Body = () => {
                 <div className="mb-4">
                   <div className="flex justify-between mb-2">
                     <label className="text-sm font-medium text-white">Balance:</label> 
-                    <p className="text-sm font-medium text-white">{parseFloat(Balance).toFixed(5)}</p>
+                    <p className="text-sm font-medium text-white">
+                      {currentbalance.data?.formatted ? parseFloat(currentbalance.data.formatted).toFixed(5) : '0.00000'}
+                    </p>
                     </div>
 
                   <div className="flex items-center space-x-2">
@@ -337,12 +322,9 @@ const Body = () => {
                       Buy
                     </button>
                   ) : (
-                    <button
-                      className="bg-white py-2 px-4 mx-2 rounded-xl cursor-pointer hover:bg-[#9e701f]"
-                      onClick={() => setShowMyModal(true)}
-                    >
-                      <p className="text-black">Connect Wallet</p>
-                    </button>
+                    <div className="bg-black rounded-3xl px-3 w-min mt-3">
+                    {!address && <LoginButton />}
+                  </div>
                   )}
                 </div>
               </div>
@@ -507,7 +489,6 @@ const Body = () => {
 </div>
 
 
-      <Wallets onCloseWallets={handleOnClose} visibleWallets={showMyModal} />
       <Donate onCloseWallets={handleOnCloseDonate} visibleWallets={showMyModalDonate} memedata={memedata} TreasuryBalance={MemeTreasury}/>
       <Burn onCloseWallets={handleOnCloseBurn} visibleWallets={showMyModalBurn} memecontract={memedata.contract} memeticker={memedata.ticker}/>
 

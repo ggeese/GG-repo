@@ -10,7 +10,7 @@ export const TransactionContextTON = React.createContext();
 
 export const TransactionProviderTON = ({ children }) => {
 
-  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setTONAddress, setIsLoading, setcurrentMemeData, currentAccount, Network } = useContext(TransactionContext); 
+  const { FormData_2, setCurrentMemeImage, currentMemeImage, setCurrentAccount, setTONAddress, setcurrentMemeData, currentAccount, Network } = useContext(TransactionContext); 
 
     
       //capturamos la direccion de la wallet
@@ -22,7 +22,6 @@ export const TransactionProviderTON = ({ children }) => {
 
   const sendTransactionTON = async (file) => {
     const { MemeName, Symbol, Supply, Website, Twitter, Discord, Telegram, Fee, description } = FormData_2;
-    setIsLoading(true);
 
     const dataTON = {
         name: String(MemeName),
@@ -61,7 +60,6 @@ export const TransactionProviderTON = ({ children }) => {
 
     setCurrentMemeImage(image_meme_url);
     await Add_Meme(MemeName, Symbol, Supply, contractmeme, currentMemeImage, currentAccount, Website, Twitter, Discord, Telegram, Fee, description, Network);
-    setIsLoading(false);
 
 }
 

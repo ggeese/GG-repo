@@ -10,7 +10,7 @@ import {
 } from '@rainbow-me/rainbowkit/wallets';
 import { useMemo } from 'react';
 import { http, createConfig } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
+import { base, baseSepolia, mainnet } from 'wagmi/chains';
 import { isWalletACoinbaseSmartWallet } from '@coinbase/onchainkit/wallet';
 import { createPublicClient } from 'viem';
 
@@ -24,7 +24,7 @@ export function useWagmiConfig() {
   }
 
   const publicClient = createPublicClient({
-    chain: baseSepolia,
+    chain: base,
     transport: http(),
   });
 

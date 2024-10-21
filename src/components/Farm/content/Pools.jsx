@@ -4,6 +4,7 @@ import Untake from './Unstake'
 import Data_Pools from './Data_Pools'; // Asegúrate de ajustar la ruta si el archivo está en una subcarpeta
 import { TransactionContextETH } from '../../../context/ContextETH/ContextETH';
 import { TransactionContext } from "../../../context/TransactionContext";
+import useTokenBalance  from '../../../context/Hooks/GetBalance';
 
 
 // Componente principal que incluye el componente GridContainer
@@ -15,10 +16,10 @@ const Pools = () => {
     const [selected_token_netowrkn, setSelected_token_network] = useState(null);
     const [selected_stake_name, setSelected_stake_name] = useState(null);
     const [selected_decimals, setSelected_decimals] = useState(null);
-    const [balanceToken, setbalanceToken] = useState(null);
-    const [balanceStaked, setbalanceStaked] = useState(null);
-    const {Get_Token_Balance, Get_Balance_Staked, Claim_Rewards } = useContext(TransactionContextETH); 
+    const { Claim_Rewards } = useContext(TransactionContextETH); 
     const {currentAccount} = useContext(TransactionContext)
+    const { balance: balanceToken} = useTokenBalance(selected_token_stake, currentAccount, Number(selected_decimals));
+    const { balance: balanceStaked} = useTokenBalance(selected_token_stake, currentAccount, Number(selected_decimals));
 
     
     // Función para redondear valores a 4 decimales
@@ -27,32 +28,6 @@ const Pools = () => {
         return parseFloat(value).toFixed(decimals);
     };
 
-    useEffect(() => {
-        const fetchBalances = async () => {
-            try {
-                const balance = await Get_Token_Balance(selected_token_stake, currentAccount, selected_decimals);
-                // Redondear el balance antes de establecerlo
-                setbalanceToken(roundToDecimals(balance));
-            } catch (error) {
-                console.error("Error fetching token balance:", error);
-            }
-        
-            if (selected_stake_contract && currentAccount) {
-                try {
-                    const balance_staked = await Get_Balance_Staked(selected_stake_contract, selected_decimals);
-                    // Redondear el balance staked antes de establecerlo
-                    setbalanceStaked(roundToDecimals(balance_staked));
-                } catch (error) {
-                    console.error("Error fetching staked balance:", error);
-                }
-            }
-        };
-
-        if (selected_token_stake && currentAccount) {
-            fetchBalances();
-        }
-    }, [selected_token_stake, currentAccount, selected_stake_contract]);
-        
     //const balance_token_2 = Get_Token_Balance(stake_contract)
     
     const handleOnClose = () =>{ 
